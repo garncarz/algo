@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sorting, Step by Step</title>
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #f7f8f4;
+    --ink: #17211e;
+    --muted: #58645f;
+    --line: #cbd3cd;
+    --green: #176b52;
+    --green-soft: #d9eee5;
+    --coral: #bf4935;
+    --coral-soft: #f8dfd8;
+    --gold: #e4ad32;
+    --gold-soft: #fff0c4;
+    --blue: #356f9b;
+    --blue-soft: #e0edf5;
+    --white: #fff;
+    --delay: 1000ms;
+    font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image: linear-gradient(rgba(23,33,30,.027) 1px, transparent 1px), linear-gradient(90deg, rgba(23,33,30,.027) 1px, transparent 1px);
+    background-size: 28px 28px;
+    overflow: hidden;
+  }
+  .app { height: 100vh; min-height: 620px; display: grid; grid-template-rows: auto 1fr auto; padding: 18px 3.2vw 12px; gap: 10px; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+  .brand { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
+  .brand-mark { font: 700 13px/1 "Avenir Next", sans-serif; letter-spacing: 1px; color: var(--green); }
+  .brand-name { font: 700 17px/1 Georgia, serif; }
+  .controls { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+  .control { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; font-weight: 700; }
+  select, input[type="number"] { height: 34px; border: 1px solid var(--line); background: var(--white); color: var(--ink); border-radius: 3px; padding: 0 9px; font: 600 13px inherit; }
+  select { min-width: 112px; }
+  input[type="number"] { width: 78px; }
+  button { height: 34px; border: 1px solid var(--ink); border-radius: 3px; padding: 0 12px; color: var(--ink); background: transparent; font: 700 12px inherit; cursor: pointer; }
+  button:hover { background: var(--ink); color: var(--white); }
+  .toggle { height: 34px; display: inline-flex; align-items: center; gap: 7px; border: 1px solid var(--line); border-radius: 3px; background: var(--white); padding: 0 9px; font-size: 12px; font-weight: 700; color: var(--ink); cursor: pointer; }
+  .toggle input { accent-color: var(--green); width: 15px; height: 15px; margin: 0; }
+  main { min-height: 0; display: grid; grid-template-rows: auto 1fr auto; gap: 8px; }
+  .heading-row { display: flex; justify-content: space-between; align-items: end; gap: 20px; }
+  .heading-actions { display: flex; align-items: center; gap: 12px; }
+  .transport { display: flex; align-items: center; gap: 5px; }
+  .transport button { width: 38px; padding: 0; font-size: 17px; }
+  .transport .play-button { width: 46px; color: var(--white); background: var(--ink); }
+  .transport .play-button:hover { color: var(--ink); background: var(--gold-soft); }
+  h1 { margin: 0; font: 700 clamp(34px, 4.1vw, 56px)/.98 Georgia, "Times New Roman", serif; letter-spacing: 0; }
+  .subtitle { margin: 5px 0 0; color: var(--muted); font-size: 14px; font-weight: 550; }
+  .step-counter { padding-bottom: 5px; color: var(--muted); font-size: 13px; font-weight: 700; white-space: nowrap; }
+  #visual { min-height: 0; overflow: hidden; }
+  .panel-title { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: 0; }
+  .panel-title::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
+  .count-layout { height: 100%; display: grid; grid-template-rows: 1fr 1fr; gap: 10px; }
+  .count-panel { min-height: 0; border-top: 1px solid var(--line); padding-top: 8px; }
+  .cells { display: grid; gap: 5px; grid-template-columns: repeat(8, minmax(0, 1fr)); max-width: 1000px; }
+  .cell-wrap { text-align: center; min-width: 0; }
+  .cell-index { height: 19px; color: var(--muted); font-size: 12px; font-weight: 700; }
+  .cell { height: clamp(48px, 8vh, 75px); display: grid; place-items: center; border: 2px solid var(--line); background: var(--white); font: 700 clamp(24px, 3.3vw, 40px)/1 Georgia, serif; transition: background-color .16s, border-color .16s, transform .16s; }
+  .cell.active { border-color: var(--coral); background: var(--coral-soft); transform: translateY(-3px); }
+  .cell.target { border-color: var(--gold); background: var(--gold-soft); }
+  .cell.pointer::after { content: "▲"; position: absolute; top: -17px; color: var(--coral); font: 12px sans-serif; }
+  .cell { position: relative; }
+  .cell.changed { border-color: var(--green); background: var(--green-soft); }
+  .cell.empty { color: #aab4ae; background: rgba(255,255,255,.48); }
+  .cell-caption { margin-top: 5px; color: var(--muted); font-size: 11px; font-weight: 700; }
+  .relation { display: inline-block; margin: 10px 0 0 2px; padding: 5px 9px; color: var(--blue); background: var(--blue-soft); font-size: 13px; font-weight: 800; }
+  .count-note { margin-top: 6px; min-height: 19px; color: var(--muted); font-size: 13px; font-weight: 650; }
+  .output-strip { display: flex; align-items: center; gap: 5px; min-height: 48px; flex-wrap: wrap; }
+  .output-strip .cell { width: clamp(42px, 6vw, 64px); height: 46px; font-size: 27px; }
+  .array-empty { color: #89958e; font-size: 17px; font-weight: 600; }
+  .insertion-layout { height: 100%; display: grid; grid-template-rows: minmax(0, 1fr) auto auto; gap: 8px; }
+  .bar-area { min-height: 0; display: grid; grid-template-columns: repeat(var(--column-count), minmax(0, 1fr)); align-items: end; gap: clamp(9px, 2.1vw, 24px); padding: 12px 4% 0; position: relative; border-bottom: 1px solid var(--line); }
+  .bar-column { height: 100%; max-height: 360px; min-width: 0; display: flex; flex-direction: column; justify-content: end; align-items: center; position: relative; }
+  .bar-value { position: absolute; bottom: calc(var(--bar-height) + 9px); font: 700 clamp(20px, 2.7vw, 31px)/1 Georgia, serif; }
+  .bar { width: min(100%, 76px); height: var(--bar-height); min-height: 22px; border: 2px solid var(--blue); background: #9dc5dc; display: grid; place-items: center; transition: height .18s, background-color .18s, border-color .18s; }
+  .bar.sorted { border-color: var(--green); background: #8cc6a9; }
+  .bar.key { border-color: var(--coral); background: var(--coral-soft); }
+  .bar.comparing { outline: 4px solid var(--gold); outline-offset: 2px; }
+  .bar.shifted { border-color: var(--gold); background: var(--gold-soft); }
+  .bar-index { height: 25px; padding-top: 6px; color: var(--muted); font-size: 13px; font-weight: 700; }
+  .prefix-annotation { padding: 0 4%; }
+  .prefix-track { min-height: 28px; display: grid; grid-template-columns: repeat(var(--column-count), minmax(0, 1fr)); gap: clamp(9px, 2.1vw, 24px); }
+  .prefix-clip { grid-column: 1 / span var(--prefix-count); min-width: 0; border: 2px solid var(--green); color: var(--green); display: flex; align-items: center; justify-content: center; padding: 2px 4px; font-size: clamp(8px, 1vw, 10px); line-height: 1; font-weight: 800; text-align: center; overflow-wrap: anywhere; }
+  .key-tray { min-height: 56px; display: flex; align-items: center; justify-content: center; gap: 13px; color: var(--muted); font-size: 13px; font-weight: 700; }
+  .key-chip { min-width: 48px; min-height: 46px; display: grid; place-items: center; border: 2px solid var(--coral); background: var(--coral-soft); color: var(--ink); font: 700 27px Georgia, serif; }
+  .merge-layout { height: 100%; display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 10px; }
+  .tree-scroll { min-height: 0; overflow: auto hidden; display: flex; justify-content: center; align-items: start; padding: 10px 4px 4px; }
+  .tree { min-width: min-content; display: flex; justify-content: center; }
+  .tree-node { display: flex; flex-direction: column; align-items: center; position: relative; padding: 0 5px; }
+  .tree-box { min-width: 43px; padding: 6px 8px; border: 1.5px solid var(--line); background: var(--white); text-align: center; font: 700 clamp(13px, 1.55vw, 18px)/1.1 Georgia, serif; white-space: nowrap; position: relative; z-index: 1; }
+  .tree-box.active { border: 2px solid var(--coral); background: var(--coral-soft); }
+  .tree-box.base { border-color: var(--gold); background: var(--gold-soft); }
+  .tree-box.done { border-color: var(--green); background: var(--green-soft); }
+  .tree-children { display: flex; justify-content: center; position: relative; padding-top: 19px; }
+  .tree-children::before { content: ""; position: absolute; top: 0; left: 50%; height: 10px; border-left: 1.5px solid #89958e; }
+  .tree-children > .tree-node::before { content: ""; position: absolute; top: 0; height: 10px; left: 50%; border-left: 1.5px solid #89958e; }
+  .tree-children > .tree-node:first-child::after, .tree-children > .tree-node:last-child::after { content: ""; position: absolute; top: 0; width: 50%; border-top: 1.5px solid #89958e; }
+  .tree-children > .tree-node:first-child::after { right: 0; }
+  .tree-children > .tree-node:last-child::after { left: 0; }
+  .merge-work { border-top: 1px solid var(--line); padding-top: 9px; display: grid; grid-template-columns: 1fr minmax(150px, .8fr) 1fr; gap: 14px; align-items: stretch; min-height: 120px; }
+  .merge-run { min-width: 0; }
+  .run-label { margin-bottom: 5px; color: var(--muted); font-size: 11px; font-weight: 800; }
+  .run-cells { display: flex; gap: 5px; min-height: 47px; align-items: start; }
+  .run-cell { width: clamp(33px, 4vw, 47px); height: 42px; display: grid; place-items: center; border: 1.5px solid var(--line); background: var(--white); font: 700 22px Georgia, serif; position: relative; }
+  .run-cell.left-pointer { border-color: var(--blue); background: var(--blue-soft); }
+  .run-cell.right-pointer { border-color: var(--coral); background: var(--coral-soft); }
+  .run-cell.chosen { border-color: var(--green); background: var(--green-soft); }
+  .run-cell.pointer::after { position: absolute; top: 42px; font: 9px/1 sans-serif; font-weight: 900; }
+  .run-cell.left-pointer::after { content: "L"; color: var(--blue); }
+  .run-cell.right-pointer::after { content: "R"; color: var(--coral); }
+  .merge-action { border-left: 1px solid var(--line); border-right: 1px solid var(--line); padding: 0 11px; display: flex; flex-direction: column; justify-content: center; text-align: center; }
+  .merge-action .phase { color: var(--muted); font-size: 11px; font-weight: 800; }
+  .merge-action .operation { margin-top: 4px; font: 700 clamp(17px, 2vw, 23px)/1.1 Georgia, serif; }
+  .merge-action .partial { min-height: 22px; margin-top: 7px; color: var(--green); font-size: 13px; font-weight: 800; }
+  .statusbar { min-height: 66px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 2px solid var(--ink); background: rgba(247,248,244,.93); padding: 9px 2px 0; }
+  .status-label { min-width: 78px; color: var(--green); font-size: 11px; font-weight: 900; }
+  .status-text { flex: 1; font: 700 clamp(18px, 2.2vw, 28px)/1.1 Georgia, serif; }
+  .complexity { display: flex; gap: 14px; color: var(--muted); font-size: 12px; font-weight: 700; white-space: nowrap; }
+  .complexity strong { color: var(--ink); }
+  footer { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 10px; font-weight: 650; }
+  @media (max-width: 880px) {
+    body { overflow: auto; }
+    .app { height: auto; min-height: 100vh; grid-template-rows: auto auto auto; padding: 12px; }
+    .topbar { align-items: start; flex-direction: column; gap: 10px; }
+    .heading-row { align-items: center; }
+    .controls { justify-content: start; }
+    #visual { min-height: 470px; }
+    .count-layout { min-height: 470px; }
+    .merge-layout { min-height: 470px; }
+    .statusbar { flex-wrap: wrap; }
+    .complexity { width: 100%; justify-content: end; }
+    footer { padding: 6px 0; }
+  }
+  @media (max-width: 560px) {
+    .heading-row { align-items: start; flex-direction: column; }
+    .heading-actions { width: 100%; justify-content: space-between; }
+    .controls { gap: 7px; }
+    .control { font-size: 11px; }
+    select { min-width: 95px; }
+    .count-layout { grid-template-rows: auto auto; }
+    .cells { gap: 3px; }
+    .cell-index { font-size: 10px; }
+    .cell { font-size: 23px; }
+    .merge-work { grid-template-columns: 1fr 1fr; }
+    .merge-action { grid-column: 1 / -1; grid-row: 2; border: 0; border-top: 1px solid var(--line); padding: 6px; }
+    .tree-box { padding: 5px; }
+    .status-text { font-size: 18px; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark">ALGORITHMS / 02</span><span class="brand-name">Sorting, step by step</span></div>
+    <div class="controls" aria-label="Visualization controls">
+      <label class="control">Algorithm
+        <select id="algorithm" aria-label="Algorithm">
+          <option value="counting">Counting Sort</option>
+          <option value="insertion">Insertion Sort</option>
+          <option value="merge">Merge Sort</option>
+        </select>
+      </label>
+      <label class="control">Speed
+        <select id="speed" aria-label="Speed">
+          <option value="1600">Slow</option>
+          <option value="1000" selected>Medium</option>
+          <option value="500">Fast</option>
+        </select>
+      </label>
+      <label class="control">Delay
+        <input id="delay" type="number" min="200" max="5000" step="100" value="1000" aria-label="Animation delay in milliseconds">
+        <span>ms</span>
+      </label>
+      <label class="toggle"><input id="loop" type="checkbox" checked> Loop</label>
+      <button id="restart" type="button">Restart</button>
+      <button id="randomize" type="button">Randomize</button>
+    </div>
+  </header>
+  <main>
+    <div class="heading-row">
+      <div><h1 id="algorithm-title">Counting Sort</h1><p id="subtitle" class="subtitle">Count each value, then rebuild the array in order.</p></div>
+      <div class="heading-actions">
+        <div class="transport" aria-label="Playback controls">
+          <button id="previous" type="button" aria-label="Previous step" title="Previous step">|◀</button>
+          <button id="play-pause" class="play-button" type="button" aria-label="Pause" title="Pause">Ⅱ</button>
+          <button id="next" type="button" aria-label="Next step" title="Next step">▶|</button>
+        </div>
+        <div id="step-counter" class="step-counter">READY</div>
+      </div>
+    </div>
+    <section id="visual" aria-live="off"></section>
+    <div class="statusbar">
+      <div class="status-label">CURRENT STEP</div>
+      <div id="status" class="status-text">Preparing the input…</div>
+      <div id="complexity" class="complexity"></div>
+    </div>
+  </main>
+  <footer><span>COUNTING O(n + k) &nbsp;·&nbsp; INSERTION O(n²) &nbsp;·&nbsp; MERGE O(n log n)</span><span>Introductory Algorithms</span></footer>
+</div>
+<script>
+"use strict";
+
+// Defaults are intentionally small enough to read from across a classroom.
+const DEFAULT_INPUTS = {
+  counting: [4, 2, 7, 2, 3, 1, 6, 3],
+  insertion: [7, 3, 8, 4, 6, 2, 5],
+  merge: [8, 3, 5, 4, 7, 6, 2, 1]
+};
+const TITLES = { counting: "Counting Sort", insertion: "Insertion Sort", merge: "Top-down Merge Sort" };
+const SUBTITLES = {
+  counting: "Count each value, then rebuild the array in order.",
+  insertion: "Hold one key. Shift larger values right, then insert it.",
+  merge: "Divide recursively. Merge sorted halves from the bottom up."
+};
+const IMPORTANT_DELAY = 1600;
+const LOOP_PAUSE = 2000;
+let selectedAlgorithm = "counting";
+let activeInput = DEFAULT_INPUTS.counting.slice();
+let timer = null;
+let runToken = 0;
+let steps = [];
+let stepIndex = 0;
+let isPlaying = true;
+let currentTree = null;
+
+const $ = (selector) => document.querySelector(selector);
+const visual = $("#visual");
+const statusText = $("#status");
+
+function clone(values) { return values.slice(); }
+function snapshotCounts(counts) { return counts.slice(); }
+function escapeHtml(value) {
+  return String(value).replace(/[&<>"']/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char]);
+}
+
+// Each generator performs the algorithm while recording pedagogical events.
+function createCountingSortSteps(array) {
+  const steps = [];
+  const maximum = Math.max(...array);
+  const counts = Array(maximum + 1).fill(0);
+  const output = [];
+  steps.push({ type: "scan", phase: "scan", index: -1, counts: snapshotCounts(counts), output: clone(output), status: "Scan input", important: true });
+  for (let index = 0; index < array.length; index++) {
+    const value = array[index];
+    steps.push({ type: "read", phase: "scan", index, value, counts: snapshotCounts(counts), output: clone(output), status: `READ input[${index}] = ${value}`, important: true });
+    const previous = counts[value];
+    counts[value]++;
+    steps.push({ type: "increment", phase: "scan", index, value, previous, current: counts[value], counts: snapshotCounts(counts), output: clone(output), status: `count[${value}]: ${previous} → ${counts[value]}`, important: true });
+  }
+  steps.push({ type: "complete-count", phase: "reconstruct", value: -1, counts: snapshotCounts(counts), output: clone(output), status: "Counting complete", important: true });
+  for (let value = 0; value < counts.length; value++) {
+    steps.push({ type: "visit-count", phase: "reconstruct", value, counts: snapshotCounts(counts), output: clone(output), status: `current value = ${value}   ·   count[${value}] = ${counts[value]}`, important: true });
+    while (counts[value] > 0) {
+      output.push(value);
+      counts[value]--;
+      steps.push({ type: "write", phase: "reconstruct", value, counts: snapshotCounts(counts), output: clone(output), status: `Write value ${value}`, important: true });
+    }
+  }
+  steps.push({ type: "done", phase: "done", value: -1, counts: snapshotCounts(counts), output: clone(output), status: "Output complete", important: true, done: true });
+  return steps;
+}
+
+function createInsertionSortSteps(array) {
+  const values = clone(array);
+  const steps = [{ type: "start", values: clone(values), sortedEnd: 0, keyIndex: -1, compareIndex: -1, shiftedIndex: -1, status: "First element is the sorted prefix.", important: true }];
+  for (let index = 1; index < values.length; index++) {
+    const key = values[index];
+    let cursor = index - 1;
+    steps.push({ type: "key", values: clone(values), sortedEnd: index - 1, keyIndex: index, key, compareIndex: -1, shiftedIndex: -1, status: `KEY = ${key}`, important: true });
+    while (cursor >= 0) {
+      steps.push({ type: "compare", values: clone(values), sortedEnd: index - 1, keyIndex: index, key, compareIndex: cursor, shiftedIndex: -1, status: `COMPARE ${key} WITH ${values[cursor]}`, important: true });
+      if (values[cursor] <= key) {
+        steps.push({ type: "stop", values: clone(values), sortedEnd: index - 1, keyIndex: index, key, compareIndex: cursor, shiftedIndex: -1, status: `${values[cursor]} ≤ ${key} → stop shifting`, important: true });
+        break;
+      }
+      values[cursor + 1] = values[cursor];
+      steps.push({ type: "shift", values: clone(values), sortedEnd: index - 1, keyIndex: index, key, compareIndex: cursor, shiftedIndex: cursor + 1, status: `${values[cursor]} > ${key} → SHIFT RIGHT`, important: true });
+      cursor--;
+    }
+    values[cursor + 1] = key;
+    steps.push({ type: "insert", values: clone(values), sortedEnd: index, keyIndex: cursor + 1, key, compareIndex: -1, shiftedIndex: -1, status: `INSERT ${key} at index ${cursor + 1}`, important: true });
+  }
+  steps.push({ type: "done", values: clone(values), sortedEnd: values.length - 1, keyIndex: -1, compareIndex: -1, shiftedIndex: -1, status: "SORTED", important: true, done: true });
+  return steps;
+}
+
+function createMergeSortSteps(array) {
+  const steps = [];
+  const nodeValues = {};
+  const tree = buildTree(array, 0, array.length - 1, "r");
+  function divide(values, low, high, path) {
+    nodeValues[path] = clone(values);
+    if (low === high) {
+      steps.push({ type: "base", path, low, high, nodeValues: { ...nodeValues }, status: `BASE CASE: [${values[0]}]`, important: true });
+      return clone(values);
+    }
+    const middle = Math.floor((low + high) / 2);
+    const leftValues = values.slice(0, middle - low + 1);
+    const rightValues = values.slice(middle - low + 1);
+    steps.push({ type: "divide", path, low, high, middle, nodeValues: { ...nodeValues }, status: `DIVIDE [${values.join(" ")}] → [${leftValues.join(" ")}] + [${rightValues.join(" ")}]`, important: true });
+    const left = divide(leftValues, low, middle, `${path}L`);
+    const right = divide(rightValues, middle + 1, high, `${path}R`);
+    const merged = mergeRuns(left, right, path, low, middle, high, steps, nodeValues);
+    nodeValues[path] = clone(merged);
+    steps.push({ type: "merged", path, low, high, nodeValues: { ...nodeValues }, status: `MERGED [${merged.join(" ")}]`, important: true });
+    return merged;
+  }
+  const sorted = divide(clone(array), 0, array.length - 1, "r");
+  steps.push({ type: "done", path: "r", nodeValues: { ...nodeValues }, status: "SORTED", important: true, done: true, sorted });
+  return { steps, tree };
+}
+
+function buildTree(values, low, high, path) {
+  const node = { path, values: clone(values) };
+  if (low < high) {
+    const middle = Math.floor((low + high) / 2);
+    node.children = [
+      buildTree(values.slice(0, middle - low + 1), low, middle, `${path}L`),
+      buildTree(values.slice(middle - low + 1), middle + 1, high, `${path}R`)
+    ];
+  }
+  return node;
+}
+
+function mergeRuns(left, right, path, low, middle, high, steps, nodeValues) {
+  const result = [];
+  let leftIndex = 0;
+  let rightIndex = 0;
+  const record = (type, status, extra = {}) => steps.push({
+    type, path, low, middle, high, left: clone(left), right: clone(right), leftIndex, rightIndex,
+    output: clone(result), nodeValues: { ...nodeValues }, status, important: true, ...extra
+  });
+  record("merge-start", `MERGE [${left.join(" ")}] + [${right.join(" ")}]`);
+  while (leftIndex < left.length && rightIndex < right.length) {
+    record("merge-compare", `COMPARE ${left[leftIndex]} AND ${right[rightIndex]}`);
+    if (left[leftIndex] <= right[rightIndex]) {
+      result.push(left[leftIndex]);
+      record("take", `TAKE ${left[leftIndex]}`, { taken: left[leftIndex], from: "left" });
+      leftIndex++;
+    } else {
+      result.push(right[rightIndex]);
+      record("take", `TAKE ${right[rightIndex]}`, { taken: right[rightIndex], from: "right" });
+      rightIndex++;
+    }
+  }
+  if (leftIndex < left.length) {
+    record("append", `APPEND REMAINING ${left.slice(leftIndex).join(" ")}`, { remaining: "left" });
+    while (leftIndex < left.length) result.push(left[leftIndex++]);
+  }
+  if (rightIndex < right.length) {
+    record("append", `APPEND REMAINING ${right.slice(rightIndex).join(" ")}`, { remaining: "right" });
+    while (rightIndex < right.length) result.push(right[rightIndex++]);
+  }
+  record("merge-output", `OUTPUT [${result.join(" ")}]`, { output: clone(result), complete: true });
+  return result;
+}
+
+function cellMarkup(value, index, { className = "", caption = null, pointer = false } = {}) {
+  return `<div class="cell-wrap"><div class="cell-index">${index}</div><div class="cell ${className}${pointer ? " pointer" : ""}">${value}</div>${caption === null ? "" : `<div class="cell-caption">${caption}</div>`}</div>`;
+}
+
+function renderCountingSort(state) {
+  const max = state.counts.length - 1;
+  const inputCells = activeInput.map((value, index) => {
+    const current = index === state.index && (state.type === "read" || state.type === "increment");
+    return cellMarkup(value, index, { className: current ? "active" : "", pointer: current, caption: current ? "READING" : null });
+  }).join("");
+  const countCells = state.counts.map((count, value) => {
+    let className = "";
+    let caption = null;
+    if (value === state.value && state.phase === "reconstruct") { className = "target"; caption = "VALUE"; }
+    else if (value === state.value && state.type === "increment") { className = "changed"; caption = "count[value]"; }
+    else if (value === state.value && state.type === "visit-count") { className = "target"; caption = "CURRENT"; }
+    return cellMarkup(count, value, { className, caption, pointer: value === state.value && state.type === "visit-count" });
+  }).join("");
+  const output = state.output.length
+    ? state.output.map((value, index) => `<div class="cell ${index === state.output.length - 1 && state.type === "write" ? "changed" : ""}">${value}</div>`).join("")
+    : `<span class="array-empty">waiting for reconstruction</span>`;
+  const relation = state.type === "increment" || state.type === "visit-count" || state.type === "write"
+    ? `<div class="relation">input value ${state.value} ↘ count[${state.value}]</div>` : "";
+  const countLabel = state.phase === "reconstruct" ? "COUNT · value being written is highlighted" : "COUNT · indexed by value";
+  return `<div class="count-layout">
+    <section class="count-panel"><h2 class="panel-title">INPUT · scan by index</h2><div class="cells">${inputCells}</div><div class="count-note">${state.index >= 0 && state.phase === "scan" ? `Pointer: input[${state.index}] = ${activeInput[state.index]}` : state.phase === "reconstruct" ? "Input scan finished" : "Each input position is visited once"}</div></section>
+    <section class="count-panel"><h2 class="panel-title">${countLabel}</h2><div class="cells">${countCells}</div>${relation}<div class="count-note">OUTPUT · grows one value at a time</div><div class="output-strip">${output}</div></section>
+  </div>`;
+}
+
+function renderInsertionSort(state) {
+  const max = Math.max(...activeInput);
+  const bars = state.values.map((value, index) => {
+    const sorted = index <= state.sortedEnd && index !== state.keyIndex;
+    const isKey = index === state.keyIndex && state.keyIndex >= 0;
+    const comparing = index === state.compareIndex;
+    const shifted = index === state.shiftedIndex;
+    const classes = ["bar", sorted ? "sorted" : "", isKey ? "key" : "", comparing ? "comparing" : "", shifted ? "shifted" : ""].filter(Boolean).join(" ");
+    const height = Math.max(18, (value / max) * 68);
+    return `<div class="bar-column" style="--bar-height:${height}%"><div class="bar-value">${value}</div><div class="${classes}"></div><div class="bar-index">${index}</div></div>`;
+  }).join("");
+  const keyVisible = state.keyIndex >= 0 && state.type !== "done";
+  const prefixCount = state.sortedEnd + 1;
+  return `<div class="insertion-layout"><div class="bar-area" style="--column-count:${state.values.length}">${bars}</div><div class="prefix-annotation"><div class="prefix-track" style="--column-count:${state.values.length}; --prefix-count:${prefixCount}"><div class="prefix-clip">SORTED PREFIX</div></div></div><div class="key-tray">${keyVisible ? `<span>KEY held aside while larger cells shift right</span><span class="key-chip">${state.key}</span>` : `<span>COMPARE · SHIFT RIGHT · INSERT</span>`}</div></div>`;
+}
+
+function renderTreeNode(node, state) {
+  const values = state.nodeValues && state.nodeValues[node.path] ? state.nodeValues[node.path] : node.values;
+  let stateClass = "";
+  if (state.path === node.path) stateClass = state.type === "base" ? "base" : state.type === "merged" || state.type === "done" ? "done" : "active";
+  else if (state.nodeValues && state.nodeValues[node.path] && node.children) stateClass = "done";
+  const children = node.children ? `<div class="tree-children">${node.children.map((child) => renderTreeNode(child, state)).join("")}</div>` : "";
+  return `<div class="tree-node"><div class="tree-box ${stateClass}">[${values.join(" ")}]</div>${children}</div>`;
+}
+
+function renderMergeSort(state, tree) {
+  const left = state.left || [];
+  const right = state.right || [];
+  const leftCells = left.map((value, index) => {
+    const isPointer = state.leftIndex === index && state.type !== "merged" && state.type !== "done";
+    const chosen = state.type === "take" && state.from === "left" && state.taken === value && index === state.leftIndex;
+    return `<div class="run-cell ${isPointer ? "left-pointer pointer" : ""} ${chosen ? "chosen" : ""}">${value}</div>`;
+  }).join("");
+  const rightCells = right.map((value, index) => {
+    const isPointer = state.rightIndex === index && state.type !== "merged" && state.type !== "done";
+    const chosen = state.type === "take" && state.from === "right" && state.taken === value && index === state.rightIndex;
+    return `<div class="run-cell ${isPointer ? "right-pointer pointer" : ""} ${chosen ? "chosen" : ""}">${value}</div>`;
+  }).join("");
+  const output = (state.output || []).map((value) => `<div class="run-cell chosen">${value}</div>`).join("");
+  const activeMerge = ["merge-start", "merge-compare", "take", "append", "merge-output"].includes(state.type);
+  const phase = activeMerge ? `MERGE · [${left.join(" ")}] + [${right.join(" ")}]` : state.type === "divide" ? "RECURSIVE CALLS · split in half" : state.type === "base" ? "BASE CASE · one item is sorted" : "BOTTOM-UP RECONSTRUCTION";
+  const operation = state.status || "Divide, then merge";
+  return `<div class="merge-layout"><div class="tree-scroll"><div class="tree">${renderTreeNode(tree, state)}</div></div><div class="merge-work">
+    <div class="merge-run"><div class="run-label">LEFT · sorted input</div><div class="run-cells">${leftCells || `<span class="array-empty">waiting</span>`}</div></div>
+    <div class="merge-action"><div class="phase">${phase}</div><div class="operation">${operation}</div><div class="partial">${activeMerge ? `OUTPUT &nbsp; ${(state.output || []).join(" · ") || "—"}` : "DIVIDE → BASE CASE → MERGE"}</div></div>
+    <div class="merge-run"><div class="run-label">RIGHT · sorted input</div><div class="run-cells">${rightCells || `<span class="array-empty">waiting</span>`}</div><div class="run-label" style="margin-top:6px">OUTPUT</div><div class="run-cells">${output || `<span class="array-empty">—</span>`}</div></div>
+  </div></div>`;
+}
+
+function render(state, tree) {
+  if (selectedAlgorithm === "counting") visual.innerHTML = renderCountingSort(state);
+  else if (selectedAlgorithm === "insertion") visual.innerHTML = renderInsertionSort(state);
+  else visual.innerHTML = renderMergeSort(state, tree);
+  statusText.textContent = state.status;
+  $("#step-counter").textContent = state.done ? "SORTED" : `STEP ${String(stepIndex).padStart(2, "0")} / ${steps.length}`;
+  updatePlaybackButton();
+}
+
+function currentDelay(state) {
+  const delay = Number($("#delay").value);
+  return state.important ? Math.max(delay, IMPORTANT_DELAY) : delay;
+}
+
+function playSteps(token, tree) {
+  if (token !== runToken || !isPlaying) return;
+  if (stepIndex >= steps.length) {
+    if ($("#loop").checked) {
+      timer = setTimeout(startRun, LOOP_PAUSE);
+    } else {
+      isPlaying = false;
+      updatePlaybackButton();
+    }
+    return;
+  }
+  const state = steps[stepIndex];
+  stepIndex++;
+  render(state, tree);
+  if (state.done) {
+    if ($("#loop").checked) timer = setTimeout(startRun, LOOP_PAUSE);
+    else {
+      isPlaying = false;
+      updatePlaybackButton();
+    }
+    return;
+  }
+  timer = setTimeout(() => playSteps(token, tree), currentDelay(state));
+}
+
+function updatePlaybackButton() {
+  const button = $("#play-pause");
+  button.textContent = isPlaying ? "Ⅱ" : "▶";
+  button.setAttribute("aria-label", isPlaying ? "Pause" : "Play");
+  button.title = isPlaying ? "Pause" : "Play";
+}
+
+function stopTimer() {
+  if (timer !== null) clearTimeout(timer);
+  timer = null;
+}
+
+function showManualStep(index) {
+  const boundedIndex = Math.max(0, Math.min(index, steps.length - 1));
+  stepIndex = boundedIndex + 1;
+  render(steps[boundedIndex], currentTree);
+}
+
+function startRun() {
+  runToken++;
+  stopTimer();
+  stepIndex = 0;
+  isPlaying = true;
+  $("#algorithm-title").textContent = TITLES[selectedAlgorithm];
+  $("#subtitle").textContent = SUBTITLES[selectedAlgorithm];
+  if (selectedAlgorithm === "counting") {
+    steps = createCountingSortSteps(activeInput);
+    currentTree = null;
+  } else if (selectedAlgorithm === "insertion") {
+    steps = createInsertionSortSteps(activeInput);
+    currentTree = null;
+  } else {
+    const generated = createMergeSortSteps(activeInput);
+    steps = generated.steps;
+    currentTree = generated.tree;
+  }
+  updatePlaybackButton();
+  playSteps(runToken, currentTree);
+}
+
+function randomInput(algorithm) {
+  const length = algorithm === "insertion" ? 7 : 8;
+  return Array.from({ length }, () => Math.floor(Math.random() * 8) + 1);
+}
+
+function togglePlayback() {
+  if (isPlaying) {
+    isPlaying = false;
+    stopTimer();
+    updatePlaybackButton();
+  } else if (stepIndex >= steps.length) {
+    startRun();
+  } else {
+    isPlaying = true;
+    updatePlaybackButton();
+    playSteps(runToken, currentTree);
+  }
+}
+
+function stepPrevious() {
+  stopTimer();
+  isPlaying = false;
+  showManualStep(Math.max(0, stepIndex - 2));
+}
+
+function stepNext() {
+  stopTimer();
+  isPlaying = false;
+  if (stepIndex >= steps.length) {
+    if ($("#loop").checked) {
+      startRun();
+      isPlaying = false;
+      stopTimer();
+      updatePlaybackButton();
+    } else {
+      updatePlaybackButton();
+    }
+    return;
+  }
+  showManualStep(stepIndex);
+}
+
+$("#algorithm").addEventListener("change", (event) => {
+  selectedAlgorithm = event.target.value;
+  activeInput = clone(DEFAULT_INPUTS[selectedAlgorithm]);
+  startRun();
+});
+$("#speed").addEventListener("change", (event) => {
+  $("#delay").value = event.target.value;
+});
+$("#delay").addEventListener("change", (event) => {
+  const delay = Math.max(200, Math.min(5000, Number(event.target.value) || 1000));
+  event.target.value = delay;
+  const preset = $("#speed");
+  preset.value = [1600, 1000, 500].includes(delay) ? String(delay) : "";
+});
+$("#restart").addEventListener("click", startRun);
+$("#randomize").addEventListener("click", () => { activeInput = randomInput(selectedAlgorithm); startRun(); });
+$("#play-pause").addEventListener("click", togglePlayback);
+$("#previous").addEventListener("click", stepPrevious);
+$("#next").addEventListener("click", stepNext);
+document.addEventListener("keydown", (event) => {
+  const targetTag = event.target.tagName;
+  if (event.repeat || event.ctrlKey || event.altKey || event.metaKey || event.target.isContentEditable) return;
+  if (["INPUT", "SELECT", "TEXTAREA"].includes(targetTag)) return;
+  if (event.key === "ArrowLeft") {
+    event.preventDefault();
+    stepPrevious();
+  } else if (event.key === "ArrowRight") {
+    event.preventDefault();
+    stepNext();
+  } else if (event.code === "Space" || event.key === " ") {
+    event.preventDefault();
+    togglePlayback();
+  }
+});
+
+startRun();
+</script>
+</body>
+</html>
