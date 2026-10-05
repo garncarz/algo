@@ -34,7 +34,7 @@
     background-size: 28px 28px;
     overflow: hidden;
   }
-  .app { height: 100vh; min-height: 620px; display: grid; grid-template-rows: auto 1fr auto; padding: 18px 3.2vw 12px; gap: 10px; }
+  .app { height: 100vh; min-height: 620px; display: grid; grid-template-rows: auto 1fr auto; padding: 14px 1.5vw 10px; gap: 8px; }
   .topbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
   .brand { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
   .brand-mark { font: 700 13px/1 "Avenir Next", sans-serif; letter-spacing: 1px; color: var(--green); }
@@ -55,40 +55,40 @@
   .transport button { width: 38px; padding: 0; font-size: 17px; }
   .transport .play-button { width: 46px; color: var(--white); background: var(--ink); }
   .transport .play-button:hover { color: var(--ink); background: var(--gold-soft); }
-  h1 { margin: 0; font: 700 clamp(34px, 4.1vw, 56px)/.98 Georgia, "Times New Roman", serif; letter-spacing: 0; }
-  .subtitle { margin: 5px 0 0; color: var(--muted); font-size: 14px; font-weight: 550; }
+  h1 { margin: 0; font: 700 clamp(38px, 4.1vw, 64px)/.98 Georgia, "Times New Roman", serif; letter-spacing: 0; }
+  .subtitle { margin: 6px 0 0; color: var(--muted); font-size: 16px; font-weight: 550; }
   .step-counter { padding-bottom: 5px; color: var(--muted); font-size: 13px; font-weight: 700; white-space: nowrap; }
   #visual { min-height: 0; overflow: hidden; }
-  .panel-title { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; color: var(--muted); font-size: 12px; font-weight: 800; letter-spacing: 0; }
-  .panel-title::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--green); }
-  .count-layout { height: 100%; display: grid; grid-template-rows: 1fr 1fr; gap: 10px; }
-  .count-panel { min-height: 0; border-top: 1px solid var(--line); padding-top: 8px; }
-  .cells { display: grid; gap: 5px; grid-template-columns: repeat(8, minmax(0, 1fr)); max-width: 1000px; }
+  .panel-title { display: flex; align-items: center; gap: 9px; margin: 0 0 10px; color: var(--muted); font-size: 15px; font-weight: 800; letter-spacing: 0; }
+  .panel-title::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--green); }
+  .count-layout { height: 100%; display: grid; grid-template-rows: 1fr 1fr; gap: 12px; }
+  .count-panel { min-height: 0; border-top: 1px solid var(--line); padding-top: 10px; }
+  .cells { display: grid; gap: 7px; grid-template-columns: repeat(8, minmax(0, 1fr)); width: 100%; }
   .cell-wrap { text-align: center; min-width: 0; }
-  .cell-index { height: 19px; color: var(--muted); font-size: 12px; font-weight: 700; }
-  .cell { height: clamp(48px, 8vh, 75px); display: grid; place-items: center; border: 2px solid var(--line); background: var(--white); font: 700 clamp(24px, 3.3vw, 40px)/1 Georgia, serif; transition: background-color .16s, border-color .16s, transform .16s; }
+  .cell-index { height: 23px; color: var(--muted); font-size: 15px; font-weight: 700; }
+  .cell { height: clamp(58px, 10vh, 104px); display: grid; place-items: center; border: 2px solid var(--line); background: var(--white); font: 700 clamp(30px, 3.3vw, 50px)/1 Georgia, serif; transition: background-color .16s, border-color .16s, transform .16s; }
   .cell.active { border-color: var(--coral); background: var(--coral-soft); transform: translateY(-3px); }
   .cell.target { border-color: var(--gold); background: var(--gold-soft); }
   .cell.pointer::after { content: "▲"; position: absolute; top: -17px; color: var(--coral); font: 12px sans-serif; }
   .cell { position: relative; }
   .cell.changed { border-color: var(--green); background: var(--green-soft); }
   .cell.empty { color: #aab4ae; background: rgba(255,255,255,.48); }
-  .cell-caption { margin-top: 5px; color: var(--muted); font-size: 11px; font-weight: 700; }
-  .relation { display: inline-block; margin: 10px 0 0 2px; padding: 5px 9px; color: var(--blue); background: var(--blue-soft); font-size: 13px; font-weight: 800; }
-  .count-note { margin-top: 6px; min-height: 19px; color: var(--muted); font-size: 13px; font-weight: 650; }
-  .output-strip { display: flex; align-items: center; gap: 5px; min-height: 48px; flex-wrap: wrap; }
-  .output-strip .cell { width: clamp(42px, 6vw, 64px); height: 46px; font-size: 27px; }
+  .cell-caption { margin-top: 6px; color: var(--muted); font-size: 13px; font-weight: 700; }
+  .relation { display: inline-block; margin: 12px 0 0 2px; padding: 6px 11px; color: var(--blue); background: var(--blue-soft); font-size: 15px; font-weight: 800; }
+  .count-note { margin-top: 8px; min-height: 22px; color: var(--muted); font-size: 15px; font-weight: 650; }
+  .output-strip { display: flex; align-items: center; gap: 7px; min-height: 58px; flex-wrap: wrap; }
+  .output-strip .cell { width: clamp(50px, 6vw, 78px); height: 56px; font-size: 34px; }
   .array-empty { color: #89958e; font-size: 17px; font-weight: 600; }
   .insertion-layout { height: 100%; display: grid; grid-template-rows: minmax(0, 1fr) auto auto; gap: 8px; }
   .bar-area { min-height: 0; display: grid; grid-template-columns: repeat(var(--column-count), minmax(0, 1fr)); align-items: end; gap: clamp(9px, 2.1vw, 24px); padding: 12px 4% 0; position: relative; border-bottom: 1px solid var(--line); }
-  .bar-column { height: 100%; max-height: 360px; min-width: 0; display: flex; flex-direction: column; justify-content: end; align-items: center; position: relative; }
-  .bar-value { position: absolute; bottom: calc(var(--bar-height) + 9px); font: 700 clamp(20px, 2.7vw, 31px)/1 Georgia, serif; }
-  .bar { width: min(100%, 76px); height: var(--bar-height); min-height: 22px; border: 2px solid var(--blue); background: #9dc5dc; display: grid; place-items: center; transition: height .18s, background-color .18s, border-color .18s; }
+  .bar-column { height: 100%; min-width: 0; display: flex; flex-direction: column; justify-content: end; align-items: center; position: relative; }
+  .bar-value { position: absolute; bottom: calc(var(--bar-height) + 11px); font: 700 clamp(24px, 2.7vw, 38px)/1 Georgia, serif; }
+  .bar { width: min(100%, 108px); height: var(--bar-height); min-height: 28px; border: 2px solid var(--blue); background: #9dc5dc; display: grid; place-items: center; transition: height .18s, background-color .18s, border-color .18s; }
   .bar.sorted { border-color: var(--green); background: #8cc6a9; }
   .bar.key { border-color: var(--coral); background: var(--coral-soft); }
   .bar.comparing { outline: 4px solid var(--gold); outline-offset: 2px; }
   .bar.shifted { border-color: var(--gold); background: var(--gold-soft); }
-  .bar-index { height: 25px; padding-top: 6px; color: var(--muted); font-size: 13px; font-weight: 700; }
+  .bar-index { height: 30px; padding-top: 7px; color: var(--muted); font-size: 16px; font-weight: 700; }
   .prefix-annotation { padding: 0 4%; }
   .prefix-track { min-height: 28px; display: grid; grid-template-columns: repeat(var(--column-count), minmax(0, 1fr)); gap: clamp(9px, 2.1vw, 24px); }
   .prefix-clip { grid-column: 1 / span var(--prefix-count); min-width: 0; border: 2px solid var(--green); color: var(--green); display: flex; align-items: center; justify-content: center; padding: 2px 4px; font-size: clamp(8px, 1vw, 10px); line-height: 1; font-weight: 800; text-align: center; overflow-wrap: anywhere; }
@@ -96,23 +96,24 @@
   .key-chip { min-width: 48px; min-height: 46px; display: grid; place-items: center; border: 2px solid var(--coral); background: var(--coral-soft); color: var(--ink); font: 700 27px Georgia, serif; }
   .merge-layout { height: 100%; display: grid; grid-template-rows: minmax(0, 1fr) auto; gap: 10px; }
   .tree-scroll { min-height: 0; overflow: auto hidden; display: flex; justify-content: center; align-items: start; padding: 10px 4px 4px; }
-  .tree { min-width: min-content; display: flex; justify-content: center; }
-  .tree-node { display: flex; flex-direction: column; align-items: center; position: relative; padding: 0 5px; }
-  .tree-box { min-width: 43px; padding: 6px 8px; border: 1.5px solid var(--line); background: var(--white); text-align: center; font: 700 clamp(13px, 1.55vw, 18px)/1.1 Georgia, serif; white-space: nowrap; position: relative; z-index: 1; }
+  .tree { width: 100%; min-width: 0; display: flex; justify-content: center; }
+  .tree > .tree-node { width: 100%; }
+  .tree-node { min-width: 0; flex: 1 1 0; display: flex; flex-direction: column; align-items: center; position: relative; padding: 0 8px; }
+  .tree-box { min-width: 60px; padding: 10px 14px; border: 1.5px solid var(--line); background: var(--white); text-align: center; font: 700 clamp(20px, 2vw, 28px)/1.1 Georgia, serif; white-space: nowrap; position: relative; z-index: 1; }
   .tree-box.active { border: 2px solid var(--coral); background: var(--coral-soft); }
   .tree-box.base { border-color: var(--gold); background: var(--gold-soft); }
   .tree-box.done { border-color: var(--green); background: var(--green-soft); }
-  .tree-children { display: flex; justify-content: center; position: relative; padding-top: 19px; }
-  .tree-children::before { content: ""; position: absolute; top: 0; left: 50%; height: 10px; border-left: 1.5px solid #89958e; }
-  .tree-children > .tree-node::before { content: ""; position: absolute; top: 0; height: 10px; left: 50%; border-left: 1.5px solid #89958e; }
+  .tree-children { --branch-gap: clamp(58px, 8vh, 82px); width: 100%; display: flex; justify-content: center; position: relative; padding-top: var(--branch-gap); }
+  .tree-children::before { content: ""; position: absolute; top: 0; left: 50%; height: calc(var(--branch-gap) - 8px); border-left: 1.5px solid #89958e; }
+  .tree-children > .tree-node::before { content: ""; position: absolute; top: 0; height: calc(var(--branch-gap) - 8px); left: 50%; border-left: 1.5px solid #89958e; }
   .tree-children > .tree-node:first-child::after, .tree-children > .tree-node:last-child::after { content: ""; position: absolute; top: 0; width: 50%; border-top: 1.5px solid #89958e; }
   .tree-children > .tree-node:first-child::after { right: 0; }
   .tree-children > .tree-node:last-child::after { left: 0; }
   .merge-work { border-top: 1px solid var(--line); padding-top: 9px; display: grid; grid-template-columns: 1fr minmax(150px, .8fr) 1fr; gap: 14px; align-items: stretch; min-height: 120px; }
   .merge-run { min-width: 0; }
-  .run-label { margin-bottom: 5px; color: var(--muted); font-size: 11px; font-weight: 800; }
-  .run-cells { display: flex; gap: 5px; min-height: 47px; align-items: start; }
-  .run-cell { width: clamp(33px, 4vw, 47px); height: 42px; display: grid; place-items: center; border: 1.5px solid var(--line); background: var(--white); font: 700 22px Georgia, serif; position: relative; }
+  .run-label { margin-bottom: 7px; color: var(--muted); font-size: 14px; font-weight: 800; }
+  .run-cells { display: flex; gap: 7px; min-height: 54px; align-items: start; }
+  .run-cell { width: clamp(42px, 4vw, 58px); height: 50px; display: grid; place-items: center; border: 1.5px solid var(--line); background: var(--white); font: 700 27px Georgia, serif; position: relative; }
   .run-cell.left-pointer { border-color: var(--blue); background: var(--blue-soft); }
   .run-cell.right-pointer { border-color: var(--coral); background: var(--coral-soft); }
   .run-cell.chosen { border-color: var(--green); background: var(--green-soft); }
@@ -122,10 +123,11 @@
   .merge-action { border-left: 1px solid var(--line); border-right: 1px solid var(--line); padding: 0 11px; display: flex; flex-direction: column; justify-content: center; text-align: center; }
   .merge-action .phase { color: var(--muted); font-size: 11px; font-weight: 800; }
   .merge-action .operation { margin-top: 4px; font: 700 clamp(17px, 2vw, 23px)/1.1 Georgia, serif; }
-  .merge-action .partial { min-height: 22px; margin-top: 7px; color: var(--green); font-size: 13px; font-weight: 800; }
-  .statusbar { min-height: 66px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 2px solid var(--ink); background: rgba(247,248,244,.93); padding: 9px 2px 0; }
+  .merge-output-label { margin-top: 8px; color: var(--green); font-size: 10px; font-weight: 900; }
+  .merge-output { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; min-height: 42px; margin-top: 4px; }
+  .statusbar { min-height: 78px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-top: 2px solid var(--ink); background: rgba(247,248,244,.93); padding: 11px 2px 0; }
   .status-label { min-width: 78px; color: var(--green); font-size: 11px; font-weight: 900; }
-  .status-text { flex: 1; font: 700 clamp(18px, 2.2vw, 28px)/1.1 Georgia, serif; }
+  .status-text { flex: 1; font: 700 clamp(22px, 2.2vw, 34px)/1.1 Georgia, serif; }
   .complexity { display: flex; gap: 14px; color: var(--muted); font-size: 12px; font-weight: 700; white-space: nowrap; }
   .complexity strong { color: var(--ink); }
   footer { display: flex; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 10px; font-weight: 650; }
@@ -435,13 +437,14 @@ function renderMergeSort(state, tree) {
     return `<div class="run-cell ${isPointer ? "right-pointer pointer" : ""} ${chosen ? "chosen" : ""}">${value}</div>`;
   }).join("");
   const output = (state.output || []).map((value) => `<div class="run-cell chosen">${value}</div>`).join("");
+  const outputCells = output || `<span class="array-empty">—</span>`;
   const activeMerge = ["merge-start", "merge-compare", "take", "append", "merge-output"].includes(state.type);
   const phase = activeMerge ? `MERGE · [${left.join(" ")}] + [${right.join(" ")}]` : state.type === "divide" ? "RECURSIVE CALLS · split in half" : state.type === "base" ? "BASE CASE · one item is sorted" : "BOTTOM-UP RECONSTRUCTION";
   const operation = state.status || "Divide, then merge";
   return `<div class="merge-layout"><div class="tree-scroll"><div class="tree">${renderTreeNode(tree, state)}</div></div><div class="merge-work">
     <div class="merge-run"><div class="run-label">LEFT · sorted input</div><div class="run-cells">${leftCells || `<span class="array-empty">waiting</span>`}</div></div>
-    <div class="merge-action"><div class="phase">${phase}</div><div class="operation">${operation}</div><div class="partial">${activeMerge ? `OUTPUT &nbsp; ${(state.output || []).join(" · ") || "—"}` : "DIVIDE → BASE CASE → MERGE"}</div></div>
-    <div class="merge-run"><div class="run-label">RIGHT · sorted input</div><div class="run-cells">${rightCells || `<span class="array-empty">waiting</span>`}</div><div class="run-label" style="margin-top:6px">OUTPUT</div><div class="run-cells">${output || `<span class="array-empty">—</span>`}</div></div>
+    <div class="merge-action"><div class="phase">${phase}</div><div class="operation">${operation}</div><div class="merge-output-label">OUTPUT</div><div class="merge-output">${outputCells}</div></div>
+    <div class="merge-run"><div class="run-label">RIGHT · sorted input</div><div class="run-cells">${rightCells || `<span class="array-empty">waiting</span>`}</div></div>
   </div></div>`;
 }
 
