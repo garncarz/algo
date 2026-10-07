@@ -150,12 +150,13 @@ const FUNCTIONS = [
 ];
 const BY_ID = new Map(FUNCTIONS.map(item => [item.id, item]));
 const GROUPS = Array.from({ length: 8 }, (_, rank) => FUNCTIONS.filter(item => item.rank === rank));
-const COLORS = ["#176b52", "#bb513c", "#3975a3", "#c18412", "#725b8b"];
+const COLOR_PALETTE = ["#377eb8", "#ff7f00", "#4daf4a", "#e41a1c", "#984ea3", "#a65628", "#f781bf", "#555555"];
 const cards = document.querySelector("#cards");
 const feedback = document.querySelector("#feedback");
 const graphSection = document.querySelector("#graph");
 const quiz = document.querySelector(".quiz");
 let question = [];
+let questionColors = new Map();
 let previousQuestion = "";
 let draggedCard = null;
 let graphScale = "linear";
@@ -196,6 +197,8 @@ function newQuestion() {
   } while (signature === previousQuestion);
   previousQuestion = signature;
   question = chosen.sort((a, b) => a.rank - b.rank);
+  const shuffledColors = shuffle(COLOR_PALETTE);
+  questionColors = new Map(question.map((item, index) => [item.id, shuffledColors[index]]));
   renderCards(shuffle(question));
   feedback.className = "feedback";
   feedback.textContent = "";
@@ -209,7 +212,7 @@ function renderCards(items) {
     card.draggable = true;
     card.tabIndex = 0;
     card.dataset.id = item.id;
-    card.style.setProperty("--card-color", COLORS[item.rank % COLORS.length]);
+    card.style.setProperty("--card-color", questionColors.get(item.id));
     card.setAttribute("aria-label", `${item.label}. Drag to reorder, or focus and use the up and down arrow keys.`);
     card.innerHTML = `<span class="handle" aria-hidden="true">⠿</span><span class="expression"></span>`;
     card.querySelector(".expression").textContent = item.label;
@@ -342,17 +345,17 @@ function drawGraph() {
       points.push(`${started ? "L" : "M"}${x(n).toFixed(1)},${y(value).toFixed(1)}`);
       started = true;
     }
-    parts.push(`<path class="curve" d="${points.join(" ")}" stroke="${COLORS[index % COLORS.length]}"/>`);
+    parts.push(`<path class="curve" d="${points.join(" ")}" stroke="${questionColors.get(item.id)}"/>`);
   });
   svg.innerHTML = parts.join("");
   document.querySelector("#graph-description").textContent = graphScale === "linear"
     ? "Operations (linear scale), using actual function values."
     : "Operations (log scale), using the same function values.";
   svg.setAttribute("aria-label", `${graphScale === "linear" ? "Linear" : "Logarithmic"} graph of the current complexity functions`);
-  legend.replaceChildren(...question.map((item, index) => {
+  legend.replaceChildren(...question.map(item => {
     const entry = document.createElement("span");
     entry.className = "legend-item";
-    entry.innerHTML = `<span class="swatch" style="--swatch:${COLORS[index % COLORS.length]}"></span>`;
+    entry.innerHTML = `<span class="swatch" style="--swatch:${questionColors.get(item.id)}"></span>`;
     const label = document.createElement("span");
     label.textContent = item.label;
     entry.append(label);
