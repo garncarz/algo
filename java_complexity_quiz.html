@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f5f4ed">
+<title>Inspect the Code · Complexity Quiz</title>
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #f5f4ed;
+    --ink: #202d29;
+    --muted: #5d6a64;
+    --line: #cbd2ca;
+    --green: #176b52;
+    --green-soft: #e1f0e8;
+    --red: #a83f34;
+    --red-soft: #f8e7e1;
+    --gold: #d49a25;
+    --blue: #3975a3;
+    --blue-soft: #e5eff5;
+    font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-width: 0;
+    min-height: 100vh;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image: linear-gradient(rgba(32,45,41,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(32,45,41,.025) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  button, input { font: inherit; }
+  button {
+    min-height: 48px;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    padding: 9px 16px;
+    color: var(--ink);
+    background: #fff;
+    font-weight: 850;
+    cursor: pointer;
+    transition: transform 130ms ease, background-color 130ms ease;
+  }
+  button:hover { transform: translateY(-1px); background: #edf1eb; }
+  button:focus-visible, input:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+  .page { width: min(100% - 40px, 1080px); margin: 0 auto; padding: 27px 0 36px; }
+  .page.visual-active { width: min(100% - 40px, 1800px); }
+  header { margin-bottom: 22px; }
+  .eyebrow { color: var(--green); font-size: 13px; font-weight: 900; letter-spacing: .08em; }
+  h1 { margin: 7px 0 7px; font: 700 clamp(38px, 7vw, 58px)/1 Georgia, "Times New Roman", serif; }
+  .intro { margin: 0; color: var(--muted); font-size: 18px; font-weight: 650; }
+  .question-number { float: right; padding-top: 5px; color: var(--muted); font-size: 14px; font-weight: 800; }
+  .quiz { display: grid; gap: 17px; }
+  .quiz.visual-active { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); column-gap: 24px; align-items: start; }
+  .quiz.visual-active > .visualization { grid-column: 2; grid-row: 1 / span 5; min-width: 0; }
+  .code-card { overflow: hidden; border: 2px solid var(--ink); border-radius: 5px; background: #fff; box-shadow: 0 5px 0 rgba(32,45,41,.09); }
+  .code-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); padding: 11px 17px; color: var(--muted); font-size: 12px; font-weight: 900; letter-spacing: .07em; }
+  .complexity-tag { color: var(--green); }
+  pre { overflow-x: auto; margin: 0; padding: 19px 21px 22px; color: #24342e; font: 600 clamp(15px, 2vw, 19px)/1.58 ui-monospace, "SFMono-Regular", Consolas, monospace; tab-size: 4; }
+  .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  fieldset { min-width: 0; margin: 0; border: 0; padding: 0; }
+  legend { margin-bottom: 9px; font-size: 14px; font-weight: 900; letter-spacing: .04em; }
+  .choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
+  .choice { position: relative; min-width: 0; }
+  .choice input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .choice label { min-height: 56px; display: grid; place-items: center; border: 2px solid var(--line); border-radius: 4px; padding: 8px 4px; background: #fff; font: 700 clamp(17px, 2.4vw, 22px)/1.1 Georgia, "Times New Roman", serif; cursor: pointer; transition: border-color 120ms, background-color 120ms, transform 120ms; }
+  .choice label:hover { border-color: var(--green); transform: translateY(-1px); }
+  .choice input:checked + label { border-color: var(--green); background: var(--green-soft); box-shadow: inset 0 0 0 1px var(--green); }
+  .choice input:focus-visible + label { outline: 3px solid var(--gold); outline-offset: 2px; }
+  .choice label.correct-answer { border-color: var(--green); background: var(--green-soft); }
+  .choice label.wrong-answer { border-color: var(--red); background: var(--red-soft); }
+  .actions { display: flex; justify-content: center; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .quiz.visual-active .actions { flex-wrap: nowrap; }
+  .check { min-width: 160px; min-height: 54px; border-color: var(--green); color: #fff; background: var(--green); font-size: 18px; letter-spacing: .04em; }
+  .check:hover { border-color: #105640; background: #105640; }
+  .play { min-height: 48px; font-size: 14px; }
+  .feedback { min-height: 0; border-left: 7px solid transparent; padding: 0; font-size: 16px; font-weight: 750; line-height: 1.5; }
+  .feedback:not(:empty) { border-color: var(--green); padding: 12px 15px; background: rgba(255,255,255,.78); }
+  .feedback.incorrect { border-color: var(--red); }
+  .feedback-title { font-size: 19px; }
+  .feedback.correct .feedback-title { color: var(--green); }
+  .feedback.incorrect .feedback-title { color: var(--red); }
+  .feedback-detail { display: block; margin-top: 4px; color: var(--ink); font-size: 15px; font-weight: 550; }
+  .feedback-complexities { display: block; margin-top: 2px; font-weight: 850; }
+  .space-note { margin: 0; border-top: 1px solid var(--line); padding-top: 12px; color: var(--muted); font-size: 14px; line-height: 1.5; }
+  .space-note strong { color: var(--ink); }
+  .visualization { border-top: 2px solid var(--ink); padding-top: 16px; animation: arrive 220ms ease both; }
+  .visualization[hidden] { display: none; }
+  .visual-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 13px; }
+  .visual-heading h2 { margin: 0; font: 700 24px Georgia, "Times New Roman", serif; }
+  .visual-heading span { color: var(--muted); font-size: 13px; font-weight: 700; }
+  .visual-panels { display: grid; grid-template-columns: minmax(0, 1fr); gap: 14px; }
+  .visual-panel { min-width: 0; border-top: 1px solid var(--line); padding-top: 10px; }
+  .visual-panel h3 { margin: 0 0 9px; color: var(--muted); font-size: 13px; font-weight: 900; letter-spacing: .06em; }
+  .visual-note { min-height: 24px; margin: 10px 0 0; color: var(--ink); font-size: 15px; font-weight: 750; }
+  .array-row { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; overscroll-behavior-x: contain; padding: 2px 1px 5px; }
+  .array-cell { position: relative; width: clamp(40px, 6vw, 62px); height: clamp(45px, 6vw, 58px); flex: 0 0 auto; display: grid; place-items: center; border: 2px solid var(--line); background: #fff; font: 700 21px Georgia, serif; transition: background-color 150ms, border-color 150ms, transform 150ms; }
+  .array-cell.active { border-color: var(--red); background: var(--red-soft); transform: translateY(-3px); }
+  .array-cell.done { border-color: var(--green); background: var(--green-soft); }
+  .array-cell.discarded { color: #9ba49e; background: #eef0eb; opacity: .55; }
+  .array-cell.empty { color: #9ba49e; background: rgba(255,255,255,.5); }
+  .array-label { margin: 0 0 6px; color: var(--muted); font-size: 12px; font-weight: 750; }
+  .matrix { display: grid; grid-template-columns: repeat(var(--matrix-size), minmax(34px, 54px)); gap: 4px; width: max-content; max-width: 100%; }
+  .matrix-cell { aspect-ratio: 1; display: grid; place-items: center; border: 2px solid var(--line); background: #fff; color: var(--muted); font-size: 13px; font-weight: 800; transition: background-color 120ms, border-color 120ms; }
+  .matrix-cell.visited { border-color: #8db9a3; background: var(--green-soft); }
+  .matrix-cell.active { border-color: var(--red); background: var(--red-soft); color: var(--ink); }
+  .fixed-space { display: flex; flex-wrap: wrap; gap: 7px; }
+  .variable { min-width: 52px; min-height: 42px; display: grid; place-items: center; border: 1px solid var(--blue); background: var(--blue-soft); padding: 4px 8px; font: 700 15px ui-monospace, monospace; }
+  .space-array { display: flex; flex-wrap: wrap; gap: 4px; }
+  .space-array .array-cell { width: clamp(32px, 4.4vw, 48px); height: 42px; flex: 0 0 auto; font-size: 16px; }
+  .range-track { display: flex; align-items: center; flex-wrap: wrap; gap: 3px; margin-top: 7px; }
+  .range-mark { color: var(--muted); font-size: 11px; font-weight: 800; }
+  .merge-formula { margin: 12px 0 0; color: var(--green); font: 700 17px Georgia, serif; }
+  .tree-level { display: flex; align-items: center; justify-content: center; flex-wrap: nowrap; gap: clamp(3px, 1vw, 9px); margin-bottom: 8px; }
+  .tree-node { width: clamp(13px, 2.3vw, 22px); aspect-ratio: 1; flex: 0 0 auto; border: 2px solid var(--line); border-radius: 50%; background: #fff; }
+  .tree-node.active { border-color: var(--red); background: var(--red-soft); transform: scale(1.12); }
+  .tree-level-label { width: 68px; flex: 0 0 auto; color: var(--muted); font-size: 11px; font-weight: 800; }
+  .call-count { margin-top: 10px; color: var(--ink); font-size: 15px; font-weight: 800; }
+  .new-question { min-width: 160px; min-height: 48px; font-size: 15px; }
+  @keyframes arrive { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+  @media (max-width: 1050px) {
+    .page { width: min(100% - 24px, 1080px); padding-top: 20px; }
+    .page.visual-active { width: min(100% - 24px, 1800px); }
+    .quiz.visual-active { grid-template-columns: minmax(0, 1fr); }
+    .quiz.visual-active > .visualization { grid-column: 1; grid-row: auto; }
+    .quiz.visual-active .actions { flex-wrap: wrap; }
+  }
+  @media (max-width: 650px) {
+    .answers { grid-template-columns: 1fr; gap: 15px; }
+    .visual-panels { gap: 12px; }
+    .tree-level { justify-content: flex-start; gap: 2px; }
+    .tree-level-label { width: 54px; font-size: 10px; }
+    .tree-node { width: 10px; }
+    .question-number { float: none; display: block; padding: 0 0 5px; }
+    .actions { display: grid; grid-template-columns: 1fr 1fr; }
+    .check { grid-column: 1 / -1; }
+    .actions button { width: 100%; }
+  }
+  @media (max-width: 380px) {
+    .choices { gap: 5px; }
+    .choice label { font-size: 16px; }
+    .code-heading { padding-inline: 12px; }
+    pre { padding-inline: 13px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+<main class="page">
+  <header>
+    <span id="question-number" class="question-number" aria-live="polite"></span>
+    <div class="eyebrow">ALGORITHMS · CODE READING QUIZ</div>
+    <h1>Inspect the code</h1>
+    <p class="intro">What is the time complexity? What is the extra space?</p>
+  </header>
+
+  <section class="quiz" aria-label="Java complexity quiz">
+    <section class="code-card" aria-labelledby="code-heading">
+      <div class="code-heading" id="code-heading"><span>JAVA · EXAMPLE</span><span id="complexity-tag" class="complexity-tag"></span></div>
+      <pre><code id="java-code"></code></pre>
+    </section>
+    <form id="answer-form">
+      <div class="answers">
+        <fieldset><legend>TIME COMPLEXITY</legend><div id="time-choices" class="choices"></div></fieldset>
+        <fieldset><legend>SPACE COMPLEXITY</legend><div id="space-choices" class="choices"></div></fieldset>
+      </div>
+    </form>
+    <div class="actions">
+      <button id="check" class="check" type="button">CHECK</button>
+      <button id="play" class="play" type="button" aria-expanded="false">▶ PLAY VISUALIZATION</button>
+      <button id="new-question" class="new-question" type="button">NEW QUESTION</button>
+    </div>
+    <div id="feedback" class="feedback" aria-live="polite" aria-atomic="true"></div>
+    <p class="space-note"><strong>Extra space means new storage created by the algorithm.</strong> The input array itself does not count.</p>
+    <section id="visualization" class="visualization" aria-label="Algorithm visualization" hidden>
+      <div class="visual-heading"><h2>What the computer is doing</h2><span id="visual-progress" aria-live="polite"></span></div>
+      <div id="visual-content"></div>
+    </section>
+  </section>
+</main>
+<script>
+"use strict";
+
+// Add examples here; visual rendering is selected by each item's visualization.type.
+const QUESTIONS = [
+  {
+    id: "first-element",
+    code: "int first = numbers[0];",
+    time: "O(1)",
+    space: "O(1)",
+    tag: "ONE ARRAY ACCESS",
+    explanation: "It reads one fixed position, regardless of array length. Only one variable is added.",
+    timeChoices: ["O(1)", "O(log n)", "O(n)"],
+    spaceChoices: ["O(1)", "O(log n)", "O(n)"],
+    visualization: { type: "single", values: [4, 7, 2, 9, 1, 5], index: 0, variables: ["first"] }
+  },
+  {
+    id: "binary-search",
+    code: "int left = 0;\nint right = numbers.length - 1;\n\nwhile (left <= right) {\n    int mid = left + (right - left) / 2;\n    if (numbers[mid] == target) return mid;\n    if (numbers[mid] < target) left = mid + 1;\n    else right = mid - 1;\n}\nreturn -1;",
+    time: "O(log n)",
+    space: "O(1)",
+    tag: "ITERATIVE BINARY SEARCH",
+    explanation: "Each step discards half the remaining range, so it takes about log₂(n) checks. The bounds and midpoint use fixed space.",
+    timeChoices: ["O(1)", "O(log n)", "O(n)"],
+    spaceChoices: ["O(1)", "O(log n)", "O(n)"],
+    visualization: { type: "binary", recursive: false, values: [2, 4, 6, 8, 11, 15, 19, 23], target: 11, ranges: [[0, 7], [4, 7], [4, 4]] }
+  },
+  {
+    id: "array-sum",
+    code: "int sum = 0;\n\nfor (int i = 0; i < numbers.length; i++) {\n    sum += numbers[i];\n}\n\nreturn sum;",
+    time: "O(n)",
+    space: "O(1)",
+    tag: "ONE PASS",
+    explanation: "The loop visits all n elements once. It keeps only a sum and index, so extra space stays constant.",
+    timeChoices: ["O(log n)", "O(n)", "O(n²)"],
+    spaceChoices: ["O(1)", "O(log n)", "O(n)"],
+    visualization: { type: "linear", values: [4, 7, 2, 9, 1, 5, 8, 3], variables: ["sum", "i"] }
+  },
+  {
+    id: "all-pairs",
+    code: "int count = 0;\n\nfor (int i = 0; i < n; i++) {\n    for (int j = 0; j < n; j++) {\n        count++;\n    }\n}\n\nreturn count;",
+    time: "O(n²)",
+    space: "O(1)",
+    tag: "N × N PAIRS",
+    explanation: "The inner loop runs n times for each of n outer-loop turns: n × n = n² operations. The counters take constant space.",
+    timeChoices: ["O(n)", "O(n²)", "O(2ⁿ)"],
+    spaceChoices: ["O(1)", "O(n)", "O(n²)"],
+    visualization: { type: "matrix", size: 4 }
+  },
+  {
+    id: "array-copy",
+    code: "int[] result = new int[n];\n\nfor (int i = 0; i < n; i++) {\n    result[i] = numbers[i] * 2;\n}\n\nreturn result;",
+    time: "O(n)",
+    space: "O(n)",
+    tag: "NEW ARRAY",
+    explanation: "The loop reads and writes each element once: O(n) time. The result array grows with n: O(n) extra space.",
+    timeChoices: ["O(n)", "O(n log n)", "O(n²)"],
+    spaceChoices: ["O(1)", "O(log n)", "O(n)"],
+    visualization: { type: "copy", values: [4, 7, 2, 9, 1, 5, 8, 3] }
+  },
+  {
+    id: "merge-sort",
+    code: "void mergeSort(int[] values) {\n    if (values.length < 2) return;\n\n    int mid = values.length / 2;\n    int[] left = copyOfRange(values, 0, mid);\n    int[] right = copyOfRange(values, mid, values.length);\n\n    mergeSort(left);\n    mergeSort(right);\n    merge(values, left, right);\n}",
+    time: "O(n log n)",
+    space: "O(n)",
+    tag: "MERGE SORT",
+    explanation: "There are log n levels of splitting, and merging does about n work per level: n log n time. Temporary arrays hold O(n) values.",
+    timeChoices: ["O(n)", "O(n log n)", "O(n²)"],
+    spaceChoices: ["O(log n)", "O(n)", "O(n²)"],
+    visualization: {
+      type: "merge",
+      values: [8, 3, 7, 4, 9, 2, 6, 5],
+      stages: [
+        { label: "Start with the full range", phase: "divide", accessed: [0] },
+        { label: "Split the range at its midpoint", phase: "divide", accessed: [4] },
+        { label: "Split each half into smaller ranges", phase: "divide", accessed: [2, 6] },
+        { label: "Continue until each value is isolated", phase: "divide", accessed: [1, 3, 5, 7] },
+        { label: "Merge neighboring values into sorted pairs", phase: "merge", accessed: [0, 1, 2, 3], output: [3, 8, 4, 7, 2, 9, 5, 6] },
+        { label: "Merge the pairs into sorted groups of four", phase: "merge", accessed: [1, 2, 5, 6], output: [3, 4, 7, 8, 2, 5, 6, 9] },
+        { label: "Merge the two sorted halves", phase: "merge", accessed: [3, 4], output: [2, 3, 4, 5, 6, 7, 8, 9] }
+      ]
+    }
+  },
+  {
+    id: "binary-recursion",
+    code: "int binarySearch(int[] a, int target, int low, int high) {\n    if (low > high) return -1;\n\n    int mid = low + (high - low) / 2;\n    if (a[mid] == target) return mid;\n    if (a[mid] < target)\n        return binarySearch(a, target, mid + 1, high);\n    return binarySearch(a, target, low, mid - 1);\n}",
+    time: "O(log n)",
+    space: "O(log n)",
+    tag: "RECURSIVE BINARY SEARCH",
+    explanation: "Each call halves the search range, giving log n calls. Those calls stay on the recursion stack, so extra space is O(log n).",
+    timeChoices: ["O(1)", "O(log n)", "O(n)"],
+    spaceChoices: ["O(1)", "O(log n)", "O(n)"],
+    visualization: { type: "binary", recursive: true, values: [2, 4, 6, 8, 11, 15, 19, 23], target: 11, ranges: [[0, 7], [4, 7], [4, 4]] }
+  },
+  {
+    id: "binary-recursion-tree",
+    code: "void generate(int n) {\n    if (n == 0) return;\n\n    generate(n - 1);\n    generate(n - 1);\n}",
+    time: "O(2ⁿ)",
+    space: "O(n)",
+    tag: "TWO RECURSIVE BRANCHES",
+    explanation: "Each call makes two calls, so the call tree roughly doubles at each level: O(2ⁿ) time. Its depth is only n, so stack space is O(n).",
+    timeChoices: ["O(n²)", "O(2ⁿ)", "O(n!)"],
+    spaceChoices: ["O(log n)", "O(n)", "O(2ⁿ)"],
+    visualization: { type: "recursion", levels: 5 }
+  }
+];
+
+const questionNumber = document.querySelector("#question-number");
+const javaCode = document.querySelector("#java-code");
+const timeChoices = document.querySelector("#time-choices");
+const spaceChoices = document.querySelector("#space-choices");
+const feedback = document.querySelector("#feedback");
+const visualization = document.querySelector("#visualization");
+const visualContent = document.querySelector("#visual-content");
+const visualProgress = document.querySelector("#visual-progress");
+const playButton = document.querySelector("#play");
+let deck = [];
+let currentQuestion;
+let previousId = "";
+let questionCount = 0;
+let animationTimer = null;
+let animationStep = 0;
+let animationSteps = [];
+let checked = false;
+
+function shuffle(items) {
+  const result = [...items];
+  for (let index = result.length - 1; index > 0; index -= 1) {
+    const other = Math.floor(Math.random() * (index + 1));
+    [result[index], result[other]] = [result[other], result[index]];
+  }
+  return result;
+}
+
+function renderChoices(container, name, choices) {
+  container.replaceChildren(...shuffle(choices).map((label, index) => {
+    const item = document.createElement("div");
+    item.className = "choice";
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = name;
+    input.value = label;
+    input.id = `${name}-${index}`;
+    input.addEventListener("change", () => { if (!checked) feedback.textContent = ""; });
+    const choiceLabel = document.createElement("label");
+    choiceLabel.htmlFor = input.id;
+    choiceLabel.textContent = label;
+    item.append(input, choiceLabel);
+    return item;
+  }));
+}
+
+function nextQuestion() {
+  stopAnimation();
+  if (deck.length === 0) deck = shuffle(QUESTIONS);
+  if (deck.length > 1 && deck[deck.length - 1].id === previousId) {
+    [deck[deck.length - 1], deck[deck.length - 2]] = [deck[deck.length - 2], deck[deck.length - 1]];
+  }
+  currentQuestion = deck.pop();
+  previousId = currentQuestion.id;
+  questionCount += 1;
+  questionNumber.textContent = `QUESTION ${((questionCount - 1) % QUESTIONS.length) + 1} / ${QUESTIONS.length}`;
+  javaCode.textContent = currentQuestion.code;
+  document.querySelector("#complexity-tag").textContent = currentQuestion.tag;
+  renderChoices(timeChoices, "time", currentQuestion.timeChoices);
+  renderChoices(spaceChoices, "space", currentQuestion.spaceChoices);
+  feedback.className = "feedback";
+  feedback.textContent = "";
+  checked = false;
+  visualization.hidden = true;
+  document.querySelector(".quiz").classList.remove("visual-active");
+  document.querySelector(".page").classList.remove("visual-active");
+  playButton.textContent = "▶ PLAY VISUALIZATION";
+  playButton.setAttribute("aria-expanded", "false");
+}
+
+function checkAnswer() {
+  const timeAnswer = document.querySelector('input[name="time"]:checked');
+  const spaceAnswer = document.querySelector('input[name="space"]:checked');
+  if (!timeAnswer || !spaceAnswer) {
+    feedback.className = "feedback incorrect";
+    feedback.textContent = "Choose one answer for time and one for space.";
+    return;
+  }
+  checked = true;
+  const isCorrect = timeAnswer.value === currentQuestion.time && spaceAnswer.value === currentQuestion.space;
+  feedback.className = `feedback ${isCorrect ? "correct" : "incorrect"}`;
+  const title = document.createElement("span");
+  title.className = "feedback-title";
+  title.textContent = isCorrect ? "✓ Correct!" : "✗ Not quite.";
+  const answer = document.createElement("span");
+  answer.className = "feedback-complexities";
+  answer.textContent = `Time: ${currentQuestion.time}  ·  Extra space: ${currentQuestion.space}`;
+  const detail = document.createElement("span");
+  detail.className = "feedback-detail";
+  detail.textContent = currentQuestion.explanation;
+  feedback.replaceChildren(title, answer, detail);
+  markAnswers("time", currentQuestion.time, timeAnswer.value);
+  markAnswers("space", currentQuestion.space, spaceAnswer.value);
+}
+
+function markAnswers(name, correct, selected) {
+  document.querySelectorAll(`input[name="${name}"]`).forEach(input => {
+    const label = input.nextElementSibling;
+    if (input.value === correct) label.classList.add("correct-answer");
+    if (input.value === selected && selected !== correct) label.classList.add("wrong-answer");
+  });
+}
+
+function cellRow(values, activeIndex = -1, visitedThrough = -1, discardedRange = null) {
+  const row = document.createElement("div");
+  row.className = "array-row";
+  values.forEach((value, index) => {
+    const cell = document.createElement("span");
+    cell.className = "array-cell";
+    if (index === activeIndex) cell.classList.add("active");
+    else if (discardedRange && (index < discardedRange[0] || index > discardedRange[1])) cell.classList.add("discarded");
+    else if (index <= visitedThrough) cell.classList.add("done");
+    cell.textContent = value;
+    row.append(cell);
+  });
+  return row;
+}
+
+function panel(title, content) {
+  const section = document.createElement("section");
+  section.className = "visual-panel";
+  const heading = document.createElement("h3");
+  heading.textContent = title;
+  section.append(heading, content);
+  return section;
+}
+
+function note(text) {
+  const element = document.createElement("p");
+  element.className = "visual-note";
+  element.textContent = text;
+  return element;
+}
+
+function fixedSpace(variables) {
+  const row = document.createElement("div");
+  row.className = "fixed-space";
+  variables.forEach(variable => {
+    const item = document.createElement("span");
+    item.className = "variable";
+    item.textContent = variable;
+    row.append(item);
+  });
+  return row;
+}
+
+function arrayLabel(text) {
+  const label = document.createElement("p");
+  label.className = "array-label";
+  label.textContent = text;
+  return label;
+}
+
+function renderArrayStep(question, step) {
+  const visual = question.visualization;
+  const operation = document.createElement("div");
+  operation.append(arrayLabel("INPUT ARRAY"));
+  operation.append(cellRow(visual.values, visual.type === "single" ? visual.index : step, visual.type === "single" ? -1 : step - 1));
+  const space = document.createElement("div");
+  if (visual.type === "copy") {
+    space.append(arrayLabel("NEW RESULT ARRAY"));
+    const output = visual.values.map((value, index) => index <= step ? value * 2 : "");
+    const row = document.createElement("div");
+    row.className = "space-array";
+    output.forEach(value => {
+      const cell = document.createElement("span");
+      cell.className = `array-cell ${value === "" ? "empty" : "done"}`;
+      cell.textContent = value === "" ? "·" : value;
+      row.append(cell);
+    });
+    space.append(row, note(`Allocated output grows with n · ${Math.min(step + 1, visual.values.length)} of ${visual.values.length} values written`));
+  } else {
+    space.append(fixedSpace(visual.variables));
+    space.append(note("A few fixed variables · O(1) extra space"));
+  }
+  const count = visual.type === "single" ? "One indexed read" : visual.type === "copy" ? `${step + 1} of ${visual.values.length} reads and writes` : `${step + 1} of ${visual.values.length} array visits`;
+  operation.append(note(count));
+  showPanels(operation, space);
+}
+
+function renderBinaryStep(question, step) {
+  const visual = question.visualization;
+  const [low, high] = visual.ranges[step];
+  const mid = Math.floor((low + high) / 2);
+  const operation = document.createElement("div");
+  operation.append(arrayLabel(`SORTED INPUT · TARGET ${visual.target}`));
+  operation.append(cellRow(visual.values, mid, -1, [low, high]));
+  const range = document.createElement("div");
+  range.className = "range-track";
+  const rangeLabel = document.createElement("span");
+  rangeLabel.className = "range-mark";
+  rangeLabel.textContent = `Remaining range: ${high - low + 1} of ${visual.values.length}`;
+  range.append(rangeLabel);
+  operation.append(range, note(`Check ${step + 1} of ${visual.ranges.length} · discard half the range`));
+  const space = document.createElement("div");
+  if (visual.recursive) {
+    space.append(fixedSpace(["call 1", "call 2", ...(step > 1 ? ["call 3"] : [])]));
+    space.append(note(`Call stack depth: ${step + 1} · O(log n) space`));
+  } else {
+    space.append(fixedSpace(["left", "mid", "right"]));
+    space.append(note("Bounds update in place · O(1) extra space"));
+  }
+  showPanels(operation, space);
+}
+
+function renderMatrixStep(question, step) {
+  const size = question.visualization.size;
+  const operation = document.createElement("div");
+  const grid = document.createElement("div");
+  grid.className = "matrix";
+  grid.style.setProperty("--matrix-size", size);
+  for (let index = 0; index < size * size; index += 1) {
+    const cell = document.createElement("span");
+    cell.className = `matrix-cell${index === step ? " active" : index < step ? " visited" : ""}`;
+    cell.textContent = index === step ? "i,j" : "·";
+    grid.append(cell);
+  }
+  operation.append(grid, note(`${step + 1} of ${size * size} pairs · ${size} rows × ${size} columns`));
+  const space = document.createElement("div");
+  space.append(fixedSpace(["i", "j", "count"]));
+  space.append(note("Loop counters and count stay fixed · O(1) space"));
+  showPanels(operation, space);
+}
+
+function renderMergeStep(question, step) {
+  const current = question.visualization.stages[step];
+  const operation = document.createElement("div");
+  operation.append(arrayLabel("SOURCE ARRAY"));
+  const source = document.createElement("div");
+  source.className = "array-row";
+  const accessed = new Set(current.accessed);
+  question.visualization.values.forEach((value, index) => {
+    const cell = document.createElement("span");
+    cell.className = `array-cell${accessed.has(index) ? " active" : ""}`;
+    cell.textContent = value;
+    source.append(cell);
+  });
+  operation.append(source, note(current.label));
+  const space = document.createElement("div");
+  space.append(arrayLabel("TEMPORARY MERGE STORAGE"));
+  const row = document.createElement("div");
+  row.className = "space-array";
+  for (let index = 0; index < question.visualization.values.length; index += 1) {
+    const cell = document.createElement("span");
+    const value = current.output?.[index];
+    cell.className = `array-cell ${value === undefined ? "empty" : "done"}`;
+    cell.textContent = value === undefined ? "·" : value;
+    row.append(cell);
+  }
+  space.append(row, note("Merge buffer holds up to n values · O(n) extra space"));
+  showPanels(operation, space);
+  const formula = document.createElement("p");
+  formula.className = "merge-formula";
+  formula.textContent = "log n levels × about n work per level = O(n log n)";
+  visualContent.append(formula);
+}
+
+function renderRecursionStep(question, step) {
+  const levels = question.visualization.levels;
+  const operation = document.createElement("div");
+  for (let level = 0; level < levels; level += 1) {
+    const row = document.createElement("div");
+    row.className = "tree-level";
+    const label = document.createElement("span");
+    label.className = "tree-level-label";
+    label.textContent = `level ${level} · ${2 ** level}`;
+    row.append(label);
+    for (let node = 0; node < 2 ** level; node += 1) {
+      const dot = document.createElement("span");
+      dot.className = `tree-node${level === step ? " active" : ""}`;
+      dot.setAttribute("aria-hidden", "true");
+      row.append(dot);
+    }
+    operation.append(row);
+  }
+  const calls = 2 ** (step + 1) - 1;
+  operation.append(note(`${2 ** step} calls at this level · ${calls} total so far`));
+  const space = document.createElement("div");
+  space.append(fixedSpace(Array.from({ length: step + 1 }, (_, index) => `n−${index}`)));
+  space.append(note(`Depth grows one call at a time · ${step + 1} of ${levels} levels`));
+  showPanels(operation, space);
+}
+
+function showPanels(operations, space) {
+  const panels = document.createElement("div");
+  panels.className = "visual-panels";
+  panels.append(panel("OPERATIONS", operations), panel("EXTRA SPACE", space));
+  visualContent.replaceChildren(panels);
+}
+
+function renderVisualizationStep() {
+  const type = currentQuestion.visualization.type;
+  visualContent.replaceChildren();
+  if (type === "single" || type === "linear" || type === "copy") renderArrayStep(currentQuestion, animationSteps[animationStep]);
+  if (type === "binary") renderBinaryStep(currentQuestion, animationStep);
+  if (type === "matrix") renderMatrixStep(currentQuestion, animationStep);
+  if (type === "merge") renderMergeStep(currentQuestion, animationStep);
+  if (type === "recursion") renderRecursionStep(currentQuestion, animationStep);
+  visualProgress.textContent = `STEP ${animationStep + 1} / ${animationSteps.length}`;
+}
+
+function stopAnimation() {
+  if (animationTimer !== null) window.clearTimeout(animationTimer);
+  animationTimer = null;
+  animationStep = 0;
+}
+
+function advanceVisualization() {
+  animationStep += 1;
+  if (animationStep >= animationSteps.length) {
+    animationTimer = null;
+    playButton.textContent = "↻ REPLAY VISUALIZATION";
+    return;
+  }
+  renderVisualizationStep();
+  animationTimer = window.setTimeout(advanceVisualization, 650);
+}
+
+function playVisualization() {
+  if (animationTimer !== null) {
+    stopAnimation();
+    playButton.textContent = "▶ PLAY VISUALIZATION";
+    return;
+  }
+  const visual = currentQuestion.visualization;
+  const stepCount = visual.type === "single" ? 1
+    : visual.type === "binary" ? visual.ranges.length
+      : visual.type === "linear" || visual.type === "copy" ? visual.values.length
+        : visual.type === "matrix" ? visual.size ** 2
+          : visual.type === "merge" ? visual.stages.length
+            : visual.levels;
+  animationSteps = Array.from({ length: stepCount }, (_, index) => index);
+  animationStep = 0;
+  document.querySelector(".quiz").classList.add("visual-active");
+  document.querySelector(".page").classList.add("visual-active");
+  visualization.hidden = false;
+  playButton.setAttribute("aria-expanded", "true");
+  playButton.textContent = "■ STOP VISUALIZATION";
+  renderVisualizationStep();
+  animationTimer = window.setTimeout(advanceVisualization, 650);
+}
+
+document.querySelector("#check").addEventListener("click", checkAnswer);
+document.querySelector("#new-question").addEventListener("click", nextQuestion);
+playButton.addEventListener("click", playVisualization);
+nextQuestion();
+</script>
+</body>
+</html>
