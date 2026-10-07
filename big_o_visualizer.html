@@ -19,7 +19,14 @@
     font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
   }
   * { box-sizing: border-box; }
-  body { margin: 0; min-width: 320px; color: var(--ink); background: var(--paper); }
+  body {
+    margin: 0;
+    min-width: 320px;
+    color: var(--ink);
+    background-color: #f7f8f4;
+    background-image: linear-gradient(rgba(23,33,30,.027) 1px, transparent 1px), linear-gradient(90deg, rgba(23,33,30,.027) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
   button, input { font: inherit; }
   button { min-height: 44px; border: 2px solid var(--ink); border-radius: 5px; padding: 7px 11px; color: var(--ink); background: #fff; font-weight: 850; cursor: pointer; }
   button:hover { background: #edf1eb; }

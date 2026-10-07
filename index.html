@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#174b3b">
+  <title>Algorithms</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f8f4;
+      --ink: #17211e;
+      --muted: #58645f;
+      --line: #cbd3cd;
+      --green: #176b52;
+      --coral: #bf4935;
+      font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-width: 320px;
+      color: var(--ink);
+      background-color: var(--paper);
+      background-image: linear-gradient(rgba(23,33,30,.027) 1px, transparent 1px), linear-gradient(90deg, rgba(23,33,30,.027) 1px, transparent 1px);
+      background-size: 28px 28px;
+      line-height: 1.5;
+    }
+
+    a { color: var(--green); }
+    a:hover { color: var(--coral); }
+    a:focus-visible { outline: 3px solid var(--coral); outline-offset: 3px; }
+
+    .hero-inner, main {
+      width: min(1000px, calc(100% - 48px));
+      margin: 0 auto;
+    }
+
+    .hero-inner {
+      min-height: 132px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h1, h2, p { margin-top: 0; }
+
+    h1 {
+      margin: 0;
+      font: 700 54px/1.05 Georgia, "Times New Roman", serif;
+    }
+
+    .qr-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .qr-card img {
+      display: block;
+      width: 112px;
+      height: 112px;
+      image-rendering: pixelated;
+    }
+
+    .qr-caption { max-width: 120px; margin: 0; }
+
+    main { padding: 12px 0 28px; }
+
+    .general-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+      padding: 0 0 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .general-links a {
+      font-size: 16px;
+      font-weight: 700;
+      text-underline-offset: 3px;
+    }
+
+    .exercise {
+      padding: 12px 0 14px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    h2 {
+      margin: 0 0 4px;
+      font: 700 29px/1.2 Georgia, "Times New Roman", serif;
+    }
+
+    .visualizer-link {
+      margin-left: 8px;
+      font: 700 15px/1.2 "Avenir Next", Avenir, "Segoe UI", sans-serif;
+      vertical-align: middle;
+    }
+
+    .tasks {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .tasks a { text-underline-offset: 2px; }
+    .tasks a + a::before {
+      content: "·";
+      display: inline-block;
+      margin-right: .4em;
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    @media (max-width: 520px) {
+      .hero-inner, main { width: calc(100% - 32px); }
+      .hero-inner { min-height: 96px; gap: 12px; }
+      h1 { font-size: 38px; }
+      .qr-card { gap: 8px; font-size: 11px; }
+      .qr-card img { width: 80px; height: 80px; }
+      .qr-caption { max-width: 92px; }
+      main { padding-top: 10px; }
+      .general-links { gap: 6px 18px; padding-bottom: 9px; }
+      .exercise { padding: 9px 0 11px; }
+      h2 { font-size: 25px; }
+      .tasks { font-size: 14px; }
+    }
+
+    @media (max-width: 360px) {
+      h1 { font-size: 32px; }
+      .qr-card {
+        width: 92px;
+        flex-direction: column;
+        gap: 0;
+        text-align: center;
+      }
+      .qr-card img { width: 68px; height: 68px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="hero-inner">
+      <div>
+        <h1>Algorithms</h1>
+      </div>
+      <aside class="qr-card" aria-label="Access on your phone">
+        <img alt="QR code for the Algorithms course homepage" width="328" height="328" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUgAAAFIAQAAAAAab1qeAAABzklEQVR42u2aMRIjOQwDgav9/5d7A5KSXJdIsynGiexB1AUJJC2jy+c/RRlllFFGuZ8/kuRaI5n+giSL/SY873mKomoNUWSB15vwfOJZCIVlXAyxYb0Jzzee+zGyUMEMpX9WIkuWbM+5GkrP/mTtencUza+E0jvPMSKWMEYY77QPzyeenMdnw6xSiVD6mEeWRJdHMJveXZSG52s9z853xqVVQYXSuxJZtt2uRBgJu80ZSm9KCwN0V+ShKrqCCqWnPPIK+fHjkUSE57VSALvSZDIJdHwAwvPmMUcBSlf0P/OlaejD856ne1Q3AxD3J5Q+KQun26ZdfdY8tFr5UHpTemLHXrkk2VU2Zb+/n5/r6MQ1TO4qf40/w/Nhv1f4IJCg6LpXZL9/6Y9+cr2XnU9kvz/OQxa/WQxXPF/C815ZFb2tqt2tMSlHpxSeD3nUi3KjNf9xcgzswvOa54rzlfDnZD7+/OLPVddXezS3G1bbFJ73eXTcD6kwMj+j+fjzMd/5CXktnGKbODzvee5bIHVw+vjbeG42hOez8pgogdwWrfYolF78+f+Y6syf6Wd4PvFkG7RO0G7pc5/he7+5z8/TliSPPtefoRRllFFGea38C9Cs64vpPKOEAAAAAElFTkSuQmCC">
+      </aside>
+    </div>
+  </header>
+
+  <main>
+    <nav class="general-links" aria-label="General helpers">
+      <a href="big_o_visualizer.html">Big-O Growth Quiz</a>
+      <a href="java_complexity_quiz.html">Java Complexity Quiz</a>
+    </nav>
+
+    <section class="exercise" aria-labelledby="intro-title">
+      <h2 id="intro-title">Intro</h2>
+      <p class="tasks">
+        <a href="https://leetcode.com/problems/palindrome-number/" target="_blank" rel="noopener noreferrer">#9 Palindrome Number</a>
+        <a href="https://leetcode.com/problems/fibonacci-number/" target="_blank" rel="noopener noreferrer">#509 Fibonacci Number</a>
+        <a href="https://leetcode.com/problems/two-sum/" target="_blank" rel="noopener noreferrer">#1 Two Sum</a>
+      </p>
+    </section>
+
+    <section class="exercise" aria-labelledby="sorting-title">
+      <h2 id="sorting-title">Sorting <a class="visualizer-link" href="sorting_visualizer.html">visualizer</a></h2>
+      <p class="tasks">
+        <a href="https://leetcode.com/problems/valid-anagram/" target="_blank" rel="noopener noreferrer">#242 Valid Anagram</a>
+        <a href="https://leetcode.com/problems/contains-duplicate/" target="_blank" rel="noopener noreferrer">#217 Contains Duplicate</a>
+        <a href="https://leetcode.com/problems/majority-element/" target="_blank" rel="noopener noreferrer">#169 Majority Element</a>
+        <a href="https://leetcode.com/problems/merge-sorted-array/" target="_blank" rel="noopener noreferrer">#88 Merge Sorted Array</a>
+        <a href="https://leetcode.com/problems/sort-an-array/" target="_blank" rel="noopener noreferrer">#912 Sort an Array</a>
+      </p>
+    </section>
+  </main>
+</body>
+</html>
