@@ -71,6 +71,8 @@
   .graph h2 { margin: 0 0 5px; font: 700 22px Georgia, "Times New Roman", serif; }
   .graph p { margin: 0 0 6px; color: var(--muted); font-size: 13px; }
   .graph-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+  .graph-controls { display: flex; align-items: end; justify-content: flex-end; gap: 12px; flex-wrap: wrap; }
+  .graph-pan-hint { max-width: 200px; color: var(--muted); font-size: 12px; font-weight: 800; line-height: 1.35; text-align: right; }
   .scale-toggle { display: inline-flex; flex: 0 0 auto; border: 1px solid var(--line); border-radius: 4px; padding: 2px; background: #fff; }
   .scale-toggle button { min-height: 32px; border: 0; border-radius: 3px; padding: 5px 10px; font-size: 13px; }
   .scale-toggle button[aria-pressed="true"] { color: #fff; background: var(--green); }
@@ -123,9 +125,12 @@
     <section id="graph" class="graph" aria-label="Graph of this question's functions" hidden>
       <div class="graph-head">
         <div><h2>This question, graphed</h2><p id="graph-description">Operations (linear scale), using actual function values.</p></div>
-        <div class="scale-toggle" role="group" aria-label="Graph Y-axis scale">
-          <button type="button" data-scale="linear" aria-pressed="true">Linear</button>
-          <button type="button" data-scale="log" aria-pressed="false">Log</button>
+        <div class="graph-controls">
+          <div class="graph-pan-hint">Drag the graph left or right to inspect a local window of n.</div>
+          <div class="scale-toggle" role="group" aria-label="Graph Y-axis scale">
+            <button type="button" data-scale="linear" aria-pressed="true">Linear</button>
+            <button type="button" data-scale="log" aria-pressed="false">Log</button>
+          </div>
         </div>
       </div>
       <svg id="question-graph" viewBox="0 0 800 320" role="img" aria-label="Logarithmic graph of the current complexity functions"></svg>
@@ -165,6 +170,11 @@ let questionColors = new Map();
 let previousQuestion = "";
 let draggedCard = null;
 let graphScale = "linear";
+let graphWindowStart = 1;
+const GRAPH_WINDOW_SIZE = 20;
+const GRAPH_DOMAIN_MAX = 80;
+const GRAPH_REFERENCE_N = 20;
+let graphDragState = null;
 
 function factorial(n) {
   let value = 1;
@@ -192,6 +202,23 @@ function shuffle(items) {
   return result;
 }
 
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function graphWindow() {
+  const start = clamp(graphWindowStart, 1, GRAPH_DOMAIN_MAX - GRAPH_WINDOW_SIZE + 1);
+  return {
+    start,
+    end: start + GRAPH_WINDOW_SIZE - 1,
+    size: GRAPH_WINDOW_SIZE
+  };
+}
+
+function setGraphWindowFromQuestion() {
+  graphWindowStart = 1;
+}
+
 function newQuestion() {
   let chosen;
   let signature;
@@ -207,6 +234,7 @@ function newQuestion() {
   renderCards(shuffle(question));
   feedback.className = "feedback";
   feedback.textContent = "";
+  setGraphWindowFromQuestion();
   if (!graphSection.hidden) drawGraph();
 }
 
@@ -298,14 +326,6 @@ function checkAnswer() {
   }
 }
 
-function graphRange() {
-  const fastestRank = Math.max(...question.map(item => item.rank));
-  if (fastestRank === 7) return 16;
-  if (fastestRank === 6) return 20;
-  if (fastestRank === 5) return 40;
-  return 100;
-}
-
 function drawGraph() {
   const svg = document.querySelector("#question-graph");
   const legend = document.querySelector("#legend");
@@ -314,12 +334,12 @@ function drawGraph() {
   const pad = { left: 74, right: 18, top: 18, bottom: 52 };
   const plotWidth = width - pad.left - pad.right;
   const plotHeight = height - pad.top - pad.bottom;
-  const maxN = graphRange();
-  const maxValue = Math.max(...question.map(item => item.evaluate(maxN)));
-  const maxLog = Math.max(...question.map(item => item.log10(maxN)));
+  const visible = graphWindow();
+  const maxValue = Math.max(...question.map(item => item.evaluate(GRAPH_REFERENCE_N)));
+  const maxLog = Math.max(...question.map(item => item.log10(GRAPH_REFERENCE_N)));
   const linearStep = niceStep(maxValue / 5);
   const yMax = graphScale === "linear" ? linearStep * Math.ceil(maxValue / linearStep) : Math.max(1, Math.ceil(maxLog));
-  const x = n => pad.left + ((n - 1) / (maxN - 1)) * plotWidth;
+  const x = n => pad.left + ((n - visible.start) / (visible.size - 1)) * plotWidth;
   const y = value => pad.top + plotHeight - (value / yMax) * plotHeight;
   const parts = [];
   const yStep = graphScale === "linear" ? linearStep : yMax <= 8 ? 1 : Math.ceil(yMax / 8);
@@ -330,7 +350,7 @@ function drawGraph() {
     const label = graphScale === "linear" ? formatAxisValue(tick) : tick === 0 ? "1" : `10${superscript(tick)}`;
     parts.push(`<text class="tick" x="${pad.left - 10}" y="${yy + 4}" text-anchor="end">${label}</text>`);
   }
-  const xTicks = [1, Math.round(maxN / 4), Math.round(maxN / 2), Math.round(maxN * 3 / 4), maxN];
+  const xTicks = Array.from({ length: 5 }, (_, index) => Math.round(visible.start + ((visible.end - visible.start) * index) / 4));
   for (const tick of [...new Set(xTicks)]) {
     const xx = x(tick);
     parts.push(`<line class="grid" x1="${xx}" y1="${pad.top}" x2="${xx}" y2="${pad.top + plotHeight}"/>`);
@@ -341,10 +361,10 @@ function drawGraph() {
   parts.push(`<text class="axis-label" x="${pad.left + plotWidth / 2}" y="${height - 8}" text-anchor="middle">Input size, n</text>`);
   parts.push(`<text class="axis-label" x="16" y="${pad.top + plotHeight / 2}" text-anchor="middle" transform="rotate(-90 16 ${pad.top + plotHeight / 2})">Operations${graphScale === "log" ? " (log scale)" : ""}</text>`);
 
-  question.forEach((item, index) => {
+  question.forEach((item) => {
     const points = [];
     let started = false;
-    for (let n = 1; n <= maxN; n += 1) {
+    for (let n = visible.start; n <= visible.end; n += 1) {
       const value = graphScale === "linear" ? item.evaluate(n) : item.log10(n);
       if (!Number.isFinite(value) || (graphScale === "log" && value < 0)) continue;
       points.push(`${started ? "L" : "M"}${x(n).toFixed(1)},${y(value).toFixed(1)}`);
@@ -354,9 +374,9 @@ function drawGraph() {
   });
   svg.innerHTML = parts.join("");
   document.querySelector("#graph-description").textContent = graphScale === "linear"
-    ? "Operations (linear scale), using actual function values."
-    : "Operations (log scale), using the same function values.";
-  svg.setAttribute("aria-label", `${graphScale === "linear" ? "Linear" : "Logarithmic"} graph of the current complexity functions`);
+    ? `Operations (linear scale), using actual function values for n from ${visible.start} to ${visible.end}.`
+    : `Operations (log scale), using the same function values for n from ${visible.start} to ${visible.end}.`;
+  svg.setAttribute("aria-label", `${graphScale === "linear" ? "Linear" : "Logarithmic"} graph of the current complexity functions for input sizes from ${visible.start} to ${visible.end}`);
   legend.replaceChildren(...question.map(item => {
     const entry = document.createElement("span");
     entry.className = "legend-item";
@@ -388,6 +408,35 @@ function superscript(number) {
   return String(number).split("").map(digit => digits[digit]).join("");
 }
 
+function onGraphPointerDown(event) {
+  if (event.button !== 0) return;
+  graphDragState = {
+    startX: event.clientX,
+    startWindowStart: graphWindowStart
+  };
+  event.preventDefault();
+  event.currentTarget.setPointerCapture(event.pointerId);
+  event.currentTarget.style.cursor = "grabbing";
+}
+
+function onGraphPointerMove(event) {
+  if (!graphDragState || event.pointerType === "touch" && event.isPrimary === false) return;
+  const deltaX = event.clientX - graphDragState.startX;
+  const shift = Math.round(deltaX / 18);
+  const maxStart = GRAPH_DOMAIN_MAX - GRAPH_WINDOW_SIZE;
+  graphWindowStart = clamp(graphDragState.startWindowStart - shift, 1, maxStart);
+  if (!graphSection.hidden) drawGraph();
+}
+
+function onGraphPointerUp(event) {
+  if (!graphDragState) return;
+  graphDragState = null;
+  event.currentTarget.style.cursor = "grab";
+  if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+    event.currentTarget.releasePointerCapture(event.pointerId);
+  }
+}
+
 document.querySelector("#check").addEventListener("click", checkAnswer);
 document.querySelector("#new-question").addEventListener("click", newQuestion);
 document.querySelector("#show-graph").addEventListener("change", event => {
@@ -401,6 +450,10 @@ document.querySelectorAll("[data-scale]").forEach(button => button.addEventListe
   document.querySelectorAll("[data-scale]").forEach(option => option.setAttribute("aria-pressed", String(option === button)));
   if (!graphSection.hidden) drawGraph();
 }));
+document.querySelector("#question-graph").addEventListener("pointerdown", onGraphPointerDown);
+document.querySelector("#question-graph").addEventListener("pointermove", onGraphPointerMove);
+document.querySelector("#question-graph").addEventListener("pointerup", onGraphPointerUp);
+document.querySelector("#question-graph").addEventListener("pointerleave", onGraphPointerUp);
 newQuestion();
 </script>
 </body>
