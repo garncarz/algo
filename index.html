@@ -57,6 +57,12 @@
       font: 700 54px/1.05 Georgia, "Times New Roman", serif;
     }
 
+    .tagline {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
     .qr-card {
       display: flex;
       align-items: center;
@@ -121,9 +127,22 @@
       color: var(--ink);
       text-decoration: none;
     }
+    .tasks a.extra { font-size: .9em; font-style: italic; }
+
+    footer {
+      width: min(1000px, calc(100% - 48px));
+      margin: 0 auto;
+      padding: 10px 0 18px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    footer a { color: var(--muted); }
+    footer a:hover { color: var(--coral); }
 
     @media (max-width: 520px) {
-      .hero-inner, main { width: calc(100% - 32px); }
+      .hero-inner, main, footer { width: calc(100% - 32px); }
       .hero-inner { min-height: 96px; gap: 12px; }
       h1 { font-size: 38px; }
       .qr-card { gap: 8px; font-size: 11px; }
@@ -153,6 +172,7 @@
     <div class="hero-inner">
       <div>
         <h1>Algorithms</h1>
+        <p class="tagline">A collection of helper tools and recommended tasks.</p>
       </div>
       <aside class="qr-card" aria-label="Access on your phone">
         <img alt="QR code for the Algorithms course homepage" width="328" height="328" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUgAAAFIAQAAAAAab1qeAAABzklEQVR42u2aMRIjOQwDgav9/5d7A5KSXJdIsynGiexB1AUJJC2jy+c/RRlllFFGuZ8/kuRaI5n+giSL/SY873mKomoNUWSB15vwfOJZCIVlXAyxYb0Jzzee+zGyUMEMpX9WIkuWbM+5GkrP/mTtencUza+E0jvPMSKWMEYY77QPzyeenMdnw6xSiVD6mEeWRJdHMJveXZSG52s9z853xqVVQYXSuxJZtt2uRBgJu80ZSm9KCwN0V+ShKrqCCqWnPPIK+fHjkUSE57VSALvSZDIJdHwAwvPmMUcBSlf0P/OlaejD856ne1Q3AxD3J5Q+KQun26ZdfdY8tFr5UHpTemLHXrkk2VU2Zb+/n5/r6MQ1TO4qf40/w/Nhv1f4IJCg6LpXZL9/6Y9+cr2XnU9kvz/OQxa/WQxXPF/C815ZFb2tqt2tMSlHpxSeD3nUi3KjNf9xcgzswvOa54rzlfDnZD7+/OLPVddXezS3G1bbFJ73eXTcD6kwMj+j+fjzMd/5CXktnGKbODzvee5bIHVw+vjbeG42hOez8pgogdwWrfYolF78+f+Y6syf6Wd4PvFkG7RO0G7pc5/he7+5z8/TliSPPtefoRRllFFGea38C9Cs64vpPKOEAAAAAElFTkSuQmCC">
@@ -171,7 +191,7 @@
       <p class="tasks">
         <a href="https://leetcode.com/problems/palindrome-number/" target="_blank" rel="noopener noreferrer">#9 Palindrome Number</a>
         <a href="https://leetcode.com/problems/fibonacci-number/" target="_blank" rel="noopener noreferrer">#509 Fibonacci Number</a>
-        <a href="https://leetcode.com/problems/two-sum/" target="_blank" rel="noopener noreferrer">#1 Two Sum</a>
+        <a class="extra" href="https://leetcode.com/problems/two-sum/" target="_blank" rel="noopener noreferrer">#1 Two Sum</a>
       </p>
     </section>
 
@@ -179,12 +199,18 @@
       <h2 id="sorting-title">Sorting <a href="sorting_visualizer.html">visualizer</a></h2>
       <p class="tasks">
         <a href="https://leetcode.com/problems/valid-anagram/" target="_blank" rel="noopener noreferrer">#242 Valid Anagram</a>
-        <a href="https://leetcode.com/problems/contains-duplicate/" target="_blank" rel="noopener noreferrer">#217 Contains Duplicate</a>
-        <a href="https://leetcode.com/problems/majority-element/" target="_blank" rel="noopener noreferrer">#169 Majority Element</a>
+        <a class="extra" href="https://leetcode.com/problems/contains-duplicate/" target="_blank" rel="noopener noreferrer">#217 Contains Duplicate</a>
+        <a class="extra" href="https://leetcode.com/problems/majority-element/" target="_blank" rel="noopener noreferrer">#169 Majority Element</a>
         <a href="https://leetcode.com/problems/merge-sorted-array/" target="_blank" rel="noopener noreferrer">#88 Merge Sorted Array</a>
         <a href="https://leetcode.com/problems/sort-an-array/" target="_blank" rel="noopener noreferrer">#912 Sort an Array</a>
       </p>
     </section>
   </main>
+
+  <footer>
+    <a href="mailto:ondrej.garncarz@ugn.cas.cz">ondrej.garncarz@ugn.cas.cz</a>
+    ·
+    <a href="https://github.com/garncarz/algo" target="_blank" rel="noopener noreferrer">Source</a>
+  </footer>
 </body>
 </html>
