@@ -1,0 +1,516 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#174b3b">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Recursion Visualizer</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f8f4;
+      --ink: #17211e;
+      --muted: #58645f;
+      --line: #cbd3cd;
+      --green: #176b52;
+      --green-soft: #d9eee5;
+      --coral: #bf4935;
+      --coral-soft: #f8dfd8;
+      --gold: #d49a25;
+      --gold-soft: #fff0c4;
+      --blue: #356f9b;
+      --blue-soft: #e0edf5;
+      --white: #fff;
+      font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-width: 320px;
+      min-height: 100vh;
+      color: var(--ink);
+      background: var(--paper);
+      background-image: linear-gradient(rgba(23,33,30,.027) 1px, transparent 1px), linear-gradient(90deg, rgba(23,33,30,.027) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+    button { font: inherit; }
+    button:focus-visible, [role="tab"]:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+    .page { width: min(1480px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 18px; }
+    .page-header { display: flex; align-items: end; justify-content: space-between; gap: 24px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+    .eyebrow { color: var(--green); font-size: 12px; font-weight: 900; }
+    h1 { margin: 6px 0 0; font: 700 48px/1 Georgia, "Times New Roman", serif; }
+    .subtitle { margin: 8px 0 0; color: var(--muted); font-size: 17px; }
+    .example-number { color: var(--muted); font: 700 16px Georgia, serif; white-space: nowrap; }
+    .tabs { display: flex; gap: 4px; margin: 18px 0 16px; border-bottom: 1px solid var(--line); }
+    [role="tab"] { position: relative; min-height: 46px; border: 0; border-bottom: 3px solid transparent; padding: 8px 18px; color: var(--muted); background: transparent; font-size: 15px; font-weight: 800; cursor: pointer; }
+    [role="tab"][aria-selected="true"] { border-bottom-color: var(--green); color: var(--green); }
+    [role="tabpanel"][hidden] { display: none; }
+    .example-heading { display: flex; align-items: center; justify-content: space-between; gap: 18px; margin: 0 0 12px; }
+    h2 { margin: 0; font: 700 25px/1.15 Georgia, "Times New Roman", serif; }
+    .concept { margin: 5px 0 0; color: var(--muted); font-size: 14px; }
+    .controls { display: flex; flex-wrap: wrap; gap: 7px; }
+    .controls button { min-height: 40px; border: 1.5px solid var(--ink); border-radius: 3px; padding: 7px 14px; color: var(--ink); background: var(--white); font-size: 12px; font-weight: 900; cursor: pointer; }
+    .controls button:hover:not(:disabled) { color: var(--white); background: var(--ink); }
+    .controls button.primary { border-color: var(--green); color: var(--white); background: var(--green); }
+    .controls button.primary:hover:not(:disabled) { border-color: #105640; background: #105640; }
+    .controls button:disabled { opacity: .42; cursor: not-allowed; }
+    .status { min-height: 38px; display: flex; align-items: center; gap: 9px; margin: 0 0 12px; padding: 7px 10px; border-left: 4px solid var(--gold); background: rgba(255,255,255,.76); font-size: 15px; font-weight: 750; }
+    .status::before { content: ""; width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: var(--gold); }
+    .workbench { display: grid; grid-template-columns: minmax(460px, 1.35fr) minmax(300px, .8fr) minmax(270px, .9fr); gap: 16px; align-items: stretch; }
+    .work-panel { min-width: 0; border-top: 2px solid var(--ink); padding-top: 10px; }
+    .panel-heading { display: flex; justify-content: space-between; align-items: center; gap: 8px; min-height: 27px; margin-bottom: 9px; }
+    h3 { margin: 0; font-size: 13px; font-weight: 900; }
+    .panel-hint { color: var(--muted); font-size: 11px; }
+    pre { margin: 0; white-space: pre; }
+    .code { min-height: 246px; overflow: auto; padding: 13px 12px; border: 1px solid var(--line); background: var(--white); color: #26332d; font: 13px/1.65 "SFMono-Regular", Consolas, "Liberation Mono", monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .code .keyword { color: var(--blue); font-weight: 700; }
+    .code .active-line { display: inline-block; min-width: 100%; margin-inline: -5px; padding-inline: 5px; background: var(--gold-soft); }
+    .stack { min-height: 246px; display: flex; flex-direction: column; justify-content: end; gap: 6px; padding: 10px; border: 1px solid var(--line); background: rgba(255,255,255,.48); }
+    .stack-empty { margin: auto; color: #7c8881; font: 17px Georgia, serif; text-align: center; }
+    .frame { display: grid; grid-template-columns: auto 1fr; gap: 1px 10px; align-items: center; min-height: 51px; padding: 7px 9px; border: 1.5px solid var(--line); background: var(--white); animation: arrive .18s ease-out; }
+    .frame.current { border-color: var(--coral); background: var(--coral-soft); }
+    .frame.waiting { border-left: 5px solid var(--blue); }
+    .frame.base { border-color: var(--gold); background: var(--gold-soft); }
+    .frame.returned { border-color: var(--green); background: var(--green-soft); }
+    .frame-name { grid-row: span 2; font: 700 19px/1 Georgia, serif; white-space: nowrap; }
+    .frame-detail { min-width: 0; color: var(--muted); font-size: 12px; line-height: 1.25; }
+    .frame-state { justify-self: end; color: var(--green); font-size: 10px; font-weight: 900; text-transform: uppercase; }
+    @keyframes arrive { from { opacity: .45; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+    .output { min-height: 246px; max-height: 350px; overflow: auto; padding: 10px; border: 1px solid var(--line); background: var(--white); font: 14px/1.7 "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    .output-empty { color: #7c8881; font: 15px/1.5 "Avenir Next", Avenir, sans-serif; text-align: center; padding-top: 78px; }
+    .output-line { min-height: 24px; padding: 1px 5px; white-space: pre; }
+    .output-line.newest { color: var(--ink); background: var(--gold-soft); font-weight: 800; }
+    .stack-key { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; color: var(--muted); font-size: 11px; }
+    .key-item { display: inline-flex; align-items: center; gap: 5px; }
+    .key-dot { width: 9px; height: 9px; border: 1px solid var(--line); background: var(--white); }
+    .key-dot.waiting { border-color: var(--blue); background: var(--blue-soft); }
+    .key-dot.current { border-color: var(--coral); background: var(--coral-soft); }
+    .key-dot.base { border-color: var(--gold); background: var(--gold-soft); }
+    .takeaway { margin: 18px 0 0; padding: 12px 0 0; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; line-height: 1.5; }
+    .takeaway strong { color: var(--ink); }
+    .factorial-workbench { grid-template-columns: minmax(460px, 1.35fr) minmax(300px, .8fr) minmax(270px, .9fr); }
+    .factorial-workbench .code { min-height: 292px; }
+    .factorial-stack { min-height: 292px; }
+    .factorial-trace { min-height: 292px; max-height: 400px; overflow: auto; padding: 10px; border: 1px solid var(--line); background: var(--white); font: 14px/1.75 "SFMono-Regular", Consolas, "Liberation Mono", monospace; }
+    .trace-empty { padding-top: 98px; color: #7c8881; font: 15px/1.5 "Avenir Next", Avenir, sans-serif; text-align: center; }
+    .trace-line { min-height: 25px; padding: 1px 5px; white-space: pre; }
+    .trace-line.newest { background: var(--gold-soft); font-weight: 800; }
+    .result { margin-top: 12px; padding: 10px 12px; border: 1.5px solid var(--green); background: var(--green-soft); color: var(--green); font: 700 23px Georgia, serif; text-align: center; }
+    .result[hidden] { display: none; }
+    .factorial-takeaway { margin-top: 12px; }
+    @media (max-width: 1130px) {
+      .workbench, .factorial-workbench { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
+      .output-panel, .trace-panel { grid-column: 1 / -1; }
+      .output, .factorial-trace { min-height: 160px; max-height: 240px; }
+      .output-empty, .trace-empty { padding-top: 55px; }
+      .code { font-size: 12px; }
+    }
+    @media (max-width: 620px) {
+      .page { width: min(100% - 28px, 1280px); padding-top: 20px; }
+      .page-header { align-items: start; flex-direction: column; gap: 9px; }
+      h1 { font-size: 39px; }
+      .tabs { margin-top: 12px; }
+      [role="tab"] { flex: 1; padding-inline: 7px; font-size: 13px; }
+      .example-heading { align-items: start; flex-direction: column; gap: 10px; }
+      .controls { width: 100%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .controls button { width: 100%; }
+      .workbench, .factorial-workbench { grid-template-columns: minmax(0, 1fr); gap: 14px; }
+      .output-panel, .trace-panel { grid-column: auto; }
+      .code { min-height: auto; font-size: 12px; }
+      .factorial-workbench .code { min-height: auto; }
+      .stack, .factorial-stack { min-height: 230px; }
+      .output, .factorial-trace { min-height: 170px; }
+    }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="page-header">
+      <div>
+        <div class="eyebrow">ALGORITHMS / RECURSION</div>
+        <h1>Recursion Visualizer</h1>
+        <p class="subtitle">See what happens when a function calls itself.</p>
+      </div>
+      <div class="example-number" aria-hidden="true">TWO EXAMPLES</div>
+    </header>
+
+    <div class="tabs" role="tablist" aria-label="Recursion examples">
+      <button id="tab-explore" role="tab" type="button" aria-selected="true" aria-controls="panel-explore">1. Going deeper</button>
+      <button id="tab-factorial" role="tab" type="button" aria-selected="false" aria-controls="panel-factorial" tabindex="-1">2. Returning values</button>
+    </div>
+
+    <section id="panel-explore" role="tabpanel" aria-labelledby="tab-explore">
+      <div class="example-heading">
+        <div>
+          <h2>Going deeper and returning</h2>
+          <p class="concept">A recursive call pauses the current function.</p>
+        </div>
+        <div class="controls" aria-label="Going deeper controls">
+          <button class="primary" type="button" data-action="start" data-example="explore">START</button>
+          <button type="button" data-action="step" data-example="explore">STEP</button>
+          <button type="button" data-action="reset" data-example="explore">RESET</button>
+          <button type="button" data-action="play" data-example="explore" aria-pressed="false">AUTO PLAY</button>
+        </div>
+      </div>
+      <p id="explore-status" class="status" aria-live="polite">Ready to call explore(0).</p>
+      <div class="workbench">
+        <section class="work-panel" aria-label="Explore example code">
+          <div class="panel-heading"><h3>THE FUNCTION</h3><span class="panel-hint">Java-like pseudocode</span></div>
+          <pre class="code" id="explore-code"><span data-code-line="0">void explore(int level) {</span>
+<span data-code-line="1">    if (level == 4) {</span>
+<span data-code-line="2">        print(indent(level) + "Rock bottom!");</span>
+<span data-code-line="3">        return;</span>
+<span data-code-line="4">    }</span>
+<span data-code-line="5">    print(indent(level) + "Entering deeper level...");</span>
+<span data-code-line="6">    explore(level + 1);</span>
+<span data-code-line="7">    print(indent(level) + "Return from deeper level.");</span>
+<span data-code-line="8">}</span></pre>
+        </section>
+        <section class="work-panel" aria-label="Explore call stack">
+          <div class="panel-heading"><h3>CALL STACK</h3><span class="panel-hint">Newest call at the bottom</span></div>
+          <div id="explore-stack" class="stack" aria-live="polite"><p class="stack-empty">Frames will appear here</p></div>
+          <div class="stack-key" aria-hidden="true">
+            <span class="key-item"><i class="key-dot current"></i>running</span>
+            <span class="key-item"><i class="key-dot waiting"></i>waiting for a call</span>
+            <span class="key-item"><i class="key-dot base"></i>base case</span>
+          </div>
+        </section>
+        <section class="work-panel output-panel" aria-label="Generated output">
+          <div class="panel-heading"><h3>OUTPUT</h3><span class="panel-hint">Newest line highlighted</span></div>
+          <div id="explore-output" class="output" aria-live="polite"><div class="output-empty">Printed lines will appear here</div></div>
+        </section>
+      </div>
+      <p class="takeaway"><strong>Key idea:</strong> A recursive call creates another function invocation. The previous invocation waits on the call stack until the deeper call returns.</p>
+    </section>
+
+    <section id="panel-factorial" role="tabpanel" aria-labelledby="tab-factorial" hidden>
+      <div class="example-heading">
+        <div>
+          <h2>Recursion with return values</h2>
+          <p class="concept">Calls go down first; each waiting call calculates on the way back up.</p>
+        </div>
+        <div class="controls" aria-label="Factorial controls">
+          <button class="primary" type="button" data-action="start" data-example="factorial">START</button>
+          <button type="button" data-action="step" data-example="factorial">STEP</button>
+          <button type="button" data-action="reset" data-example="factorial">RESET</button>
+          <button type="button" data-action="play" data-example="factorial" aria-pressed="false">AUTO PLAY</button>
+        </div>
+      </div>
+      <p id="factorial-status" class="status" aria-live="polite">Ready to call factorial(4).</p>
+      <div class="workbench factorial-workbench">
+        <section class="work-panel" aria-label="Factorial example code">
+          <div class="panel-heading"><h3>THE FUNCTION</h3><span class="panel-hint">Java-like pseudocode</span></div>
+          <pre class="code" id="factorial-code"><span data-code-line="0">int factorial(int n) {</span>
+<span data-code-line="1">    if (n == 1) {</span>
+<span data-code-line="2">        return 1;</span>
+<span data-code-line="3">    }</span>
+<span data-code-line="4">    return n * factorial(n - 1);</span>
+<span data-code-line="5">}</span></pre>
+        </section>
+        <section class="work-panel" aria-label="Factorial call stack">
+          <div class="panel-heading"><h3>CALL STACK</h3><span class="panel-hint">Waiting calls keep their work</span></div>
+          <div id="factorial-stack" class="stack factorial-stack" aria-live="polite"><p class="stack-empty">Frames will appear here</p></div>
+          <div class="stack-key" aria-hidden="true">
+            <span class="key-item"><i class="key-dot current"></i>running</span>
+            <span class="key-item"><i class="key-dot waiting"></i>waiting for a value</span>
+            <span class="key-item"><i class="key-dot base"></i>base case</span>
+          </div>
+        </section>
+        <section class="work-panel trace-panel" aria-label="Factorial calls and returned values">
+          <div class="panel-heading"><h3>CALLS &amp; RETURNS</h3><span class="panel-hint">Follow the arrows</span></div>
+          <div id="factorial-trace" class="factorial-trace" aria-live="polite"><div class="trace-empty">The calculation will appear here</div></div>
+          <div id="factorial-result" class="result" hidden>factorial(4) = 24</div>
+        </section>
+      </div>
+      <p class="takeaway factorial-takeaway"><strong>Key idea:</strong> Recursive calls can also return values, which are used by the waiting calls as execution moves back up the stack.</p>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    // Each event represents one visible teaching moment in the fixed examples.
+    function makeExploreEvents() {
+      const events = [];
+      function call(level, frameCreated = false) {
+        events.push({ type: "header", level, createFrame: !frameCreated, line: 0, message: `explore(${level}) begins` });
+        events.push({ type: "condition", level, base: level === 4, line: 1, message: `level = ${level}; ${level} == 4 is ${level === 4}` });
+        if (level === 4) {
+          events.push({ type: "base", level, text: "Rock bottom!", line: 2, message: "Reached the base case" });
+          events.push({ type: "return", level, line: 3, message: "explore(4) returns; explore(3) resumes" });
+          return;
+        }
+        events.push({ type: "output", level, text: "Entering deeper level...", line: 5, message: `explore(${level}) is running` });
+        events.push({ type: "calling", level, nextLevel: level + 1, line: 6, message: `Calling explore(${level + 1})...` });
+        call(level + 1, true);
+        events.push({ type: "output", level, text: "Return from deeper level.", line: 7, message: `explore(${level}) resumes` });
+        events.push({ type: "return", level, line: 8, message: `explore(${level}) reaches the end and returns` });
+      }
+      call(0);
+      return events;
+    }
+
+    function makeFactorialEvents() {
+      const events = [];
+      function call(n, frameCreated = false) {
+        events.push({ type: "header", n, createFrame: !frameCreated, line: 0, message: `factorial(${n}) begins` });
+        events.push({ type: "condition", n, base: n === 1, line: 1, message: `n = ${n}; ${n} == 1 is ${n === 1}` });
+        if (n === 1) {
+          events.push({ type: "return", n, value: 1, trace: "→ 1", depth: 4, line: 2, message: "factorial(1) returns 1" });
+          return 1;
+        }
+        events.push({ type: "calling", n, child: n - 1, trace: `→ ${n} × factorial(${n - 1})`, depth: 5 - n, line: 4, message: `Calling factorial(${n - 1})...` });
+        const childValue = call(n - 1, true);
+        const value = n * childValue;
+        events.push({ type: "receive", n, child: n - 1, childValue, value, trace: `← ${n} × ${childValue} = ${value}`, depth: 5 - n, line: 4, message: `factorial(${n - 1}) returned ${childValue}; factorial(${n}) calculates ${value}` });
+        events.push({ type: "return", n, value, line: 4, message: `factorial(${n}) returns ${value}` });
+        return value;
+      }
+      call(4);
+      return events;
+    }
+
+    const examples = {
+      explore: { events: makeExploreEvents(), index: -1, frames: [], output: [], timer: null },
+      factorial: { events: makeFactorialEvents(), index: -1, frames: [], trace: [], timer: null }
+    };
+    const tabs = [...document.querySelectorAll('[role="tab"]')];
+
+    function activeFrame(example) {
+      return example.frames[example.frames.length - 1];
+    }
+
+    function applyExploreEvent(state, event) {
+      if (event.type === "header") {
+        if (event.createFrame) state.frames.push({ level: event.level, status: "running", detail: "Function body begins" });
+        else if (activeFrame(state)) activeFrame(state).detail = "Function body begins";
+      }
+      if (event.type === "condition") {
+        const frame = activeFrame(state);
+        if (frame) {
+          frame.status = event.base ? "base" : "current";
+          frame.detail = `level = ${event.level}; condition is ${event.base}`;
+        }
+      }
+      if (event.type === "calling") {
+        const frame = activeFrame(state);
+        if (frame) { frame.status = "waiting"; frame.detail = `Waiting for explore(${event.nextLevel})`; }
+        state.frames.push({ level: event.nextLevel, status: "running", detail: "Function call begins" });
+      }
+      if (event.type === "output" || event.type === "base") {
+        state.output.push({ level: event.level, text: event.text });
+        const frame = activeFrame(state);
+        if (frame) frame.detail = event.type === "base" ? "Base case output printed" : event.text === "Entering deeper level..." ? "About to call explore(level + 1)" : "Continues after the deeper call";
+      }
+      if (event.type === "return") {
+        state.frames.pop();
+        const parent = activeFrame(state);
+        if (parent) { parent.status = "current"; parent.detail = "Continues after the deeper call"; }
+      }
+    }
+
+    function applyFactorialEvent(state, event) {
+      if (event.type === "header") {
+        if (event.createFrame) state.frames.push({ n: event.n, status: "running", detail: "Function body begins", returned: null, result: null });
+        else if (activeFrame(state)) activeFrame(state).detail = "Function body begins";
+        if (event.n === 4 && event.createFrame) state.trace.push({ text: "factorial(4)", depth: 0 });
+      }
+      if (event.type === "condition") {
+        const frame = activeFrame(state);
+        if (frame) {
+          frame.status = event.base ? "base" : "current";
+          frame.detail = `n = ${event.n}; condition is ${event.base}`;
+        }
+      }
+      if (event.type === "calling") {
+        const frame = activeFrame(state);
+        if (frame) { frame.status = "waiting"; frame.detail = `Waiting for factorial(${event.child})`; }
+        state.trace.push({ text: event.trace, depth: event.depth });
+        state.frames.push({ n: event.child, status: "running", detail: "Function call begins", returned: null, result: null });
+      }
+      if (event.type === "receive") {
+        const frame = activeFrame(state);
+        if (frame) { frame.status = "current"; frame.returned = event.childValue; frame.result = event.value; frame.detail = `factorial(${event.child}) returned ${event.childValue}; result = ${event.n} × ${event.childValue} = ${event.value}`; }
+        state.trace.push({ text: event.trace, depth: event.depth });
+      }
+      if (event.type === "return") {
+        if (event.trace) state.trace.push({ text: event.trace, depth: event.depth });
+        state.frames.pop();
+        const parent = activeFrame(state);
+        if (parent) {
+          parent.status = "current";
+          parent.returned = event.value;
+          parent.detail = `factorial(${event.n}) returned ${event.value}; ready to calculate`;
+        }
+      }
+    }
+
+    function renderExplore(state, event) {
+      const stack = document.querySelector("#explore-stack");
+      stack.replaceChildren();
+      if (!state.frames.length) stack.innerHTML = `<p class="stack-empty">${state.index < 0 ? "Frames will appear here" : "All calls have returned"}</p>`;
+      state.frames.forEach((frame, index) => {
+        const isCurrent = index === state.frames.length - 1;
+        const card = document.createElement("div");
+        card.className = `frame ${frame.status === "waiting" ? "waiting" : ""} ${frame.status === "base" ? "base" : ""} ${isCurrent && frame.status !== "base" ? "current" : ""}`;
+        card.innerHTML = `<span class="frame-name">explore(${frame.level})</span><span class="frame-state">${frame.status === "base" ? "BASE CASE" : frame.status === "waiting" || !isCurrent ? "WAITING" : "RUNNING"}</span><span class="frame-detail">${frame.detail}</span>`;
+        stack.append(card);
+      });
+      const output = document.querySelector("#explore-output");
+      output.replaceChildren();
+      if (!state.output.length) output.innerHTML = '<div class="output-empty">Printed lines will appear here</div>';
+      state.output.forEach((line, index) => {
+        const row = document.createElement("div");
+        row.className = `output-line ${index === state.output.length - 1 ? "newest" : ""}`;
+        row.textContent = `${"  ".repeat(line.level)}${line.text}`;
+        output.append(row);
+      });
+      if (event && event.line !== undefined) setActiveCode("explore", event.line);
+      document.querySelector("#explore-status").textContent = event ? event.message || (event.type === "push" ? `explore(${event.level}) is running` : "") : "Ready to call explore(0).";
+      output.scrollTop = output.scrollHeight;
+      updateControls("explore");
+    }
+
+    function renderFactorial(state, event) {
+      const stack = document.querySelector("#factorial-stack");
+      stack.replaceChildren();
+      if (!state.frames.length) stack.innerHTML = `<p class="stack-empty">${state.index < 0 ? "Frames will appear here" : "All calls have returned"}</p>`;
+      state.frames.forEach((frame, index) => {
+        const isCurrent = index === state.frames.length - 1;
+        const card = document.createElement("div");
+        card.className = `frame ${frame.status === "waiting" ? "waiting" : ""} ${frame.status === "base" ? "base" : ""} ${isCurrent && frame.status !== "base" ? "current" : ""}`;
+        const details = [`n = ${frame.n}`];
+        if (frame.status === "waiting") details.push(`waiting for factorial(${frame.n - 1})`);
+        else if (frame.returned !== null && frame.result !== null) details.push(`factorial(${frame.n - 1}) returned ${frame.returned}`, `result = ${frame.n} × ${frame.returned} = ${frame.result}`);
+        else if (frame.returned !== null) details.push(`factorial(${frame.n - 1}) returned ${frame.returned}`);
+        else details.push(frame.detail);
+        card.innerHTML = `<span class="frame-name">factorial(${frame.n})</span><span class="frame-state">${frame.status === "base" ? "BASE CASE" : frame.status === "waiting" || !isCurrent ? "WAITING" : "RUNNING"}</span><span class="frame-detail">${details.join("<br>")}</span>`;
+        stack.append(card);
+      });
+      const trace = document.querySelector("#factorial-trace");
+      trace.replaceChildren();
+      if (!state.trace.length) trace.innerHTML = '<div class="trace-empty">The calculation will appear here</div>';
+      state.trace.forEach((line, index) => {
+        const row = document.createElement("div");
+        row.className = `trace-line ${index === state.trace.length - 1 ? "newest" : ""}`;
+        row.textContent = `${"  ".repeat(line.depth)}${line.text}`;
+        trace.append(row);
+      });
+      const finalResult = state.frames.length === 0 && state.index === state.events.length - 1;
+      document.querySelector("#factorial-result").hidden = !finalResult;
+      if (event && event.line !== undefined) setActiveCode("factorial", event.line);
+      document.querySelector("#factorial-status").textContent = event ? event.message || (event.type === "push" ? `factorial(${event.n}) is running` : "") : "Ready to call factorial(4).";
+      trace.scrollTop = trace.scrollHeight;
+      updateControls("factorial");
+    }
+
+    function setActiveCode(exampleName, lineNumber) {
+      document.querySelectorAll(`#${exampleName}-code [data-code-line]`).forEach(line => {
+        line.classList.toggle("active-line", Number(line.dataset.codeLine) === lineNumber);
+      });
+    }
+
+    function updateControls(exampleName) {
+      const state = examples[exampleName];
+      const done = state.index >= state.events.length - 1;
+      document.querySelector(`[data-example="${exampleName}"][data-action="step"]`).disabled = done;
+      document.querySelector(`[data-example="${exampleName}"][data-action="start"]`).disabled = state.index >= 0 && !done;
+      const play = document.querySelector(`[data-example="${exampleName}"][data-action="play"]`);
+      play.disabled = done;
+      play.textContent = state.timer ? "PAUSE" : "AUTO PLAY";
+      play.setAttribute("aria-pressed", String(Boolean(state.timer)));
+    }
+
+    function step(exampleName) {
+      const state = examples[exampleName];
+      if (state.index >= state.events.length - 1) return;
+      state.index += 1;
+      const event = state.events[state.index];
+      (exampleName === "explore" ? applyExploreEvent : applyFactorialEvent)(state, event);
+      (exampleName === "explore" ? renderExplore : renderFactorial)(state, event);
+    }
+
+    function stop(exampleName) {
+      const state = examples[exampleName];
+      if (state.timer) window.clearInterval(state.timer);
+      state.timer = null;
+      updateControls(exampleName);
+    }
+
+    function reset(exampleName) {
+      const state = examples[exampleName];
+      stop(exampleName);
+      state.index = -1;
+      state.frames = [];
+      if (exampleName === "explore") {
+        state.output = [];
+        setActiveCode("explore", -1);
+        renderExplore(state, null);
+      } else {
+        state.trace = [];
+        setActiveCode("factorial", -1);
+        renderFactorial(state, null);
+      }
+    }
+
+    function start(exampleName) {
+      reset(exampleName);
+      step(exampleName);
+    }
+
+    function togglePlay(exampleName) {
+      const state = examples[exampleName];
+      if (state.timer) { stop(exampleName); return; }
+      if (state.index >= state.events.length - 1) reset(exampleName);
+      step(exampleName);
+      if (state.index < state.events.length - 1) {
+        state.timer = window.setInterval(() => {
+          step(exampleName);
+          if (state.index >= state.events.length - 1) stop(exampleName);
+        }, 850);
+        updateControls(exampleName);
+      }
+    }
+
+    document.querySelectorAll("[data-action]").forEach(button => {
+      button.addEventListener("click", () => {
+        const { action, example } = button.dataset;
+        if (action === "start") start(example);
+        if (action === "step") step(example);
+        if (action === "reset") reset(example);
+        if (action === "play") togglePlay(example);
+      });
+    });
+
+    function selectTab(tab) {
+      tabs.forEach(item => {
+        const selected = item === tab;
+        item.setAttribute("aria-selected", String(selected));
+        item.tabIndex = selected ? 0 : -1;
+        document.getElementById(item.getAttribute("aria-controls")).hidden = !selected;
+      });
+      stop("explore");
+      stop("factorial");
+    }
+    tabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => selectTab(tab));
+      tab.addEventListener("keydown", event => {
+        if (event.key === "ArrowLeft" || event.key === "ArrowRight") {
+          event.preventDefault();
+          const direction = event.key === "ArrowRight" ? 1 : -1;
+          const next = tabs[(index + direction + tabs.length) % tabs.length];
+          selectTab(next);
+          next.focus();
+        }
+      });
+    });
+
+    renderExplore(examples.explore, null);
+    renderFactorial(examples.factorial, null);
+  </script>
+</body>
+</html>
