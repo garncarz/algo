@@ -40,6 +40,8 @@
   .topbar { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
   .brand { display: flex; align-items: baseline; gap: 10px; white-space: nowrap; }
   .brand-mark { font: 700 13px/1 "Avenir Next", sans-serif; letter-spacing: 1px; color: var(--green); }
+  .brand-mark a { color: inherit; text-decoration: none; }
+  .brand-mark a:hover, .brand-mark a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
   .brand-name { font: 700 17px/1 Georgia, serif; }
   .controls { display: flex; align-items: center; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
   .control { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 12px; font-weight: 700; }
@@ -183,7 +185,7 @@
 <body>
 <div class="app">
   <header class="topbar">
-    <div class="brand"><span class="brand-mark">ALGORITHMS / 02</span><span class="brand-name">Sorting, step by step</span></div>
+    <div class="brand"><span class="brand-mark"><a href="index.html">ALGORITHMS</a></span><span class="brand-name">Sorting, step by step</span></div>
     <div class="controls" aria-label="Visualization controls">
       <label class="control">Algorithm
         <select id="algorithm" aria-label="Algorithm">

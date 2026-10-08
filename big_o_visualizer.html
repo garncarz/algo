@@ -37,6 +37,8 @@
   .page:not(.graph-visible) header { text-align: center; }
   header { margin-bottom: 24px; }
   .eyebrow { color: var(--green); font-size: 13px; font-weight: 900; letter-spacing: .1em; }
+  .eyebrow a { color: inherit; text-decoration: none; }
+  .eyebrow a:hover, .eyebrow a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
   h1 { margin: 7px 0 18px; font: 700 clamp(38px, 7vw, 58px)/1 Georgia, "Times New Roman", serif; }
   .instruction { margin: 0; font-size: clamp(17px, 2.7vw, 22px); font-weight: 850; }
   .direction { margin: 6px 0 0; color: var(--muted); font-size: 17px; font-weight: 700; }
@@ -107,7 +109,7 @@
 <body>
 <main class="page">
   <header>
-    <div class="eyebrow">ALGORITHMS · CLASSROOM CHALLENGE</div>
+    <div class="eyebrow"><a href="index.html">ALGORITHMS</a> · CLASSROOM CHALLENGE</div>
     <h1>Big-O Growth Quiz</h1>
     <p class="instruction">ORDER ALGORITHM RUNNING TIMES</p>
     <p class="direction"><span>FASTEST → SLOWEST</span> as input size n grows</p>
