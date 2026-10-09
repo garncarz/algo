@@ -479,10 +479,44 @@ function renderMergeSort(state, tree) {
   </div></div>`;
 }
 
+function fitMergeTree() {
+  const treeScroll = document.querySelector(".tree-scroll");
+  const tree = document.querySelector(".tree");
+  if (!treeScroll || !tree || selectedAlgorithm !== "merge") return;
+
+  const branchGroups = [...tree.querySelectorAll(".tree-children")];
+  if (!branchGroups.length) return;
+
+  const applyGap = (value) => {
+    branchGroups.forEach((group) => group.style.setProperty("--branch-gap", `${value}px`));
+  };
+
+  const lastLeaf = () => {
+    const boxes = [...tree.querySelectorAll(".tree-box")];
+    return boxes[boxes.length - 1] || null;
+  };
+
+  let gap = Number.parseFloat(getComputedStyle(branchGroups[0]).getPropertyValue("--branch-gap")) || 82;
+  gap = Math.min(Math.max(gap, 18), 82);
+  applyGap(gap);
+
+  let leaf = lastLeaf();
+  while (leaf && leaf.getBoundingClientRect().bottom > treeScroll.getBoundingClientRect().bottom + 1 && gap > 18) {
+    gap -= 6;
+    applyGap(gap);
+    leaf = lastLeaf();
+  }
+}
+
 function render(state, tree) {
   if (selectedAlgorithm === "counting") visual.innerHTML = renderCountingSort(state);
   else if (selectedAlgorithm === "insertion") visual.innerHTML = renderInsertionSort(state);
   else visual.innerHTML = renderMergeSort(state, tree);
+
+  if (selectedAlgorithm === "merge") {
+    requestAnimationFrame(fitMergeTree);
+  }
+
   statusText.textContent = state.status;
   $("#step-counter").textContent = state.done ? "SORTED" : `STEP ${String(stepIndex).padStart(2, "0")} / ${steps.length}`;
   updatePlaybackButton();
@@ -608,6 +642,9 @@ $("#algorithm").addEventListener("change", (event) => {
   selectedAlgorithm = event.target.value;
   activeInput = clone(DEFAULT_INPUTS[selectedAlgorithm]);
   startRun();
+});
+window.addEventListener("resize", () => {
+  if (selectedAlgorithm === "merge") fitMergeTree();
 });
 $("#speed").addEventListener("change", (event) => {
   $("#delay").value = event.target.value;
