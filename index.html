@@ -106,6 +106,14 @@
       font: 700 29px/1.2 Georgia, "Times New Roman", serif;
     }
 
+    .section-note {
+      margin-left: 10px;
+      color: var(--muted);
+      font: 500 12px/1.2 "Avenir Next", Avenir, "Segoe UI", sans-serif;
+      letter-spacing: 0.01em;
+      vertical-align: middle;
+    }
+
     h2 a {
       margin-left: 8px;
       font: 700 15px/1.2 "Avenir Next", Avenir, "Segoe UI", sans-serif;
@@ -164,6 +172,10 @@
       .general-links { gap: 6px 18px; padding-bottom: 9px; }
       .exercise { padding: 9px 0 11px; }
       h2 { font-size: 25px; }
+      .section-note {
+        display: block;
+        margin: 6px 0 0;
+      }
       .tasks { font-size: 14px; }
     }
 
@@ -197,6 +209,14 @@
       <a href="big_o_visualizer.html">Big-O Growth Quiz</a>
       <a href="java_complexity_quiz.html">Java Complexity Quiz</a>
     </nav>
+
+    <section class="exercise" aria-labelledby="fundamentals-title">
+      <h2 id="fundamentals-title">Fundamentals <span class="section-note">Repeat every few days until fluency with no suggestions is reached.</span></h2>
+      <p class="tasks">
+        <a href="https://leetcode.com/problems/plus-one/" target="_blank" rel="noopener noreferrer">#66 Plus One</a>
+        <a href="https://leetcode.com/problems/check-if-matrix-is-x-matrix/" target="_blank" rel="noopener noreferrer">#2319 Check if Matrix Is X-Matrix</a>
+      </p>
+    </section>
 
     <section class="exercise" aria-labelledby="intro-title">
       <h2 id="intro-title">Intro <a href="recursion_visualizer.html">recursion</a></h2>
