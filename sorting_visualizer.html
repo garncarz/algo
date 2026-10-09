@@ -68,7 +68,7 @@
   .count-layout { height: 100%; display: grid; grid-template-rows: repeat(3, minmax(0, 1fr)); gap: 12px; }
   .count-panel { min-height: 0; border-top: 1px solid var(--line); padding-top: 10px; }
   .count-heading { min-height: 32px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
-  .cells { display: grid; gap: 7px; grid-template-columns: repeat(8, minmax(0, 1fr)); width: 100%; }
+  .cells { --column-count: 8; display: grid; gap: 7px; grid-template-columns: repeat(var(--column-count), minmax(0, 1fr)); width: 100%; }
   .count-layout .cell { height: clamp(46px, 6.6vh, 72px); font-size: clamp(28px, 3vw, 44px); }
   .cell-wrap { text-align: center; min-width: 0; }
   .cell-index { height: 23px; color: var(--muted); font-size: 15px; font-weight: 700; }
@@ -86,7 +86,7 @@
   .relation { display: inline-block; margin: 0; padding: 6px 11px; color: var(--blue); background: var(--blue-soft); font-size: 15px; font-weight: 800; white-space: nowrap; }
   .relation-hidden { visibility: hidden; }
   .count-note { margin-top: 8px; min-height: 22px; color: var(--muted); font-size: 15px; font-weight: 650; }
-  .output-strip { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 7px; width: 100%; min-height: clamp(46px, 6.6vh, 72px); }
+  .output-strip { --column-count: 8; display: grid; grid-template-columns: repeat(var(--column-count), minmax(0, 1fr)); gap: 7px; width: 100%; min-height: clamp(46px, 6.6vh, 72px); }
   .output-strip .cell { width: 100%; height: clamp(46px, 6.6vh, 72px); font-size: clamp(28px, 3vw, 44px); }
   .output-strip > .array-empty { grid-column: 1 / -1; align-self: center; text-align: center; }
   .array-empty { color: #89958e; font-size: 17px; font-weight: 600; white-space: nowrap; }
@@ -235,8 +235,9 @@
 "use strict";
 
 // Defaults are intentionally small enough to read from across a classroom.
+const COUNTING_ALPHABET = "ABCDEFGH";
 const DEFAULT_INPUTS = {
-  counting: [4, 2, 7, 2, 3, 1, 6, 3],
+  counting: ["B", "A", "D", "A", "C", "G", "A", "E", "H"],
   insertion: [7, 3, 8, 4, 6, 2, 5],
   merge: [8, 3, 5, 4, 7, 6, 2, 1]
 };
@@ -270,23 +271,27 @@ function escapeHtml(value) {
 // Each generator performs the algorithm while recording pedagogical events.
 function createCountingSortSteps(array) {
   const steps = [];
-  const maximum = Math.max(...array);
-  const counts = Array(maximum + 1).fill(0);
+  const alphabet = COUNTING_ALPHABET.split("");
+  const counts = Array(alphabet.length).fill(0);
   const output = [];
+  const valueIndex = (value) => alphabet.indexOf(value);
+
   steps.push({ type: "scan", phase: "scan", index: -1, counts: snapshotCounts(counts), output: clone(output), status: "Scan input", important: true });
   for (let index = 0; index < array.length; index++) {
     const value = array[index];
+    const letterIndex = valueIndex(value);
     steps.push({ type: "read", phase: "scan", index, value, counts: snapshotCounts(counts), output: clone(output), status: `READ input[${index}] = ${value}`, important: true });
-    const previous = counts[value];
-    counts[value]++;
-    steps.push({ type: "increment", phase: "scan", index, value, previous, current: counts[value], counts: snapshotCounts(counts), output: clone(output), status: `count[${value}]: ${previous} → ${counts[value]}`, important: true });
+    const previous = counts[letterIndex];
+    counts[letterIndex]++;
+    steps.push({ type: "increment", phase: "scan", index, value, previous, current: counts[letterIndex], counts: snapshotCounts(counts), output: clone(output), status: `count[${value}]: ${previous} → ${counts[letterIndex]}`, important: true });
   }
   steps.push({ type: "complete-count", phase: "reconstruct", value: -1, counts: snapshotCounts(counts), output: clone(output), status: "Counting complete", important: true });
-  for (let value = 0; value < counts.length; value++) {
-    steps.push({ type: "visit-count", phase: "reconstruct", value, counts: snapshotCounts(counts), output: clone(output), status: `current value = ${value}   ·   count[${value}] = ${counts[value]}`, important: true });
-    while (counts[value] > 0) {
+  for (let index = 0; index < counts.length; index++) {
+    const value = alphabet[index];
+    steps.push({ type: "visit-count", phase: "reconstruct", value, counts: snapshotCounts(counts), output: clone(output), status: `current value = ${value}   ·   count[${value}] = ${counts[index]}`, important: true });
+    while (counts[index] > 0) {
       output.push(value);
-      counts[value]--;
+      counts[index]--;
       steps.push({ type: "write", phase: "reconstruct", value, counts: snapshotCounts(counts), output: clone(output), status: `Write value ${value}`, important: true });
     }
   }
@@ -394,18 +399,19 @@ function cellMarkup(value, index, { className = "", caption = null, pointer = fa
 }
 
 function renderCountingSort(state) {
-  const max = state.counts.length - 1;
+  const countLabels = COUNTING_ALPHABET.split("");
   const inputCells = activeInput.map((value, index) => {
     const current = index === state.index && (state.type === "read" || state.type === "increment");
     return cellMarkup(value, index, { className: current ? "active" : "", pointer: current, caption: current ? "READING" : null });
   }).join("");
-  const countCells = state.counts.map((count, value) => {
+  const countCells = state.counts.map((count, valueIndex) => {
+    const label = countLabels[valueIndex];
     let className = "";
     let caption = null;
-    if (value === state.value && state.phase === "reconstruct") { className = "target"; caption = "VALUE"; }
-    else if (value === state.value && state.type === "increment") { className = "changed"; caption = "count[value]"; }
-    else if (value === state.value && state.type === "visit-count") { className = "target"; caption = "CURRENT"; }
-    return cellMarkup(count, value, { className, caption, pointer: value === state.value && state.type === "visit-count" });
+    if (label === state.value && state.phase === "reconstruct") { className = "target"; caption = "VALUE"; }
+    else if (label === state.value && state.type === "increment") { className = "changed"; caption = "count[value]"; }
+    else if (label === state.value && state.type === "visit-count") { className = "target"; caption = "CURRENT"; }
+    return cellMarkup(count, label, { className, caption, pointer: label === state.value && state.type === "visit-count" });
   }).join("");
   const output = state.output.length
     ? state.output.map((value, index) => `<div class="cell ${index === state.output.length - 1 && state.type === "write" ? "changed" : ""}">${value}</div>`).join("")
@@ -413,12 +419,13 @@ function renderCountingSort(state) {
   const showOutputIndexes = state.phase === "reconstruct" || state.phase === "done";
   const outputIndexes = activeInput.map((_, index) => `<div class="cell-index ${showOutputIndexes ? "" : "index-hidden"}">${index}</div>`).join("");
   const showRelation = state.type === "increment" || state.type === "visit-count" || state.type === "write";
-  const relation = `<div class="relation-slot"><div class="relation ${showRelation ? "" : "relation-hidden"}">${showRelation ? `input value ${state.value} → count[${state.value}]` : "input value 0 → count[0]"}</div></div>`;
-  const countLabel = state.phase === "reconstruct" ? "COUNT · value being written is highlighted" : "COUNT · indexed by value";
+  const relationValue = state.value ?? "A";
+  const relation = `<div class="relation-slot"><div class="relation ${showRelation ? "" : "relation-hidden"}">${showRelation ? `input value ${relationValue} → count[${relationValue}]` : "input value A → count[A]"}</div></div>`;
+  const countLabel = state.phase === "reconstruct" ? "COUNT · letter value being written is highlighted" : "COUNT · indexed by letter value";
   return `<div class="count-layout">
-    <section class="count-panel"><div class="count-heading"><h2 class="panel-title">INPUT · scan by index</h2></div><div class="cells">${inputCells}</div><div class="count-note">${state.index >= 0 && state.phase === "scan" ? `Pointer: input[${state.index}] = ${activeInput[state.index]}` : state.phase === "reconstruct" ? "Input scan finished" : "Each input position is visited once"}</div></section>
-    <section class="count-panel"><div class="count-heading"><h2 class="panel-title">${countLabel}</h2>${relation}</div><div class="cells">${countCells}</div></section>
-    <section class="count-panel"><div class="count-heading"><h2 class="panel-title">OUTPUT · grows one value at a time</h2></div><div class="cells">${outputIndexes}</div><div class="output-strip">${output}</div></section>
+    <section class="count-panel"><div class="count-heading"><h2 class="panel-title">INPUT · scan by index</h2></div><div class="cells" style="--column-count:${activeInput.length}">${inputCells}</div><div class="count-note">${state.index >= 0 && state.phase === "scan" ? `Pointer: input[${state.index}] = ${activeInput[state.index]}` : state.phase === "reconstruct" ? "Input scan finished" : "Each input position is visited once"}</div></section>
+    <section class="count-panel"><div class="count-heading"><h2 class="panel-title">${countLabel}</h2>${relation}</div><div class="cells" style="--column-count:${state.counts.length}">${countCells}</div></section>
+    <section class="count-panel"><div class="count-heading"><h2 class="panel-title">OUTPUT · grows one value at a time</h2></div><div class="cells" style="--column-count:${activeInput.length}">${outputIndexes}</div><div class="output-strip" style="--column-count:${Math.max(activeInput.length, state.output.length)}">${output}</div></section>
   </div>`;
 }
 
@@ -552,6 +559,10 @@ function startRun() {
 }
 
 function randomInput(algorithm) {
+  if (algorithm === "counting") {
+    const letters = COUNTING_ALPHABET.split("");
+    return Array.from({ length: 9 }, () => letters[Math.floor(Math.random() * letters.length)]);
+  }
   const length = algorithm === "insertion" ? 7 : 8;
   return Array.from({ length }, () => Math.floor(Math.random() * 8) + 1);
 }
