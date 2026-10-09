@@ -143,9 +143,21 @@
 
     @media (max-width: 520px) {
       .hero-inner, main, footer { width: calc(100% - 32px); }
-      .hero-inner { min-height: 96px; gap: 12px; }
+      .hero-inner {
+        min-height: auto;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 14px 0 10px;
+      }
+      .hero-inner > div { flex: 1 1 auto; min-width: 0; }
       h1 { font-size: 38px; }
-      .qr-card { gap: 8px; font-size: 11px; }
+      .qr-card {
+        flex-shrink: 0;
+        gap: 8px;
+        font-size: 11px;
+      }
       .qr-card img { width: 80px; height: 80px; }
       .qr-caption { max-width: 92px; }
       main { padding-top: 10px; }
@@ -159,7 +171,7 @@
       h1 { font-size: 32px; }
       .qr-card {
         width: 92px;
-        flex-direction: column;
+        flex-direction: row;
         gap: 0;
         text-align: center;
       }
