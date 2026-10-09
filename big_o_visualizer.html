@@ -78,7 +78,16 @@
   .scale-toggle { display: inline-flex; flex: 0 0 auto; border: 1px solid var(--line); border-radius: 4px; padding: 2px; background: #fff; }
   .scale-toggle button { min-height: 32px; border: 0; border-radius: 3px; padding: 5px 10px; font-size: 13px; }
   .scale-toggle button[aria-pressed="true"] { color: #fff; background: var(--green); }
-  #question-graph { display: block; width: 100%; height: auto; overflow: visible; }
+  #question-graph {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+    touch-action: none;
+    user-select: none;
+    -webkit-user-select: none;
+    cursor: grab;
+  }
   .grid { stroke: #dce2dc; stroke-width: 1; }
   .axis { stroke: #46534d; stroke-width: 1.5; }
   .tick { fill: #4e5c55; font: 13px "Avenir Next", Avenir, sans-serif; }
@@ -411,22 +420,28 @@ function superscript(number) {
 }
 
 function onGraphPointerDown(event) {
-  if (event.button !== 0) return;
+  if (event.button !== 0 && event.pointerType !== "touch") return;
   graphDragState = {
     startX: event.clientX,
-    startWindowStart: graphWindowStart
+    startWindowStart: graphWindowStart,
+    lastShift: 0
   };
   event.preventDefault();
-  event.currentTarget.setPointerCapture(event.pointerId);
+  if (event.currentTarget.setPointerCapture) {
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }
   event.currentTarget.style.cursor = "grabbing";
 }
 
 function onGraphPointerMove(event) {
   if (!graphDragState || event.pointerType === "touch" && event.isPrimary === false) return;
-  const deltaX = event.clientX - graphDragState.startX;
-  const shift = Math.round(deltaX / 18);
+  const totalDeltaX = event.clientX - graphDragState.startX;
+  const shift = Math.round(totalDeltaX / 18);
+  if (shift === graphDragState.lastShift) return;
+
   const maxStart = GRAPH_DOMAIN_MAX - GRAPH_WINDOW_SIZE;
   graphWindowStart = clamp(graphDragState.startWindowStart - shift, 1, maxStart);
+  graphDragState.lastShift = shift;
   if (!graphSection.hidden) drawGraph();
 }
 
@@ -434,7 +449,7 @@ function onGraphPointerUp(event) {
   if (!graphDragState) return;
   graphDragState = null;
   event.currentTarget.style.cursor = "grab";
-  if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+  if (event.currentTarget.hasPointerCapture && event.currentTarget.hasPointerCapture(event.pointerId)) {
     event.currentTarget.releasePointerCapture(event.pointerId);
   }
 }
