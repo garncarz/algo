@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <title>Java Cheat Sheet</title>
   <style>
     :root {
@@ -126,20 +127,18 @@
       padding: 14px;
     }
 
-    .sheet-title {
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 1.6rem;
-      letter-spacing: -0.02em;
-      margin: 0 0 8px;
-      padding-bottom: 5px;
-      border-bottom: 1px solid var(--line);
-      color: var(--ink);
-    }
-
     .section-grid {
-      column-count: 3;
+      column-count: 1;
       column-gap: 9px;
       column-fill: balance;
+    }
+
+    .print-column {
+      display: contents;
+    }
+
+    .print-ornament {
+      display: none;
     }
 
     .card {
@@ -154,6 +153,25 @@
       vertical-align: top;
       break-inside: avoid-column;
       page-break-inside: avoid;
+    }
+
+    .sheet-title {
+      width: 100%;
+      max-width: 100%;
+      column-span: none;
+      border: 0;
+      background: var(--green);
+      color: #fff;
+      text-align: center;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.5rem;
+      letter-spacing: -0.02em;
+      padding: 12px;
+    }
+
+    .card.emphasis {
+      border: 2px solid var(--green);
+      border-left-width: 7px;
     }
 
     .card h3 {
@@ -188,7 +206,7 @@
       border-radius: 6px;
       padding: 7px 8px;
       overflow: auto;
-      font-size: 0.74rem;
+      font-size: clamp(0.58rem, 0.9vw, 0.74rem);
       line-height: 1.35;
       white-space: pre;
     }
@@ -333,6 +351,38 @@
       min-height: 44px;
     }
 
+    @media (min-width: 640px) {
+      .section-grid {
+        column-count: 2;
+      }
+    }
+
+    @media (min-width: 1120px) {
+      .section-grid {
+        column-count: 3;
+      }
+    }
+
+    @media (min-width: 1550px) {
+      .page-shell {
+        max-width: 1480px;
+      }
+
+      .section-grid {
+        column-count: 4;
+      }
+    }
+
+    @media (min-width: 1900px) {
+      .page-shell {
+        max-width: 1880px;
+      }
+
+      .section-grid {
+        column-count: 5;
+      }
+    }
+
     @media (max-width: 860px) {
       .topbar {
         flex-direction: column;
@@ -343,9 +393,6 @@
         width: 100%;
       }
 
-      .section-grid {
-        column-count: 2;
-      }
     }
 
     @media (max-width: 560px) {
@@ -401,7 +448,7 @@
       }
 
       .page-one {
-        height: 174mm;
+        height: 188mm;
         break-after: page;
         page-break-after: always;
       }
@@ -411,27 +458,74 @@
         page-break-before: auto;
       }
 
-      .sheet-title {
-        margin-bottom: 5px;
-        padding-bottom: 3px;
-        font-size: 14pt;
+      .section-grid {
+        display: grid;
+        height: 188mm;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        align-content: stretch;
+        align-items: stretch;
+        gap: 0 7px;
       }
 
-      .section-grid {
-        column-count: 3;
-        column-gap: 5px;
-        column-fill: balance;
+      .print-column {
+        display: flex;
+        min-width: 0;
+        height: 100%;
+        flex-direction: column;
+        justify-content: center;
+        gap: 1mm;
+      }
+
+      .print-ornament {
+        display: flex;
+        flex: 0 0 4mm;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .print-ornament::before,
+      .print-ornament::after {
+        width: 12mm;
+        border-top: 0.35pt solid #cbd3cd;
+        content: "";
+      }
+
+      .print-ornament span {
+        width: 2mm;
+        height: 2mm;
+        margin: 0 2mm;
+        border: 0.35pt solid var(--green);
+        transform: rotate(45deg);
       }
 
       .card {
-        margin-bottom: 5px;
+        display: block;
+        width: auto;
+        margin: 0;
         background: #fff;
         border-color: #cbd3cd;
         border-left-color: var(--green);
         padding: 5px;
         border-radius: 4px;
+        flex: 0 0 auto;
+        align-self: stretch;
         break-inside: avoid;
         page-break-inside: avoid;
+      }
+
+      .card.emphasis {
+        border: 1.5px solid var(--green);
+        border-left-width: 6px;
+      }
+
+      .sheet-title {
+        border: 0;
+        background: var(--green);
+        color: #fff;
+        padding: 8px;
+        font-size: 14pt;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       }
 
       .card h3 {
@@ -544,9 +638,11 @@
 
     <main class="sheet">
       <section class="page page-one" aria-label="Java fundamentals page one">
-        <h1 class="sheet-title">Java Cheat Sheet</h1>
-
         <div class="section-grid">
+          <div class="print-column">
+          <h1 class="card sheet-title">Java Cheat Sheet</h1>
+
+          <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
             <h3>1. Variables and basic types</h3>
             <pre class="code"><code><span class="type">int</span> <span class="var">count</span> = <span class="number">10</span>;
@@ -561,6 +657,7 @@
             </div>
           </article>
 
+          <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
             <h3>2. Arrays and strings</h3>
             <pre class="code"><code><span class="type">int</span>[] <span class="var">a</span> = <span class="keyword">new</span> <span class="type">int</span>[<span class="number">5</span>];
@@ -575,12 +672,34 @@
 <span class="type">int</span> <span class="var">lenA</span> = <span class="var">a</span>.length;
 <span class="type">int</span> <span class="var">lenS</span> = <span class="var">s</span>.length();</code></pre>
             <div class="notes">
-              <p>Indexing is zero-based. Arrays use <code>a.length</code>; strings use <code>s.length()</code>.</p>
+              <p>Indexing is zero-based. Arrays use <code>a.length</code>; strings use <code>s.length()</code> and <code>s.charAt(i)</code>, not <code>s[i]</code>.</p>
             </div>
           </article>
 
+          </div>
+          <div class="print-column">
           <article class="card">
-            <h3>3. Traversing arrays and strings</h3>
+            <h3>3. String manipulation</h3>
+            <pre class="code"><code><span class="type">String</span> <span class="var">s</span> = <span class="string">"  Hello World  "</span>;
+<span class="var">s</span> = <span class="var">s</span>.trim(); <span class="comment">// "Hello World"</span>
+<span class="type">boolean</span> <span class="var">has</span> = <span class="var">s</span>.contains(<span class="string">"Hello"</span>); <span class="comment">// true</span>
+<span class="type">String</span> <span class="var">sub</span> = <span class="var">s</span>.substring(<span class="number">0</span>, <span class="number">5</span>); <span class="comment">// "Hello"</span>
+<span class="type">String</span>[] <span class="var">words</span> = <span class="var">s</span>.split(<span class="string">" "</span>); <span class="comment">// 2 words</span>
+
+<span class="type">StringBuilder</span> <span class="var">sb</span> = <span class="keyword">new</span> <span class="type">StringBuilder</span>();
+<span class="var">sb</span>.append(<span class="string">"Hello"</span>);
+<span class="var">sb</span>.append(<span class="string">" World"</span>);
+<span class="type">String</span> <span class="var">result</span> = <span class="var">sb</span>.toString();</code></pre>
+            <div class="notes">
+              <p>Immutable: methods return new strings. <code>trim()</code> strips chars ≤ U+0020; modern <code>strip()</code> handles Unicode whitespace.</p>
+              <p><code>contains()</code> is case-sensitive; <code>substring(start, end)</code> includes start, excludes end. <code>split()</code> takes a regex: <code>" "</code> is one space, <code>"\\s+"</code> a whitespace run; handle leading whitespace separately.</p>
+              <p><code>StringBuilder</code> suits repeated appends, especially in loops; <code>+</code> is fine for simple concatenation.</p>
+            </div>
+          </article>
+
+          <span class="print-ornament" aria-hidden="true"><span></span></span>
+          <article class="card">
+            <h3>4. Traversing arrays and strings</h3>
             <pre class="code"><code><span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="var">a</span>.length; <span class="var">i</span>++) {
     System.out.println(<span class="var">a</span>[<span class="var">i</span>]);
 }
@@ -597,8 +716,9 @@
             </div>
           </article>
 
+          <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>4. Conditions and boolean operators</h3>
+            <h3>5. Conditions and boolean operators</h3>
             <pre class="code"><code><span class="keyword">if</span> (<span class="var">x</span> == <span class="number">0</span>) {
     System.out.println(<span class="string">"zero"</span>);
 } <span class="keyword">else if</span> (<span class="var">x</span> &lt; <span class="number">0</span>) {
@@ -616,8 +736,32 @@
             </div>
           </article>
 
+          </div>
+          <div class="print-column">
+          <article class="card emphasis">
+            <h3>6. Object comparison: <code>==</code> vs <code>.equals()</code></h3>
+            <pre class="code"><code><span class="keyword">import</span> java.util.Arrays;
+
+<span class="type">String</span> <span class="var">s1</span> = <span class="keyword">new</span> <span class="type">String</span>(<span class="string">"test"</span>);
+<span class="type">String</span> <span class="var">s2</span> = <span class="keyword">new</span> <span class="type">String</span>(<span class="string">"test"</span>);
+<span class="type">String</span> <span class="var">value</span> = <span class="keyword">null</span>;
+<span class="type">int</span>[] <span class="var">a</span> = {<span class="number">1</span>, <span class="number">2</span>};
+<span class="type">int</span>[] <span class="var">b</span> = {<span class="number">1</span>, <span class="number">2</span>};
+
+<span class="type">boolean</span> <span class="var">sameObject</span> = <span class="var">s1</span> == <span class="var">s2</span>; <span class="comment">// false</span>
+<span class="type">boolean</span> <span class="var">sameText</span> = <span class="var">s1</span>.equals(<span class="var">s2</span>); <span class="comment">// true</span>
+<span class="type">boolean</span> <span class="var">matches</span> =
+    <span class="string">"expected"</span>.equals(<span class="var">value</span>);
+<span class="type">boolean</span> <span class="var">sameItems</span> = <span class="type">Arrays</span>.equals(<span class="var">a</span>, <span class="var">b</span>);</code></pre>
+            <div class="notes">
+              <p>Primitive <code>==</code> compares values; reference <code>==</code> checks identity. <code>.equals()</code> follows the class implementation (string text); use it for strings.</p>
+              <p><code>"expected".equals(value)</code> is null-safe; compare array elements with <code>Arrays.equals(a, b)</code>.</p>
+            </div>
+          </article>
+
+          <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>5. Loops</h3>
+            <h3>7. Loops</h3>
             <pre class="code"><code><span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="number">5</span>; <span class="var">i</span>++) {
     System.out.println(<span class="var">i</span>);
 }
@@ -636,8 +780,9 @@
             </div>
           </article>
 
+          <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>6. Methods, printing, and return values</h3>
+            <h3>8. Methods, printing, and return values</h3>
             <pre class="code"><code><span class="keyword">void</span> <span class="function">printHi</span>() {
     System.out.println(<span class="string">"Hi"</span>);
     <span class="keyword">return</span>;
@@ -654,8 +799,10 @@
             </div>
           </article>
 
+          </div>
+          <div class="print-column">
           <article class="card">
-            <h3>7. Creating and filling arrays</h3>
+            <h3>9. Creating and filling arrays</h3>
             <pre class="code"><code><span class="type">int</span>[] <span class="var">a</span> = {<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>};
 <span class="type">int</span>[] <span class="var">result</span> = <span class="keyword">new</span> <span class="type">int</span>[<span class="var">a</span>.length];
 
@@ -667,8 +814,9 @@
             </div>
           </article>
 
+          <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>8. Two-dimensional arrays</h3>
+            <h3>10. Two-dimensional arrays</h3>
             <pre class="code"><code><span class="type">int</span>[][] <span class="var">matrix</span> = {
     {<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>},
     {<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>}
@@ -679,7 +827,9 @@
 <span class="type">int</span> <span class="var">value</span> = <span class="var">matrix</span>[<span class="number">1</span>][<span class="number">2</span>];
 
 <span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="var">matrix</span>.length; <span class="var">i</span>++) {
-    <span class="keyword">for</span> (<span class="type">int</span> <span class="var">j</span> = <span class="number">0</span>; <span class="var">j</span> &lt; <span class="var">matrix</span>[<span class="var">i</span>].length; <span class="var">j</span>++) {
+    <span class="keyword">for</span> (<span class="type">int</span> <span class="var">j</span> = <span class="number">0</span>;
+         <span class="var">j</span> &lt; <span class="var">matrix</span>[<span class="var">i</span>].length;
+         <span class="var">j</span>++) {
         System.out.println(<span class="var">matrix</span>[<span class="var">i</span>][<span class="var">j</span>]);
     }
 }</code></pre>
@@ -688,8 +838,9 @@
             </div>
           </article>
 
+          <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>9. Useful arithmetic and character operations</h3>
+            <h3>11. Useful arithmetic and character operations</h3>
             <pre class="code"><code><span class="type">int</span> <span class="var">parity</span> = <span class="var">n</span> % <span class="number">2</span>;
 <span class="type">int</span> <span class="var">ones</span> = <span class="var">n</span> % <span class="number">10</span>;
 <span class="type">int</span> <span class="var">tens</span> = <span class="var">n</span> / <span class="number">10</span>;
@@ -700,13 +851,15 @@
               <p><code>n / 10</code> and <code>n % 10</code> extract decimal digits. Integer division truncates fractional parts.</p>
             </div>
           </article>
+          </div>
         </div>
       </section>
 
       <section class="page page-two" aria-label="Objects and collections page two">
         <div class="section-grid">
+          <div class="print-column">
           <article class="card">
-            <h3>10. Creating objects and fields</h3>
+            <h3>12. Creating objects and fields</h3>
             <pre class="code"><code><span class="keyword">class</span> <span class="type">Node</span> {
     <span class="type">int</span> <span class="var">value</span>;
     <span class="type">Node</span> <span class="var">next</span>;
@@ -726,8 +879,9 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
             </div>
           </article>
 
+          <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>11. Object references and linking nodes</h3>
+            <h3>13. Object references and linking nodes</h3>
             <pre class="code"><code><span class="type">Node</span> <span class="var">a</span> = <span class="keyword">new</span> <span class="type">Node</span>(<span class="number">10</span>);
 <span class="type">Node</span> <span class="var">b</span> = <span class="keyword">new</span> <span class="type">Node</span>(<span class="number">20</span>);
 
@@ -750,11 +904,14 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
             </div>
             <div class="notes">
               <p><code>a.next = b</code> stores a reference to the same object, not a copy. <code>null</code> means no linked object.</p>
+              <p>Variables may alias the same node. Check for <code>null</code> before accessing fields; dereferencing it throws <code>NullPointerException</code>.</p>
             </div>
           </article>
 
+          </div>
+          <div class="print-column">
           <article class="card">
-            <h3>12. Basic trees</h3>
+            <h3>14. Basic trees</h3>
             <pre class="code"><code><span class="keyword">class</span> <span class="type">TreeNode</span> {
     <span class="type">int</span> <span class="var">val</span>;
     <span class="type">TreeNode</span> <span class="var">left</span>;
@@ -789,12 +946,14 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
             </div>
           </article>
 
+          <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>13. Basic graph representation</h3>
+            <h3>15. Basic graph representation</h3>
             <pre class="code"><code><span class="keyword">import</span> java.util.*;
 
 <span class="type">int</span> <span class="var">n</span> = <span class="number">4</span>;
-<span class="type">List</span>&lt;<span class="type">List</span>&lt;<span class="type">Integer</span>&gt;&gt; <span class="var">graph</span> = <span class="keyword">new</span> <span class="type">ArrayList</span>&lt;&gt;();
+<span class="type">List</span>&lt;<span class="type">List</span>&lt;<span class="type">Integer</span>&gt;&gt; <span class="var">graph</span> =
+    <span class="keyword">new</span> <span class="type">ArrayList</span>&lt;&gt;();
 
 <span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="var">n</span>; <span class="var">i</span>++) {
     <span class="var">graph</span>.add(<span class="keyword">new</span> <span class="type">ArrayList</span>&lt;&gt;());
@@ -813,8 +972,10 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
             </div>
           </article>
 
+          </div>
+          <div class="print-column">
           <article class="card">
-            <h3>14. HashSet — unique values</h3>
+            <h3>16. HashSet — unique values</h3>
             <pre class="code"><code><span class="keyword">import</span> java.util.HashSet;
 <span class="keyword">import</span> java.util.Set;
 
@@ -830,41 +991,74 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
             </div>
           </article>
 
+          <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>15. HashMap — key → value</h3>
+            <h3>17. HashMap — key → value</h3>
             <pre class="code"><code><span class="keyword">import</span> java.util.HashMap;
 <span class="keyword">import</span> java.util.Map;
 
-<span class="type">Map</span>&lt;<span class="type">String</span>, <span class="type">Integer</span>&gt; <span class="var">counts</span> = <span class="keyword">new</span> <span class="type">HashMap</span>&lt;&gt;();
+<span class="type">Map</span>&lt;<span class="type">String</span>,<span class="type">Integer</span>&gt; <span class="var">m</span> = <span class="keyword">new</span> <span class="type">HashMap</span>&lt;&gt;();
 
-<span class="var">counts</span>.put(<span class="string">"apple"</span>, <span class="number">2</span>);
-<span class="var">counts</span>.get(<span class="string">"apple"</span>);             <span class="comment">// 2</span>
-<span class="var">counts</span>.getOrDefault(<span class="string">"pear"</span>, <span class="number">0</span>); <span class="comment">// 0</span>
-<span class="var">counts</span>.containsKey(<span class="string">"apple"</span>);  <span class="comment">// true</span>
-<span class="var">counts</span>.remove(<span class="string">"apple"</span>);
+<span class="var">m</span>.put(<span class="string">"apple"</span>, <span class="number">2</span>);
+<span class="var">m</span>.get(<span class="string">"apple"</span>);             <span class="comment">// 2</span>
+<span class="var">m</span>.getOrDefault(<span class="string">"pear"</span>, <span class="number">0</span>); <span class="comment">// 0</span>
+<span class="var">m</span>.containsKey(<span class="string">"apple"</span>);  <span class="comment">// true</span>
+<span class="var">m</span>.remove(<span class="string">"apple"</span>);
 
-<span class="type">Map</span>&lt;<span class="type">Integer</span>, <span class="type">Integer</span>&gt; <span class="var">freq</span> = <span class="keyword">new</span> <span class="type">HashMap</span>&lt;&gt;();
+<span class="type">Map</span>&lt;<span class="type">Integer</span>,<span class="type">Integer</span>&gt; <span class="var">freq</span> = <span class="keyword">new</span> <span class="type">HashMap</span>&lt;&gt;();
 <span class="keyword">for</span> (<span class="type">int</span> <span class="var">x</span> : <span class="var">a</span>) {
-    <span class="var">freq</span>.put(<span class="var">x</span>, <span class="var">freq</span>.getOrDefault(<span class="var">x</span>, <span class="number">0</span>) + <span class="number">1</span>);
+    <span class="type">int</span> <span class="var">old</span> = <span class="var">freq</span>.getOrDefault(<span class="var">x</span>, <span class="number">0</span>);
+    <span class="var">freq</span>.put(<span class="var">x</span>, <span class="var">old</span> + <span class="number">1</span>);
 }</code></pre>
             <div class="notes">
               <p>Maps store key-value associations. This pattern counts how often each integer appears.</p>
             </div>
           </article>
 
+          </div>
+          <div class="print-column">
           <article class="card">
-            <h3>16. Common mistakes and quick reminders</h3>
-            <ul class="simple">
-              <li>Use <code>i &lt; a.length</code>, not <code>i &lt;= a.length</code>.</li>
-              <li>Use <code>s.charAt(i)</code> for strings; <code>s[i]</code> is not valid Java.</li>
-              <li>Use <code>a.length</code> for arrays and <code>s.length()</code> for strings.</li>
-              <li>Use <code>==</code> for primitive comparisons; use <code>=</code> only for assignment.</li>
-              <li>Check whether a reference is <code>null</code> before dereferencing it.</li>
-              <li>Multiple variables may point to the same object.</li>
-              <li><code>HashSet</code> stores unique values; <code>HashMap</code> stores key-value pairs.</li>
-              <li>Import classes from <code>java.util</code>.</li>
-            </ul>
+            <h3>18. Sorting arrays and lists</h3>
+            <pre class="code"><code><span class="keyword">import</span> java.util.Arrays;
+<span class="keyword">import</span> java.util.ArrayList;
+<span class="keyword">import</span> java.util.Collections;
+<span class="keyword">import</span> java.util.List;
+
+<span class="type">int</span>[] <span class="var">arr</span> = {<span class="number">5</span>, <span class="number">2</span>, <span class="number">8</span>};
+<span class="type">Arrays</span>.sort(<span class="var">arr</span>); <span class="comment">// {2, 5, 8}</span>
+
+<span class="type">List</span>&lt;<span class="type">Integer</span>&gt; <span class="var">list</span> = <span class="keyword">new</span> <span class="type">ArrayList</span>&lt;&gt;();
+<span class="var">list</span>.addAll(<span class="type">List</span>.of(<span class="number">5</span>, <span class="number">2</span>, <span class="number">8</span>));
+<span class="type">Collections</span>.sort(<span class="var">list</span>); <span class="comment">// [2, 5, 8]</span></code></pre>
+            <div class="notes">
+              <p>Both sort in place, in natural ascending order. <code>List.of(...)</code> requires Java 9+.</p>
+            </div>
           </article>
+
+          <span class="print-ornament" aria-hidden="true"><span></span></span>
+          <article class="card">
+            <h3>19. Queues and stacks with <code>ArrayDeque</code></h3>
+            <pre class="code"><code><span class="keyword">import</span> java.util.ArrayDeque;
+<span class="keyword">import</span> java.util.Deque;
+
+<span class="comment">// Queue (FIFO)</span>
+<span class="type">Deque</span>&lt;<span class="type">Integer</span>&gt; <span class="var">queue</span> = <span class="keyword">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();
+<span class="var">queue</span>.offer(<span class="number">10</span>);
+<span class="var">queue</span>.offer(<span class="number">20</span>);
+<span class="type">int</span> <span class="var">first</span> = <span class="var">queue</span>.poll(); <span class="comment">// 10</span>
+
+<span class="comment">// Stack (LIFO)</span>
+<span class="type">Deque</span>&lt;<span class="type">Integer</span>&gt; <span class="var">stack</span> = <span class="keyword">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();
+<span class="var">stack</span>.push(<span class="number">10</span>);
+<span class="var">stack</span>.push(<span class="number">20</span>);
+<span class="type">int</span> <span class="var">last</span> = <span class="var">stack</span>.pop(); <span class="comment">// 20</span></code></pre>
+            <div class="notes">
+              <p>Queue: FIFO; stack: LIFO. <code>offer()</code> adds to the queue end; <code>poll()</code> removes the first item or returns <code>null</code> if empty.</p>
+              <p><code>push()</code> adds to the stack top; <code>pop()</code> removes it or throws if empty. <code>ArrayDeque</code> rejects <code>null</code>; queues suit BFS, stacks DFS.</p>
+            </div>
+          </article>
+
+          </div>
         </div>
       </section>
     </main>
