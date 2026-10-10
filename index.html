@@ -114,6 +114,13 @@
       vertical-align: middle;
     }
 
+    .section-hint {
+      margin: 0 0 4px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
     h2 a {
       margin-left: 8px;
       font: 700 15px/1.2 "Avenir Next", Avenir, "Segoe UI", sans-serif;
@@ -172,10 +179,8 @@
       .general-links { gap: 6px 18px; padding-bottom: 9px; }
       .exercise { padding: 9px 0 11px; }
       h2 { font-size: 25px; }
-      .section-note {
-        display: block;
-        margin: 6px 0 0;
-      }
+      .section-note { display: block; margin: 6px 0 0; }
+      .section-hint { margin-bottom: 4px; font-size: 11px; }
       .tasks { font-size: 14px; }
     }
 
@@ -211,7 +216,8 @@
     </nav>
 
     <section class="exercise" aria-labelledby="fundamentals-title">
-      <h2 id="fundamentals-title">Fundamentals <span class="section-note">Repeat every few days until fluency with no suggestions is reached.</span></h2>
+      <h2 id="fundamentals-title">Fundamentals <a href="java_cheat_sheet.html">Java cheat sheet</a></h2>
+      <p class="section-hint">Repeat every few days until fluency with no suggestions is reached.</p>
       <p class="tasks">
         <a href="https://leetcode.com/problems/plus-one/" target="_blank" rel="noopener noreferrer">#66 Plus One</a>
         <a href="https://leetcode.com/problems/check-if-matrix-is-x-matrix/" target="_blank" rel="noopener noreferrer">#2319 Check if Matrix Is X-Matrix</a>

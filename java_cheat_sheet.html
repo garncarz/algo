@@ -1,0 +1,873 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Java Cheat Sheet</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f7f8f4;
+      --panel: #fff;
+      --ink: #17211e;
+      --muted: #58645f;
+      --line: #cbd3cd;
+      --green: #176b52;
+      --green-soft: #d9eee5;
+      --coral: #bf4935;
+      --coral-soft: #f8dfd8;
+      --gold: #d49a25;
+      --gold-soft: #fff0c4;
+      --blue: #356f9b;
+      --accent: var(--green);
+      --shadow: rgba(23, 33, 30, 0.06);
+      --code-bg: #fff;
+      --keyword: var(--blue);
+      --type: var(--green);
+      --string: var(--coral);
+      --number: #946914;
+      --comment: #58645f;
+      --function: var(--green);
+      --operator: #3d4d4d;
+      font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+      font-synthesis: none;
+      text-rendering: optimizeLegibility;
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      background-image: linear-gradient(rgba(23,33,30,.027) 1px, transparent 1px), linear-gradient(90deg, rgba(23,33,30,.027) 1px, transparent 1px);
+      background-size: 28px 28px;
+      color: var(--ink);
+      line-height: 1.45;
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover,
+    a:focus-visible {
+      color: #c1553a;
+      outline: none;
+      text-decoration: underline;
+    }
+
+    .page-shell {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 18px 18px 28px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 8px 0 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2rem, 3vw, 3rem);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+    }
+
+    .print-button {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: var(--panel);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 0.7rem 1rem;
+      font: 600 0.92rem/1.1 "Segoe UI", sans-serif;
+      cursor: pointer;
+      box-shadow: 0 5px 18px var(--shadow);
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .print-button:hover,
+    .print-button:focus-visible {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 22px rgba(27, 33, 30, 0.12);
+      text-decoration: none;
+    }
+
+    .sheet {
+      display: grid;
+      gap: 18px;
+      margin-top: 14px;
+    }
+
+    .page {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--ink);
+      border-radius: 5px;
+      box-shadow: 0 3px 0 var(--shadow);
+      padding: 14px;
+    }
+
+    .sheet-title {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.6rem;
+      letter-spacing: -0.02em;
+      margin: 0 0 8px;
+      padding-bottom: 5px;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink);
+    }
+
+    .section-grid {
+      column-count: 3;
+      column-gap: 9px;
+      column-fill: balance;
+    }
+
+    .card {
+      display: inline-block;
+      width: 100%;
+      margin: 0 0 9px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--green);
+      border-radius: 4px;
+      padding: 8px;
+      vertical-align: top;
+      break-inside: avoid-column;
+      page-break-inside: avoid;
+    }
+
+    .card h3 {
+      margin: 0 0 5px;
+      font-size: 0.76rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--green);
+    }
+
+    .card p,
+    .card li,
+    .notes p {
+      font-size: 0.82rem;
+      margin: 0;
+      color: var(--ink);
+    }
+
+    .notes {
+      margin-top: 6px;
+      padding: 0 1px;
+    }
+
+    .notes p + p {
+      margin-top: 0.2rem;
+    }
+
+    .code {
+      margin: 0;
+      background: var(--code-bg);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 7px 8px;
+      overflow: auto;
+      font-size: 0.74rem;
+      line-height: 1.35;
+      white-space: pre;
+    }
+
+    code {
+      font-family: "Consolas", "SFMono-Regular", "Menlo", monospace;
+    }
+
+    .keyword { color: var(--keyword); font-weight: 600; }
+    .type { color: var(--type); font-weight: 600; }
+    .string { color: var(--string); }
+    .number { color: var(--number); }
+    .comment { color: var(--comment); }
+    .operator { color: var(--operator); font-weight: 600; }
+    .function { color: var(--function); font-weight: 600; }
+    .var { color: #2b2d2e; }
+
+    ul.simple {
+      margin: 0.25rem 0 0;
+      padding-left: 1rem;
+      color: var(--ink);
+    }
+
+    ul.simple li + li { margin-top: 0.16rem; }
+
+    .diag {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 48px;
+      padding: 5px 4px 1px;
+    }
+
+    .node-graph {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      flex-wrap: wrap;
+      font-size: 0.72rem;
+    }
+
+    .node {
+      width: 62px;
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 4px;
+      padding: 5px 3px;
+      text-align: center;
+      color: var(--ink);
+      font-weight: 600;
+    }
+
+    .node small {
+      display: block;
+      margin-top: 2px;
+      font-weight: 500;
+      color: var(--muted);
+    }
+
+    .arrow {
+      color: var(--muted);
+      font-size: 1.3rem;
+      line-height: 1;
+    }
+
+    .diag.tree-diag {
+      min-height: 80px;
+      padding: 4px 4px 0;
+    }
+
+    .tree-diagram {
+      position: relative;
+      display: grid;
+      width: min(100%, 240px);
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: 32px 32px;
+      row-gap: 16px;
+      font-size: 0.72rem;
+    }
+
+    .tree-edges {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: visible;
+    }
+
+    .tree-edges line {
+      stroke: var(--green);
+      stroke-width: 2;
+      marker-end: url(#tree-arrow);
+    }
+
+    .tree-cell {
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tree-cell.root { grid-column: 2; grid-row: 1; }
+    .tree-cell.left { grid-column: 1; grid-row: 2; }
+    .tree-cell.right { grid-column: 3; grid-row: 2; }
+
+    .tree-node {
+      display: grid;
+      width: 58px;
+      height: 32px;
+      align-content: center;
+      border: 1.5px solid var(--green);
+      border-radius: 4px;
+      background: #fff;
+      color: var(--ink);
+      font-weight: 700;
+      line-height: 1.05;
+      text-align: center;
+    }
+
+    .tree-node small {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 0.62rem;
+      font-weight: 500;
+    }
+
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 4px;
+      margin-top: 4px;
+    }
+
+    .mini-box {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 6px;
+      padding: 4px 6px;
+      font-size: 0.7rem;
+      color: var(--muted);
+      min-height: 44px;
+    }
+
+    @media (max-width: 860px) {
+      .topbar {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .print-button {
+        width: 100%;
+      }
+
+      .section-grid {
+        column-count: 2;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .section-grid {
+        column-count: 1;
+      }
+    }
+
+    @page {
+      size: A4 landscape;
+      margin: 7mm;
+    }
+
+    @media print {
+      @page {
+        size: A4 landscape;
+        margin: 7mm;
+      }
+
+      html, body {
+        background: #fff;
+        background-image: none;
+      }
+
+      body {
+        color: #17211e;
+      }
+
+      .page-shell {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+
+      .topbar {
+        display: none;
+      }
+
+      .sheet {
+        display: block;
+        margin-top: 5px;
+      }
+
+      .page {
+        height: 188mm;
+        border: 0;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 0;
+        overflow: hidden;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .page-one {
+        height: 174mm;
+        break-after: page;
+        page-break-after: always;
+      }
+
+      .page-two {
+        break-before: auto;
+        page-break-before: auto;
+      }
+
+      .sheet-title {
+        margin-bottom: 5px;
+        padding-bottom: 3px;
+        font-size: 14pt;
+      }
+
+      .section-grid {
+        column-count: 3;
+        column-gap: 5px;
+        column-fill: balance;
+      }
+
+      .card {
+        margin-bottom: 5px;
+        background: #fff;
+        border-color: #cbd3cd;
+        border-left-color: var(--green);
+        padding: 5px;
+        border-radius: 4px;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .card h3 {
+        margin-bottom: 3px;
+        font-size: 7pt;
+        letter-spacing: 0.02em;
+      }
+
+      .code {
+        padding: 4px 5px;
+        border-radius: 3px;
+        font-size: 6.7pt;
+        line-height: 1.2;
+        overflow: visible;
+        white-space: pre;
+      }
+
+      .card p,
+      .card li,
+      .notes p {
+        font-size: 7pt;
+        line-height: 1.25;
+      }
+
+      .notes {
+        margin-top: 3px;
+      }
+
+      .notes p + p {
+        margin-top: 2px;
+      }
+
+      .diag {
+        min-height: 32px;
+        padding: 3px 2px 0;
+      }
+
+      .diag.tree-diag {
+        min-height: 66px;
+        padding: 2px 2px 0;
+      }
+
+      .tree-diagram {
+        width: min(100%, 190px);
+        grid-template-rows: 27px 27px;
+        row-gap: 12px;
+        font-size: 7pt;
+      }
+
+      .tree-edges line {
+        stroke-width: 2.5;
+      }
+
+      .tree-node {
+        width: 48px;
+        height: 27px;
+        border-radius: 3px;
+      }
+
+      .tree-node small {
+        margin-top: 1px;
+        font-size: 6pt;
+      }
+
+      .node-graph {
+        gap: 4px;
+        font-size: 7pt;
+      }
+
+      .node {
+        width: 48px;
+        padding: 3px 2px;
+        border-radius: 4px;
+      }
+
+      .node small {
+        margin-top: 1px;
+      }
+
+      .arrow {
+        font-size: 10pt;
+      }
+
+      .mini-grid {
+        gap: 3px;
+        margin-top: 3px;
+      }
+
+      .node,
+      .mini-box {
+        background: #fff;
+      }
+
+      .mini-box {
+        min-height: 0;
+        padding: 2px 4px;
+        border-radius: 3px;
+        font-size: 6.8pt;
+      }
+
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+    <header class="topbar">
+      <div class="eyebrow"><a href="index.html">Algorithms</a> / Java</div>
+      <button class="print-button" type="button" onclick="window.print()">Print / Save as PDF</button>
+    </header>
+
+    <main class="sheet">
+      <section class="page page-one" aria-label="Java fundamentals page one">
+        <h1 class="sheet-title">Java Cheat Sheet</h1>
+
+        <div class="section-grid">
+          <article class="card">
+            <h3>1. Variables and basic types</h3>
+            <pre class="code"><code><span class="type">int</span> <span class="var">count</span> = <span class="number">10</span>;
+<span class="type">long</span> <span class="var">total</span> = <span class="number">1_000_000_000L</span>;
+<span class="type">double</span> <span class="var">ratio</span> = <span class="number">3.14</span>;
+<span class="type">boolean</span> <span class="var">ok</span> = <span class="keyword">true</span>;
+<span class="type">char</span> <span class="var">letter</span> = <span class="string">'a'</span>;
+<span class="type">String</span> <span class="var">word</span> = <span class="string">"a"</span>;</code></pre>
+            <div class="notes">
+              <p><code>'a'</code> is a <code>char</code>; <code>"a"</code> is a <code>String</code>.</p>
+              <p>Java is statically typed. <code>=</code> assigns; <code>==</code> compares primitive values.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>2. Arrays and strings</h3>
+            <pre class="code"><code><span class="type">int</span>[] <span class="var">a</span> = <span class="keyword">new</span> <span class="type">int</span>[<span class="number">5</span>];
+<span class="type">int</span>[] <span class="var">b</span> = {<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>};
+
+<span class="var">a</span>[<span class="number">0</span>] = <span class="number">7</span>;
+<span class="var">a</span>[<span class="number">1</span>] = <span class="var">a</span>[<span class="number">0</span>] + <span class="number">1</span>;
+
+<span class="type">String</span> <span class="var">s</span> = <span class="string">"hello"</span>;
+<span class="type">char</span> <span class="var">c</span> = <span class="var">s</span>.charAt(<span class="number">1</span>); <span class="comment">// 'e'</span>
+
+<span class="type">int</span> <span class="var">lenA</span> = <span class="var">a</span>.length;
+<span class="type">int</span> <span class="var">lenS</span> = <span class="var">s</span>.length();</code></pre>
+            <div class="notes">
+              <p>Indexing is zero-based. Arrays use <code>a.length</code>; strings use <code>s.length()</code>.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>3. Traversing arrays and strings</h3>
+            <pre class="code"><code><span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="var">a</span>.length; <span class="var">i</span>++) {
+    System.out.println(<span class="var">a</span>[<span class="var">i</span>]);
+}
+
+<span class="keyword">for</span> (<span class="type">int</span> <span class="var">value</span> : <span class="var">a</span>) {
+    System.out.println(<span class="var">value</span>);
+}
+
+<span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="var">s</span>.length(); <span class="var">i</span>++) {
+    System.out.println(<span class="var">s</span>.charAt(<span class="var">i</span>));
+}</code></pre>
+            <div class="notes">
+              <p>Always use <code>i &lt; a.length</code>, not <code>i &lt;= a.length</code>.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>4. Conditions and boolean operators</h3>
+            <pre class="code"><code><span class="keyword">if</span> (<span class="var">x</span> == <span class="number">0</span>) {
+    System.out.println(<span class="string">"zero"</span>);
+} <span class="keyword">else if</span> (<span class="var">x</span> &lt; <span class="number">0</span>) {
+    System.out.println(<span class="string">"negative"</span>);
+} <span class="keyword">else</span> {
+    System.out.println(<span class="string">"positive"</span>);
+}
+
+<span class="keyword">if</span> (<span class="var">a</span> &lt; <span class="var">b</span> && <span class="var">b</span> &lt;= <span class="var">c</span> || !<span class="var">done</span>) {
+    System.out.println(<span class="string">"continue"</span>);
+}</code></pre>
+            <div class="notes">
+              <p>Compare with <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>.</p>
+              <p><code>=</code> assigns a value; <code>==</code> checks equality.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>5. Loops</h3>
+            <pre class="code"><code><span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="number">5</span>; <span class="var">i</span>++) {
+    System.out.println(<span class="var">i</span>);
+}
+
+<span class="type">int</span> <span class="var">j</span> = <span class="number">0</span>;
+<span class="keyword">while</span> (<span class="var">j</span> &lt; <span class="var">a</span>.length) {
+    System.out.println(<span class="var">a</span>[<span class="var">j</span>]);
+    <span class="var">j</span>++;
+}
+
+<span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="var">a</span>.length - <span class="number">1</span>; <span class="var">i</span> &gt;= <span class="number">0</span>; <span class="var">i</span>--) {
+    System.out.println(<span class="var">a</span>[<span class="var">i</span>]);
+}</code></pre>
+            <div class="notes">
+              <p>Loops need a condition that eventually becomes false. Make progress each time.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>6. Methods, printing, and return values</h3>
+            <pre class="code"><code><span class="keyword">void</span> <span class="function">printHi</span>() {
+    System.out.println(<span class="string">"Hi"</span>);
+    <span class="keyword">return</span>;
+}
+
+<span class="type">int</span> <span class="function">doubleIt</span>(<span class="type">int</span> <span class="var">x</span>) {
+    <span class="keyword">return</span> <span class="var">x</span> * <span class="number">2</span>;
+}
+
+<span class="function">printHi</span>();
+<span class="type">int</span> <span class="var">y</span> = <span class="function">doubleIt</span>(<span class="number">4</span>); <span class="comment">// 8</span></code></pre>
+            <div class="notes">
+              <p><code>return;</code> ends a <code>void</code> method. <code>return value;</code> returns a value to the caller.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>7. Creating and filling arrays</h3>
+            <pre class="code"><code><span class="type">int</span>[] <span class="var">a</span> = {<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>};
+<span class="type">int</span>[] <span class="var">result</span> = <span class="keyword">new</span> <span class="type">int</span>[<span class="var">a</span>.length];
+
+<span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="var">a</span>.length; <span class="var">i</span>++) {
+    <span class="var">result</span>[<span class="var">i</span>] = <span class="var">a</span>[<span class="var">i</span>] * <span class="number">2</span>;
+}</code></pre>
+            <div class="notes">
+              <p>Newly created <code>int[]</code> values start at zero.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>8. Two-dimensional arrays</h3>
+            <pre class="code"><code><span class="type">int</span>[][] <span class="var">matrix</span> = {
+    {<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>},
+    {<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>}
+};
+
+<span class="type">int</span> <span class="var">rows</span> = <span class="var">matrix</span>.length;
+<span class="type">int</span> <span class="var">cols</span> = <span class="var">matrix</span>[<span class="number">0</span>].length;
+<span class="type">int</span> <span class="var">value</span> = <span class="var">matrix</span>[<span class="number">1</span>][<span class="number">2</span>];
+
+<span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="var">matrix</span>.length; <span class="var">i</span>++) {
+    <span class="keyword">for</span> (<span class="type">int</span> <span class="var">j</span> = <span class="number">0</span>; <span class="var">j</span> &lt; <span class="var">matrix</span>[<span class="var">i</span>].length; <span class="var">j</span>++) {
+        System.out.println(<span class="var">matrix</span>[<span class="var">i</span>][<span class="var">j</span>]);
+    }
+}</code></pre>
+            <div class="notes">
+              <p><code>matrix.length</code> = number of rows; <code>matrix[i].length</code> = columns in row <code>i</code>.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>9. Useful arithmetic and character operations</h3>
+            <pre class="code"><code><span class="type">int</span> <span class="var">parity</span> = <span class="var">n</span> % <span class="number">2</span>;
+<span class="type">int</span> <span class="var">ones</span> = <span class="var">n</span> % <span class="number">10</span>;
+<span class="type">int</span> <span class="var">tens</span> = <span class="var">n</span> / <span class="number">10</span>;
+
+<span class="type">int</span> <span class="var">diff</span> = <span class="string">'c'</span> - <span class="string">'a'</span>; <span class="comment">// 2</span>
+<span class="type">int</span> <span class="var">half</span> = <span class="number">7</span> / <span class="number">2</span>; <span class="comment">// 3</span></code></pre>
+            <div class="notes">
+              <p><code>n / 10</code> and <code>n % 10</code> extract decimal digits. Integer division truncates fractional parts.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="page page-two" aria-label="Objects and collections page two">
+        <div class="section-grid">
+          <article class="card">
+            <h3>10. Creating objects and fields</h3>
+            <pre class="code"><code><span class="keyword">class</span> <span class="type">Node</span> {
+    <span class="type">int</span> <span class="var">value</span>;
+    <span class="type">Node</span> <span class="var">next</span>;
+
+    <span class="type">Node</span>(<span class="type">int</span> <span class="var">value</span>) {
+        <span class="keyword">this</span>.<span class="var">value</span> = <span class="var">value</span>;
+    }
+}
+
+<span class="type">Node</span> <span class="var">a</span> = <span class="keyword">new</span> <span class="type">Node</span>(<span class="number">10</span>);
+<span class="type">Node</span> <span class="var">b</span> = <span class="keyword">new</span> <span class="type">Node</span>(<span class="number">20</span>);
+
+System.out.println(<span class="var">a</span>.<span class="var">value</span>);
+<span class="var">a</span>.<span class="var">value</span> = <span class="number">15</span>;</code></pre>
+            <div class="notes">
+              <p>A class describes objects. <code>new Node(10)</code> creates an object; <code>a.value</code> accesses a field.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>11. Object references and linking nodes</h3>
+            <pre class="code"><code><span class="type">Node</span> <span class="var">a</span> = <span class="keyword">new</span> <span class="type">Node</span>(<span class="number">10</span>);
+<span class="type">Node</span> <span class="var">b</span> = <span class="keyword">new</span> <span class="type">Node</span>(<span class="number">20</span>);
+
+<span class="var">a</span>.<span class="var">next</span> = <span class="var">b</span>;
+<span class="var">b</span>.<span class="var">next</span> = <span class="keyword">null</span>;
+
+<span class="type">Node</span> <span class="var">current</span> = <span class="var">head</span>;
+<span class="keyword">while</span> (<span class="var">current</span> != <span class="keyword">null</span>) {
+    System.out.println(<span class="var">current</span>.<span class="var">value</span>);
+    <span class="var">current</span> = <span class="var">current</span>.<span class="var">next</span>;
+}</code></pre>
+            <div class="diag">
+              <div class="node-graph" aria-label="Linked list diagram">
+                <div class="node">a<small>Node(10)</small></div>
+                <div class="arrow">→</div>
+                <div class="node">b<small>Node(20)</small></div>
+                <div class="arrow">→</div>
+                <div class="node">null<small>end</small></div>
+              </div>
+            </div>
+            <div class="notes">
+              <p><code>a.next = b</code> stores a reference to the same object, not a copy. <code>null</code> means no linked object.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>12. Basic trees</h3>
+            <pre class="code"><code><span class="keyword">class</span> <span class="type">TreeNode</span> {
+    <span class="type">int</span> <span class="var">val</span>;
+    <span class="type">TreeNode</span> <span class="var">left</span>;
+    <span class="type">TreeNode</span> <span class="var">right</span>;
+
+    <span class="type">TreeNode</span>(<span class="type">int</span> <span class="var">val</span>) {
+        <span class="keyword">this</span>.<span class="var">val</span> = <span class="var">val</span>;
+    }
+}
+
+<span class="type">TreeNode</span> <span class="var">root</span> = <span class="keyword">new</span> <span class="type">TreeNode</span>(<span class="number">1</span>);
+<span class="var">root</span>.<span class="var">left</span> = <span class="keyword">new</span> <span class="type">TreeNode</span>(<span class="number">2</span>);
+<span class="var">root</span>.<span class="var">right</span> = <span class="keyword">new</span> <span class="type">TreeNode</span>(<span class="number">3</span>);</code></pre>
+            <div class="diag tree-diag">
+              <div class="tree-diagram" role="img" aria-label="Binary tree with root 1, left child 2, and right child 3">
+                <svg class="tree-edges" viewBox="0 0 300 80" preserveAspectRatio="none" aria-hidden="true">
+                  <defs>
+                    <marker id="tree-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="5" markerHeight="5" orient="auto">
+                      <path d="M 0 0 L 8 4 L 0 8 z" fill="#176b52"></path>
+                    </marker>
+                  </defs>
+                  <line x1="150" y1="31" x2="50" y2="47"></line>
+                  <line x1="150" y1="31" x2="250" y2="47"></line>
+                </svg>
+                <div class="tree-cell root"><div class="tree-node">1<small>root</small></div></div>
+                <div class="tree-cell left"><div class="tree-node">2<small>left</small></div></div>
+                <div class="tree-cell right"><div class="tree-node">3<small>right</small></div></div>
+              </div>
+            </div>
+            <div class="notes">
+              <p><code>left</code> and <code>right</code> are references just like <code>next</code> in a linked list.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>13. Basic graph representation</h3>
+            <pre class="code"><code><span class="keyword">import</span> java.util.*;
+
+<span class="type">int</span> <span class="var">n</span> = <span class="number">4</span>;
+<span class="type">List</span>&lt;<span class="type">List</span>&lt;<span class="type">Integer</span>&gt;&gt; <span class="var">graph</span> = <span class="keyword">new</span> <span class="type">ArrayList</span>&lt;&gt;();
+
+<span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="var">n</span>; <span class="var">i</span>++) {
+    <span class="var">graph</span>.add(<span class="keyword">new</span> <span class="type">ArrayList</span>&lt;&gt;());
+}
+
+<span class="var">graph</span>.get(<span class="number">0</span>).add(<span class="number">1</span>);
+<span class="var">graph</span>.get(<span class="number">1</span>).add(<span class="number">0</span>);</code></pre>
+            <div class="mini-grid" aria-label="Adjacency list diagram">
+              <div class="mini-box">0 → [1]</div>
+              <div class="mini-box">1 → [0]</div>
+              <div class="mini-box">2 → []</div>
+              <div class="mini-box">3 → []</div>
+            </div>
+            <div class="notes">
+              <p><code>graph.get(u)</code> is the neighbor list for vertex <code>u</code>. For directed edges, add one direction only.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>14. HashSet — unique values</h3>
+            <pre class="code"><code><span class="keyword">import</span> java.util.HashSet;
+<span class="keyword">import</span> java.util.Set;
+
+<span class="type">Set</span>&lt;<span class="type">Integer</span>&gt; <span class="var">seen</span> = <span class="keyword">new</span> <span class="type">HashSet</span>&lt;&gt;();
+
+<span class="var">seen</span>.add(<span class="number">5</span>);
+<span class="var">seen</span>.add(<span class="number">5</span>);         <span class="comment">// still one 5</span>
+<span class="var">seen</span>.contains(<span class="number">5</span>);     <span class="comment">// true</span>
+<span class="var">seen</span>.remove(<span class="number">5</span>);
+<span class="var">seen</span>.isEmpty();      <span class="comment">// true</span></code></pre>
+            <div class="notes">
+              <p>A set stores unique values. Use it when checking whether a value has already been seen.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>15. HashMap — key → value</h3>
+            <pre class="code"><code><span class="keyword">import</span> java.util.HashMap;
+<span class="keyword">import</span> java.util.Map;
+
+<span class="type">Map</span>&lt;<span class="type">String</span>, <span class="type">Integer</span>&gt; <span class="var">counts</span> = <span class="keyword">new</span> <span class="type">HashMap</span>&lt;&gt;();
+
+<span class="var">counts</span>.put(<span class="string">"apple"</span>, <span class="number">2</span>);
+<span class="var">counts</span>.get(<span class="string">"apple"</span>);             <span class="comment">// 2</span>
+<span class="var">counts</span>.getOrDefault(<span class="string">"pear"</span>, <span class="number">0</span>); <span class="comment">// 0</span>
+<span class="var">counts</span>.containsKey(<span class="string">"apple"</span>);  <span class="comment">// true</span>
+<span class="var">counts</span>.remove(<span class="string">"apple"</span>);
+
+<span class="type">Map</span>&lt;<span class="type">Integer</span>, <span class="type">Integer</span>&gt; <span class="var">freq</span> = <span class="keyword">new</span> <span class="type">HashMap</span>&lt;&gt;();
+<span class="keyword">for</span> (<span class="type">int</span> <span class="var">x</span> : <span class="var">a</span>) {
+    <span class="var">freq</span>.put(<span class="var">x</span>, <span class="var">freq</span>.getOrDefault(<span class="var">x</span>, <span class="number">0</span>) + <span class="number">1</span>);
+}</code></pre>
+            <div class="notes">
+              <p>Maps store key-value associations. This pattern counts how often each integer appears.</p>
+            </div>
+          </article>
+
+          <article class="card">
+            <h3>16. Common mistakes and quick reminders</h3>
+            <ul class="simple">
+              <li>Use <code>i &lt; a.length</code>, not <code>i &lt;= a.length</code>.</li>
+              <li>Use <code>s.charAt(i)</code> for strings; <code>s[i]</code> is not valid Java.</li>
+              <li>Use <code>a.length</code> for arrays and <code>s.length()</code> for strings.</li>
+              <li>Use <code>==</code> for primitive comparisons; use <code>=</code> only for assignment.</li>
+              <li>Check whether a reference is <code>null</code> before dereferencing it.</li>
+              <li>Multiple variables may point to the same object.</li>
+              <li><code>HashSet</code> stores unique values; <code>HashMap</code> stores key-value pairs.</li>
+              <li>Import classes from <code>java.util</code>.</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
