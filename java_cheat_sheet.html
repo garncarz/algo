@@ -334,6 +334,67 @@
       font-weight: 500;
     }
 
+    .graph-visual {
+      margin-top: 4px;
+    }
+
+    .graph-label {
+      margin-bottom: 2px;
+      color: var(--muted);
+      font-size: 0.66rem;
+      font-weight: 600;
+    }
+
+    .graph-diagram {
+      position: relative;
+      display: grid;
+      width: min(100%, 280px);
+      aspect-ratio: 3.5 / 1;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-rows: repeat(2, 1fr);
+      margin: 0 auto;
+    }
+
+    .graph-edges {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    .graph-edges line {
+      stroke: var(--green);
+      stroke-width: 4;
+      stroke-linecap: round;
+      marker-end: url(#graph-arrow);
+    }
+
+    .graph-vertex-cell {
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .graph-vertex-cell.v0 { grid-column: 1; grid-row: 1; }
+    .graph-vertex-cell.v1 { grid-column: 2; grid-row: 1; }
+    .graph-vertex-cell.v2 { grid-column: 3; grid-row: 2; }
+    .graph-vertex-cell.v3 { grid-column: 4; grid-row: 2; }
+
+    .graph-vertex {
+      display: grid;
+      width: 30px;
+      aspect-ratio: 1;
+      place-items: center;
+      border: 2px solid var(--green);
+      border-radius: 50%;
+      background: #fff;
+      color: var(--ink);
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
     .mini-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -960,15 +1021,34 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
 }
 
 <span class="var">graph</span>.get(<span class="number">0</span>).add(<span class="number">1</span>);
-<span class="var">graph</span>.get(<span class="number">1</span>).add(<span class="number">0</span>);</code></pre>
-            <div class="mini-grid" aria-label="Adjacency list diagram">
-              <div class="mini-box">0 → [1]</div>
-              <div class="mini-box">1 → [0]</div>
-              <div class="mini-box">2 → []</div>
-              <div class="mini-box">3 → []</div>
+<span class="var">graph</span>.get(<span class="number">2</span>).add(<span class="number">1</span>);</code></pre>
+            <div class="graph-visual">
+              <div class="graph-label">Directed graph</div>
+              <div class="graph-diagram" role="img" aria-label="Four vertices with arrows 0 to 1 and 2 to 1; vertex 3 is isolated">
+                <svg class="graph-edges" viewBox="0 0 400 100" preserveAspectRatio="none" aria-hidden="true">
+                  <defs>
+                    <marker id="graph-arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto">
+                      <path d="M 0 0 L 8 4 L 0 8 z" fill="var(--green)"></path>
+                    </marker>
+                  </defs>
+                  <line x1="71" y1="25" x2="129" y2="25"></line>
+                  <line x1="231" y1="65" x2="169" y2="35"></line>
+                </svg>
+                <div class="graph-vertex-cell v0"><span class="graph-vertex">0</span></div>
+                <div class="graph-vertex-cell v1"><span class="graph-vertex">1</span></div>
+                <div class="graph-vertex-cell v2"><span class="graph-vertex">2</span></div>
+                <div class="graph-vertex-cell v3"><span class="graph-vertex">3</span></div>
+              </div>
+              <div class="graph-label">Neighbor lists for the same graph</div>
+              <div class="mini-grid" aria-label="Adjacency lists">
+                <div class="mini-box">0 → [1]</div>
+                <div class="mini-box">1 → []</div>
+                <div class="mini-box">2 → [1]</div>
+                <div class="mini-box">3 → []</div>
+              </div>
             </div>
             <div class="notes">
-              <p><code>graph.get(u)</code> is the neighbor list for vertex <code>u</code>. For directed edges, add one direction only.</p>
+              <p><code>graph.get(u)</code> lists the vertices reached by outgoing edges from <code>u</code>.</p>
             </div>
           </article>
 
