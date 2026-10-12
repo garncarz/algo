@@ -126,12 +126,14 @@
       border-radius: 5px;
       box-shadow: 0 3px 0 var(--shadow);
       padding: 14px;
+      min-width: 0;
     }
 
     .section-grid {
       column-count: 1;
       column-gap: 9px;
       column-fill: balance;
+      min-width: 0;
     }
 
     .page .card h3::before {
@@ -150,6 +152,7 @@
     .card {
       display: inline-block;
       width: 100%;
+      min-width: 0;
       margin: 0 0 9px;
       background: var(--panel);
       border: 1px solid var(--line);
@@ -214,7 +217,8 @@
       overflow: auto;
       font-size: clamp(0.58rem, 0.9vw, 0.74rem);
       line-height: 1.35;
-      white-space: pre;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
     }
 
     code {
@@ -424,6 +428,29 @@
       font-weight: 400;
     }
 
+    .complexity-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.68rem;
+      line-height: 1.2;
+    }
+
+    .complexity-table th,
+    .complexity-table td {
+      border-bottom: 1px solid var(--line);
+      padding: 2px 3px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .complexity-table th {
+      font-weight: 600;
+    }
+
+    .complexity-table td {
+      white-space: nowrap;
+    }
+
     @media (min-width: 640px) {
       .section-grid {
         column-count: 2;
@@ -449,10 +476,6 @@
     @media (min-width: 1900px) {
       .page-shell {
         max-width: 1880px;
-      }
-
-      .section-grid {
-        column-count: 5;
       }
     }
 
@@ -699,6 +722,16 @@
         font-size: 6.8pt;
       }
 
+      .complexity-table {
+        font-size: 6.5pt;
+        line-height: 1.1;
+      }
+
+      .complexity-table th,
+      .complexity-table td {
+        padding: 1px 2px;
+      }
+
     }
   </style>
 </head>
@@ -743,9 +776,19 @@
 <span class="type">char</span> <span class="var">c</span> = <span class="var">s</span>.charAt(<span class="number">1</span>); <span class="comment">// 'e'</span>
 
 <span class="type">int</span> <span class="var">lenA</span> = <span class="var">a</span>.length;
-<span class="type">int</span> <span class="var">lenS</span> = <span class="var">s</span>.length();</code></pre>
+<span class="type">int</span> <span class="var">lenS</span> = <span class="var">s</span>.length();
+
+<span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="var">a</span>.length; <span class="var">i</span>++) {
+  System.out.println(<span class="var">a</span>[<span class="var">i</span>]);
+}
+<span class="keyword">for</span> (<span class="type">int</span> <span class="var">value</span> : <span class="var">a</span>) {
+  System.out.println(<span class="var">value</span>);
+}
+<span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="var">s</span>.length(); <span class="var">i</span>++) {
+  System.out.println(<span class="var">s</span>.charAt(<span class="var">i</span>));
+}</code></pre>
             <div class="notes">
-              <p>Indexing is zero-based. Arrays use <code>a.length</code>; strings use <code>s.length()</code> and <code>s.charAt(i)</code>, not <code>s[i]</code>.</p>
+        <p>Indexing is zero-based: arrays use <code>a.length</code>/<code>a[i]</code>, strings use <code>s.length()</code>/<code>s.charAt(i)</code>. Always loop with <code>i &lt; a.length</code>, not <code>i &lt;= a.length</code>.</p>
             </div>
           </article>
 
@@ -772,25 +815,6 @@
 
           <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>Traversing arrays and strings</h3>
-            <pre class="code"><code><span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="var">a</span>.length; <span class="var">i</span>++) {
-    System.out.println(<span class="var">a</span>[<span class="var">i</span>]);
-}
-
-<span class="keyword">for</span> (<span class="type">int</span> <span class="var">value</span> : <span class="var">a</span>) {
-    System.out.println(<span class="var">value</span>);
-}
-
-<span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="var">s</span>.length(); <span class="var">i</span>++) {
-    System.out.println(<span class="var">s</span>.charAt(<span class="var">i</span>));
-}</code></pre>
-            <div class="notes">
-              <p>Always use <code>i &lt; a.length</code>, not <code>i &lt;= a.length</code>.</p>
-            </div>
-          </article>
-
-          <span class="print-ornament" aria-hidden="true"><span></span></span>
-          <article class="card">
             <h3>Conditions and boolean operators</h3>
             <pre class="code"><code><span class="keyword">if</span> (<span class="var">x</span> == <span class="number">0</span>) {
     System.out.println(<span class="string">"zero"</span>);
@@ -806,29 +830,6 @@
             <div class="notes">
               <p>Compare with <code>==</code>, <code>!=</code>, <code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>.</p>
               <p><code>=</code> assigns a value; <code>==</code> checks equality.</p>
-            </div>
-          </article>
-
-          </div>
-          <div class="print-column">
-          <article class="card emphasis">
-            <h3>Object comparison: <code>==</code> vs <code>.equals()</code></h3>
-            <pre class="code"><code><span class="keyword">import</span> java.util.Arrays;
-
-<span class="type">String</span> <span class="var">s1</span> = <span class="keyword">new</span> <span class="type">String</span>(<span class="string">"test"</span>);
-<span class="type">String</span> <span class="var">s2</span> = <span class="keyword">new</span> <span class="type">String</span>(<span class="string">"test"</span>);
-<span class="type">String</span> <span class="var">value</span> = <span class="keyword">null</span>;
-<span class="type">int</span>[] <span class="var">a</span> = {<span class="number">1</span>, <span class="number">2</span>};
-<span class="type">int</span>[] <span class="var">b</span> = {<span class="number">1</span>, <span class="number">2</span>};
-
-<span class="type">boolean</span> <span class="var">sameObject</span> = <span class="var">s1</span> == <span class="var">s2</span>; <span class="comment">// false</span>
-<span class="type">boolean</span> <span class="var">sameText</span> = <span class="var">s1</span>.equals(<span class="var">s2</span>); <span class="comment">// true</span>
-<span class="type">boolean</span> <span class="var">matches</span> =
-    <span class="string">"expected"</span>.equals(<span class="var">value</span>);
-<span class="type">boolean</span> <span class="var">sameItems</span> = <span class="type">Arrays</span>.equals(<span class="var">a</span>, <span class="var">b</span>);</code></pre>
-            <div class="notes">
-              <p>Primitive <code>==</code> compares values; reference <code>==</code> checks identity. <code>.equals()</code> follows the class implementation (string text); use it for strings.</p>
-              <p><code>"expected".equals(value)</code> is null-safe; compare array elements with <code>Arrays.equals(a, b)</code>.</p>
             </div>
           </article>
 
@@ -849,41 +850,67 @@
     System.out.println(<span class="var">a</span>[<span class="var">i</span>]);
 }</code></pre>
             <div class="notes">
-              <p>Loops need a condition that eventually becomes false. Make progress each time.</p>
-            </div>
-          </article>
-
-          <span class="print-ornament" aria-hidden="true"><span></span></span>
-          <article class="card">
-            <h3>Methods, printing, and return values</h3>
-            <pre class="code"><code><span class="keyword">void</span> <span class="function">printHi</span>() {
-    System.out.println(<span class="string">"Hi"</span>);
-    <span class="keyword">return</span>;
-}
-
-<span class="type">int</span> <span class="function">doubleIt</span>(<span class="type">int</span> <span class="var">x</span>) {
-    <span class="keyword">return</span> <span class="var">x</span> * <span class="number">2</span>;
-}
-
-<span class="function">printHi</span>();
-<span class="type">int</span> <span class="var">y</span> = <span class="function">doubleIt</span>(<span class="number">4</span>); <span class="comment">// 8</span></code></pre>
-            <div class="notes">
-              <p><code>return;</code> ends a <code>void</code> method. <code>return value;</code> returns a value to the caller.</p>
+              <p>Make progress toward a false condition. <code>break</code> exits; <code>continue</code> skips to the next iteration.</p>
             </div>
           </article>
 
           </div>
           <div class="print-column">
           <article class="card">
-            <h3>Creating and filling arrays</h3>
-            <pre class="code"><code><span class="type">int</span>[] <span class="var">a</span> = {<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>};
-<span class="type">int</span>[] <span class="var">result</span> = <span class="keyword">new</span> <span class="type">int</span>[<span class="var">a</span>.length];
+            <h3>Object comparison: <code>==</code> vs <code>.equals()</code></h3>
+            <pre class="code"><code><span class="keyword">import</span> java.util.Arrays;
 
-<span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="var">a</span>.length; <span class="var">i</span>++) {
-    <span class="var">result</span>[<span class="var">i</span>] = <span class="var">a</span>[<span class="var">i</span>] * <span class="number">2</span>;
+<span class="type">String</span> <span class="var">s1</span> = <span class="keyword">new</span> <span class="type">String</span>(<span class="string">"test"</span>);
+<span class="type">String</span> <span class="var">s2</span> = <span class="keyword">new</span> <span class="type">String</span>(<span class="string">"test"</span>);
+<span class="type">String</span> <span class="var">value</span> = <span class="keyword">null</span>;
+<span class="type">int</span>[] <span class="var">a</span> = {<span class="number">1</span>, <span class="number">2</span>};
+<span class="type">int</span>[] <span class="var">b</span> = {<span class="number">1</span>, <span class="number">2</span>};
+<span class="type">int</span>[][] <span class="var">matrix</span> = {<span class="var">a</span>, <span class="var">b</span>};
+
+<span class="type">boolean</span> <span class="var">sameObject</span> = <span class="var">s1</span> == <span class="var">s2</span>; <span class="comment">// false</span>
+<span class="type">boolean</span> <span class="var">sameText</span> = <span class="var">s1</span>.equals(<span class="var">s2</span>); <span class="comment">// true</span>
+<span class="type">boolean</span> <span class="var">matches</span> = <span class="string">"expected"</span>.equals(<span class="var">value</span>);
+<span class="type">boolean</span> <span class="var">sameItems</span> = <span class="type">Arrays</span>.equals(<span class="var">a</span>, <span class="var">b</span>);
+System.out.println(<span class="type">Arrays</span>.toString(<span class="var">a</span>));
+System.out.println(
+  <span class="type">Arrays</span>.deepToString(<span class="var">matrix</span>));</code></pre>
+            <div class="notes">
+              <p>Primitive <code>==</code> compares values; reference <code>==</code> checks identity. Use <code>.equals()</code> for strings; <code>"expected".equals(value)</code> is null-safe. <code>Arrays.equals</code> compares contents; <code>toString</code>/<code>deepToString</code> print elements (ordinary array printing does not).</p>
+            </div>
+          </article>
+
+          <span class="print-ornament" aria-hidden="true"><span></span></span>
+          <article class="card">
+            <h3>Methods, printing, and return values</h3>
+            <pre class="code"><code><span class="keyword">static void</span> <span class="function">printHi</span>() {
+    System.out.println(<span class="string">"Hi"</span>);
+}
+<span class="keyword">static int</span> <span class="function">doubleIt</span>(<span class="type">int</span> <span class="var">x</span>) { <span class="keyword">return</span> <span class="var">x</span> * <span class="number">2</span>; }
+
+<span class="keyword">public static void</span> <span class="function">main</span>(<span class="type">String</span>[] <span class="var">args</span>) {
+    <span class="function">printHi</span>();
+    <span class="type">int</span> <span class="var">y</span> = <span class="function">doubleIt</span>(<span class="number">4</span>); <span class="comment">// 8</span>
 }</code></pre>
             <div class="notes">
-              <p>Newly created <code>int[]</code> values start at zero.</p>
+              <p><code>static</code>: call directly from <code>main</code>; instance methods need an object.</p>
+            </div>
+          </article>
+
+          </div>
+          <div class="print-column">
+          <article class="card">
+            <h3>ArrayList basics</h3>
+            <pre class="code"><code><span class="keyword">import</span> java.util.ArrayList;
+<span class="keyword">import</span> java.util.List;
+
+<span class="type">List</span>&lt;<span class="type">Integer</span>&gt; <span class="var">list</span> = <span class="keyword">new</span> <span class="type">ArrayList</span>&lt;&gt;();
+<span class="var">list</span>.add(<span class="number">10</span>); <span class="var">list</span>.add(<span class="number">20</span>);
+<span class="type">int</span> <span class="var">x</span> = <span class="var">list</span>.get(<span class="number">0</span>);
+<span class="var">list</span>.set(<span class="number">1</span>, <span class="number">30</span>);
+<span class="type">int</span> <span class="var">size</span> = <span class="var">list</span>.size();
+<span class="var">list</span>.remove(<span class="number">0</span>);</code></pre>
+            <div class="notes">
+              <p>Arrays: <code>a.length</code>, <code>a[i]</code>; lists: <code>list.size()</code>, <code>list.get(i)</code>. For <code>List&lt;Integer&gt;</code>, <code>remove(0)</code> removes the index; <code>remove(Integer.valueOf(10))</code> removes that value.</p>
             </div>
           </article>
 
@@ -919,9 +946,14 @@
 <span class="type">int</span> <span class="var">tens</span> = <span class="var">n</span> / <span class="number">10</span>;
 
 <span class="type">int</span> <span class="var">diff</span> = <span class="string">'c'</span> - <span class="string">'a'</span>; <span class="comment">// 2</span>
-<span class="type">int</span> <span class="var">half</span> = <span class="number">7</span> / <span class="number">2</span>; <span class="comment">// 3</span></code></pre>
+<span class="type">int</span> <span class="var">half</span> = <span class="number">5</span> / <span class="number">2</span>; <span class="comment">// 2</span>
+<span class="type">int</span> <span class="var">lo</span> = Math.min(<span class="var">a</span>, <span class="var">b</span>);
+<span class="type">int</span> <span class="var">hi</span> = Math.max(<span class="var">a</span>, <span class="var">b</span>);
+<span class="type">int</span> <span class="var">magnitude</span> = Math.abs(<span class="var">x</span>);
+<span class="type">int</span> <span class="var">maxInt</span> = Integer.MAX_VALUE;
+<span class="type">int</span> <span class="var">minInt</span> = Integer.MIN_VALUE;</code></pre>
             <div class="notes">
-              <p><code>n / 10</code> and <code>n % 10</code> extract decimal digits. Integer division truncates fractional parts.</p>
+              <p><code>n / 10</code> and <code>n % 10</code> extract digits. Integer division truncates toward zero; <code>int</code> arithmetic can overflow.</p>
             </div>
           </article>
           </div>
@@ -961,6 +993,7 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
 <span class="var">a</span>.<span class="var">next</span> = <span class="var">b</span>;
 <span class="var">b</span>.<span class="var">next</span> = <span class="keyword">null</span>;
 
+<span class="type">Node</span> <span class="var">head</span> = <span class="var">a</span>;
 <span class="type">Node</span> <span class="var">current</span> = <span class="var">head</span>;
 <span class="keyword">while</span> (<span class="var">current</span> != <span class="keyword">null</span>) {
     System.out.println(<span class="var">current</span>.<span class="var">value</span>);
@@ -1103,7 +1136,25 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
     <span class="var">freq</span>.put(<span class="var">x</span>, <span class="var">old</span> + <span class="number">1</span>);
 }</code></pre>
             <div class="notes">
-              <p>Maps store key-value associations. This pattern counts how often each integer appears.</p>
+              <p>Maps store key-value associations. <code>get(key)</code> returns <code>null</code> if absent; <code>getOrDefault(key, fallback)</code> supplies a fallback.</p>
+            </div>
+          </article>
+
+          <span class="print-ornament" aria-hidden="true"><span></span></span>
+          <article class="card">
+            <h3>Common operation traps</h3>
+            <table class="complexity-table" aria-label="Typical operation time complexities">
+              <tbody>
+                <tr><th>List contains/remove</th><td>O(n): search; removal shifts</td></tr>
+                <tr><th>Repeated membership checks</th><td>HashSet: expected O(1)</td></tr>
+                <tr><th>Remove first item</th><td>ArrayList O(n); deque amortized O(1)</td></tr>
+                <tr><th>Repeated String edits</th><td>may total O(n^2)</td></tr>
+              </tbody>
+            </table>
+            <pre class="code"><code><span class="type">StringBuilder</span> <span class="var">sb</span> = <span class="keyword">new</span> <span class="type">StringBuilder</span>(<span class="var">s</span>);
+<span class="var">sb</span>.deleteCharAt(<span class="var">i</span>);</code></pre>
+            <div class="notes">
+              <p><code>String</code> is immutable; repeated <code>+</code> or substring edits may total O(n^2). <code>StringBuilder</code> avoids new Strings, but deleting still shifts characters: O(n).</p>
             </div>
           </article>
 
@@ -1112,41 +1163,52 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
           <article class="card">
             <h3>Sorting arrays and lists</h3>
             <pre class="code"><code><span class="keyword">import</span> java.util.Arrays;
-<span class="keyword">import</span> java.util.ArrayList;
-<span class="keyword">import</span> java.util.Collections;
-<span class="keyword">import</span> java.util.List;
 
 <span class="type">int</span>[] <span class="var">arr</span> = {<span class="number">5</span>, <span class="number">2</span>, <span class="number">8</span>};
 <span class="type">Arrays</span>.sort(<span class="var">arr</span>); <span class="comment">// {2, 5, 8}</span>
 
-<span class="type">List</span>&lt;<span class="type">Integer</span>&gt; <span class="var">list</span> = <span class="keyword">new</span> <span class="type">ArrayList</span>&lt;&gt;();
-<span class="var">list</span>.addAll(<span class="type">List</span>.of(<span class="number">5</span>, <span class="number">2</span>, <span class="number">8</span>));
-<span class="type">Collections</span>.sort(<span class="var">list</span>); <span class="comment">// [2, 5, 8]</span></code></pre>
+<span class="comment">// int[][]; sort rows by their first value</span>
+<span class="type">int</span>[][] <span class="var">intervals</span> = {{<span class="number">1</span>, <span class="number">3</span>}, {<span class="number">2</span>, <span class="number">4</span>}};
+<span class="type">Arrays</span>.sort(<span class="var">intervals</span>,
+    (<span class="var">a</span>, <span class="var">b</span>) -&gt; <span class="type">Integer</span>.compare(<span class="var">a</span>[<span class="number">0</span>], <span class="var">b</span>[<span class="number">0</span>]));</code></pre>
             <div class="notes">
-              <p>Both sort in place, in natural ascending order. <code>List.of(...)</code> requires Java 9+.</p>
+              <p><code>Arrays.sort(int[])</code> sorts primitive values; the comparator overload sorts object arrays such as <code>int[][]</code>.</p>
             </div>
           </article>
 
           <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>Queues and stacks with <code>ArrayDeque</code></h3>
+            <h3>Queues, stacks, and priority queues</h3>
             <pre class="code"><code><span class="keyword">import</span> java.util.ArrayDeque;
 <span class="keyword">import</span> java.util.Deque;
+<span class="keyword">import</span> java.util.PriorityQueue;
+<span class="keyword">import</span> java.util.Collections;
 
 <span class="comment">// Queue (FIFO)</span>
 <span class="type">Deque</span>&lt;<span class="type">Integer</span>&gt; <span class="var">queue</span> = <span class="keyword">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();
 <span class="var">queue</span>.offer(<span class="number">10</span>);
 <span class="var">queue</span>.offer(<span class="number">20</span>);
-<span class="type">int</span> <span class="var">first</span> = <span class="var">queue</span>.poll(); <span class="comment">// 10</span>
+<span class="type">Integer</span> <span class="var">first</span> = <span class="var">queue</span>.poll();
+<span class="comment">// 10, or null if empty</span>
 
 <span class="comment">// Stack (LIFO)</span>
 <span class="type">Deque</span>&lt;<span class="type">Integer</span>&gt; <span class="var">stack</span> = <span class="keyword">new</span> <span class="type">ArrayDeque</span>&lt;&gt;();
 <span class="var">stack</span>.push(<span class="number">10</span>);
 <span class="var">stack</span>.push(<span class="number">20</span>);
-<span class="type">int</span> <span class="var">last</span> = <span class="var">stack</span>.pop(); <span class="comment">// 20</span></code></pre>
+<span class="type">int</span> <span class="var">last</span> = <span class="var">stack</span>.pop(); <span class="comment">// 20</span>
+
+<span class="comment">// Min-heap: smallest first (default)</span>
+<span class="type">PriorityQueue</span>&lt;<span class="type">Integer</span>&gt; <span class="var">minHeap</span> =
+  <span class="keyword">new</span> <span class="type">PriorityQueue</span>&lt;&gt;();
+<span class="var">minHeap</span>.offer(<span class="number">10</span>); <span class="var">minHeap</span>.offer(<span class="number">3</span>);
+<span class="type">int</span> <span class="var">smallest</span> = <span class="var">minHeap</span>.poll(); <span class="comment">// 3</span>
+
+<span class="comment">// Max-heap: largest first</span>
+<span class="type">PriorityQueue</span>&lt;<span class="type">Integer</span>&gt; <span class="var">maxHeap</span> =
+  <span class="keyword">new</span> <span class="type">PriorityQueue</span>&lt;&gt;(
+    <span class="type">Collections</span>.reverseOrder());</code></pre>
             <div class="notes">
-              <p>Queue: FIFO; stack: LIFO. <code>offer()</code> adds to the queue end; <code>poll()</code> removes the first item or returns <code>null</code> if empty.</p>
-              <p><code>push()</code> adds to the stack top; <code>pop()</code> removes it or throws if empty. <code>ArrayDeque</code> rejects <code>null</code>; queues suit BFS, stacks DFS.</p>
+              <p><code>offer()</code> inserts; <code>poll()</code> removes the highest-priority item or returns <code>null</code> when empty. Iteration is not guaranteed sorted. <code>ArrayDeque</code> suits FIFO queues and LIFO stacks.</p>
             </div>
           </article>
 
