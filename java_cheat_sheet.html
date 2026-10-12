@@ -116,6 +116,7 @@
       display: grid;
       gap: 18px;
       margin-top: 14px;
+      counter-reset: section-number;
     }
 
     .page {
@@ -131,6 +132,11 @@
       column-count: 1;
       column-gap: 9px;
       column-fill: balance;
+    }
+
+    .page .card h3::before {
+      counter-increment: section-number;
+      content: counter(section-number) ". ";
     }
 
     .print-column {
@@ -705,7 +711,7 @@
 
           <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>1. Variables and basic types</h3>
+            <h3>Variables and basic types</h3>
             <pre class="code"><code><span class="type">int</span> <span class="var">count</span> = <span class="number">10</span>;
 <span class="type">long</span> <span class="var">total</span> = <span class="number">1_000_000_000L</span>;
 <span class="type">double</span> <span class="var">ratio</span> = <span class="number">3.14</span>;
@@ -720,7 +726,7 @@
 
           <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>2. Arrays and strings</h3>
+            <h3>Arrays and strings</h3>
             <pre class="code"><code><span class="type">int</span>[] <span class="var">a</span> = <span class="keyword">new</span> <span class="type">int</span>[<span class="number">5</span>];
 <span class="type">int</span>[] <span class="var">b</span> = {<span class="number">2</span>, <span class="number">4</span>, <span class="number">6</span>};
 
@@ -740,7 +746,7 @@
           </div>
           <div class="print-column">
           <article class="card">
-            <h3>3. String manipulation</h3>
+            <h3>String manipulation</h3>
             <pre class="code"><code><span class="type">String</span> <span class="var">s</span> = <span class="string">"  Hello World  "</span>;
 <span class="var">s</span> = <span class="var">s</span>.trim(); <span class="comment">// "Hello World"</span>
 <span class="type">boolean</span> <span class="var">has</span> = <span class="var">s</span>.contains(<span class="string">"Hello"</span>); <span class="comment">// true</span>
@@ -760,7 +766,7 @@
 
           <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>4. Traversing arrays and strings</h3>
+            <h3>Traversing arrays and strings</h3>
             <pre class="code"><code><span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="var">a</span>.length; <span class="var">i</span>++) {
     System.out.println(<span class="var">a</span>[<span class="var">i</span>]);
 }
@@ -779,7 +785,7 @@
 
           <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>5. Conditions and boolean operators</h3>
+            <h3>Conditions and boolean operators</h3>
             <pre class="code"><code><span class="keyword">if</span> (<span class="var">x</span> == <span class="number">0</span>) {
     System.out.println(<span class="string">"zero"</span>);
 } <span class="keyword">else if</span> (<span class="var">x</span> &lt; <span class="number">0</span>) {
@@ -800,7 +806,7 @@
           </div>
           <div class="print-column">
           <article class="card emphasis">
-            <h3>6. Object comparison: <code>==</code> vs <code>.equals()</code></h3>
+            <h3>Object comparison: <code>==</code> vs <code>.equals()</code></h3>
             <pre class="code"><code><span class="keyword">import</span> java.util.Arrays;
 
 <span class="type">String</span> <span class="var">s1</span> = <span class="keyword">new</span> <span class="type">String</span>(<span class="string">"test"</span>);
@@ -822,7 +828,7 @@
 
           <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>7. Loops</h3>
+            <h3>Loops</h3>
             <pre class="code"><code><span class="keyword">for</span> (<span class="type">int</span> <span class="var">i</span> = <span class="number">0</span>; <span class="var">i</span> &lt; <span class="number">5</span>; <span class="var">i</span>++) {
     System.out.println(<span class="var">i</span>);
 }
@@ -843,7 +849,7 @@
 
           <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>8. Methods, printing, and return values</h3>
+            <h3>Methods, printing, and return values</h3>
             <pre class="code"><code><span class="keyword">void</span> <span class="function">printHi</span>() {
     System.out.println(<span class="string">"Hi"</span>);
     <span class="keyword">return</span>;
@@ -863,7 +869,7 @@
           </div>
           <div class="print-column">
           <article class="card">
-            <h3>9. Creating and filling arrays</h3>
+            <h3>Creating and filling arrays</h3>
             <pre class="code"><code><span class="type">int</span>[] <span class="var">a</span> = {<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>};
 <span class="type">int</span>[] <span class="var">result</span> = <span class="keyword">new</span> <span class="type">int</span>[<span class="var">a</span>.length];
 
@@ -877,7 +883,7 @@
 
           <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>10. Two-dimensional arrays</h3>
+            <h3>Two-dimensional arrays</h3>
             <pre class="code"><code><span class="type">int</span>[][] <span class="var">matrix</span> = {
     {<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>},
     {<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>}
@@ -901,7 +907,7 @@
 
           <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>11. Useful arithmetic and character operations</h3>
+            <h3>Useful arithmetic and character operations</h3>
             <pre class="code"><code><span class="type">int</span> <span class="var">parity</span> = <span class="var">n</span> % <span class="number">2</span>;
 <span class="type">int</span> <span class="var">ones</span> = <span class="var">n</span> % <span class="number">10</span>;
 <span class="type">int</span> <span class="var">tens</span> = <span class="var">n</span> / <span class="number">10</span>;
@@ -920,7 +926,7 @@
         <div class="section-grid">
           <div class="print-column">
           <article class="card">
-            <h3>12. Creating objects and fields</h3>
+            <h3>Creating objects and fields</h3>
             <pre class="code"><code><span class="keyword">class</span> <span class="type">Node</span> {
     <span class="type">int</span> <span class="var">value</span>;
     <span class="type">Node</span> <span class="var">next</span>;
@@ -942,7 +948,7 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
 
           <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>13. Object references and linking nodes</h3>
+            <h3>Object references and linking nodes</h3>
             <pre class="code"><code><span class="type">Node</span> <span class="var">a</span> = <span class="keyword">new</span> <span class="type">Node</span>(<span class="number">10</span>);
 <span class="type">Node</span> <span class="var">b</span> = <span class="keyword">new</span> <span class="type">Node</span>(<span class="number">20</span>);
 
@@ -972,7 +978,7 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
           </div>
           <div class="print-column">
           <article class="card">
-            <h3>14. Basic trees</h3>
+            <h3>Basic trees</h3>
             <pre class="code"><code><span class="keyword">class</span> <span class="type">TreeNode</span> {
     <span class="type">int</span> <span class="var">val</span>;
     <span class="type">TreeNode</span> <span class="var">left</span>;
@@ -1009,7 +1015,7 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
 
           <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>15. Basic graph representation</h3>
+            <h3>Basic graph representation</h3>
             <pre class="code"><code><span class="keyword">import</span> java.util.*;
 
 <span class="type">int</span> <span class="var">n</span> = <span class="number">4</span>;
@@ -1055,7 +1061,7 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
           </div>
           <div class="print-column">
           <article class="card">
-            <h3>16. HashSet — unique values</h3>
+            <h3>HashSet — unique values</h3>
             <pre class="code"><code><span class="keyword">import</span> java.util.HashSet;
 <span class="keyword">import</span> java.util.Set;
 
@@ -1073,7 +1079,7 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
 
           <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>17. HashMap — key → value</h3>
+            <h3>HashMap — key → value</h3>
             <pre class="code"><code><span class="keyword">import</span> java.util.HashMap;
 <span class="keyword">import</span> java.util.Map;
 
@@ -1098,7 +1104,7 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
           </div>
           <div class="print-column">
           <article class="card">
-            <h3>18. Sorting arrays and lists</h3>
+            <h3>Sorting arrays and lists</h3>
             <pre class="code"><code><span class="keyword">import</span> java.util.Arrays;
 <span class="keyword">import</span> java.util.ArrayList;
 <span class="keyword">import</span> java.util.Collections;
@@ -1117,7 +1123,7 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
 
           <span class="print-ornament" aria-hidden="true"><span></span></span>
           <article class="card">
-            <h3>19. Queues and stacks with <code>ArrayDeque</code></h3>
+            <h3>Queues and stacks with <code>ArrayDeque</code></h3>
             <pre class="code"><code><span class="keyword">import</span> java.util.ArrayDeque;
 <span class="keyword">import</span> java.util.Deque;
 
