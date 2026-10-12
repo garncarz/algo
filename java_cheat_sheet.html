@@ -418,6 +418,12 @@
       min-height: 44px;
     }
 
+    .mini-box code {
+      color: var(--ink);
+      font-size: inherit;
+      font-weight: 400;
+    }
+
     @media (min-width: 640px) {
       .section-grid {
         column-count: 2;
@@ -1047,10 +1053,10 @@ System.out.println(<span class="var">a</span>.<span class="var">value</span>);
               </div>
               <div class="graph-label">Neighbor lists for the same graph</div>
               <div class="mini-grid" aria-label="Adjacency lists">
-                <div class="mini-box">0 → [1]</div>
-                <div class="mini-box">1 → []</div>
-                <div class="mini-box">2 → [1]</div>
-                <div class="mini-box">3 → []</div>
+                <div class="mini-box"><code>0 → [1]</code></div>
+                <div class="mini-box"><code>1 → []</code></div>
+                <div class="mini-box"><code>2 → [1]</code></div>
+                <div class="mini-box"><code>3 → []</code></div>
               </div>
             </div>
             <div class="notes">
