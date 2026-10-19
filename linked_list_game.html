@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f8f4">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <title>Linked Lists · Algorithms</title>
+  <link rel="stylesheet" href="linked_list_game.css">
+  <script type="module" src="linked_list_game.js"></script>
+</head>
+<body>
+  <main class="page">
+    <header class="topbar">
+      <div class="brand">
+        <div><p class="eyebrow"><a href="index.html">ALGORITHMS</a></p><h1>Linked Lists</h1></div>
+      </div>
+      <div class="level-progress" aria-label="Choose one of eight tasks">
+        <span class="progress-label">TASKS</span><div id="progress-dots" class="progress-dots"></div>
+        <span id="level-label" class="level-label">TASK 1 / 8</span>
+      </div>
+    </header>
+
+    <section class="mission" aria-labelledby="challenge-title">
+      <div class="mission-copy">
+        <div class="mission-kicker"><span id="challenge-number">01</span><span id="challenge-subtitle"></span></div>
+        <h2 id="challenge-title"></h2>
+        <p id="challenge-instruction"></p>
+      </div>
+      <div class="mission-actions">
+        <span class="moves"><strong id="move-count">0</strong><span>operations</span></span>
+        <button id="hint-button" class="quiet-button" type="button" aria-label="Show a hint">Hint <span id="hint-count">1/3</span></button>
+        <button id="undo-button" class="icon-button" type="button" aria-label="Undo last operation" title="Undo last operation" disabled>↶</button>
+        <button id="restart-button" class="icon-button" type="button" aria-label="Restart challenge" title="Restart challenge">↻</button>
+      </div>
+    </section>
+
+    <div class="status" id="status" role="status" aria-live="polite" aria-atomic="true">Select a node to inspect its references.</div>
+
+    <section class="workbench" aria-label="Linked list challenge workbench">
+      <section class="diagram-panel" aria-labelledby="diagram-title">
+        <div class="panel-heading">
+          <div><p class="panel-eyebrow">YOUR PLAYGROUND</p><h3 id="diagram-title">Move the arrows</h3></div>
+          <div class="legend" aria-label="Diagram legend"><span><i class="legend-head"></i>head</span><span><i class="legend-next"></i>next</span></div>
+        </div>
+        <div id="list-stage" class="list-stage" aria-label="Linked list visualization"></div>
+        <div id="reverse-track" class="reverse-track" hidden></div>
+        <div class="game-tools" aria-label="Game controls">
+          <div id="action-controls" class="action-controls"></div>
+          <div id="target-picker" class="target-picker" hidden></div>
+          <p id="selection-summary" class="selection-summary">Tap a blue next pocket, then tap where its arrow should go.</p>
+        </div>
+        <div class="diagram-footer">
+          <span class="structure-note"><i></i><span id="structure-summary"></span></span>
+        </div>
+      </section>
+
+      <aside class="side-panel">
+        <section class="code-panel" aria-labelledby="code-title">
+          <div class="panel-heading compact"><div><p class="panel-eyebrow">JAVA TRANSLATION</p><h3 id="code-title">Code for this task</h3></div><span id="code-step" class="code-step">LIVE</span></div>
+          <pre class="code-window"><code id="java-code"></code></pre>
+        </section>
+      </aside>
+    </section>
+
+    <section class="bottom-grid" aria-label="Attempt details">
+      <section class="history-panel" aria-labelledby="history-title">
+        <div class="panel-heading compact"><div><p class="panel-eyebrow">YOUR TRACE</p><h3 id="history-title">Operation history</h3></div><span id="history-count" class="history-count">0 moves</span></div>
+        <ol id="history-list" class="history-list"><li class="history-empty">No operations yet.</li></ol>
+      </section>
+      <section class="memory-panel" aria-labelledby="memory-title">
+        <div class="panel-heading compact"><div><p class="panel-eyebrow">REFERENCE CHECK</p><h3 id="memory-title">In memory vs. reachable</h3></div></div>
+        <div class="memory-stats"><div><span class="stat-value" id="allocated-count">0</span><span>allocated</span></div><div><span class="stat-value" id="reachable-count">0</span><span>reachable from head</span></div><div><span class="stat-value" id="disconnected-count">0</span><span>disconnected</span></div></div>
+      </section>
+    </section>
+  </main>
+  <div id="success-banner" class="success-banner" role="dialog" aria-labelledby="success-title" aria-describedby="success-explanation" hidden>
+    <div class="success-mark" aria-hidden="true">✓</div><div><p class="panel-eyebrow">NICE WORK</p><h2 id="success-title">Challenge complete</h2><p id="success-explanation"></p></div>
+    <button id="next-challenge" class="primary-button" type="button">Next challenge <span aria-hidden="true">→</span></button>
+  </div>
+</body>
+</html>
