@@ -159,7 +159,7 @@ export const CHALLENGES = [
   },
   {
     id: "reverse", level: 4, title: "Reverse the chain", subtitle: "Keep a temporary next reference before turning each arrow around.",
-    instruction: "Flip each next arrow to reverse the chain. The final flip also moves head to the new first node; no extra step is needed.",
+    instruction: "Reverse 10 → 20 → 30 so head leads 30 → 20 → 10. Drag the arrows and head yourself, or use the optional guided flip button.",
     initial: [10, 20, 30], targetValues: [30, 20, 10], unreachableValues: [], expectedNodes: 3,
     actions: ["reverse-step"], guided: true,
     hints: ["At each step: save current.next, point current.next to previous, then advance previous and current.", "The temporary next value protects the part of the chain that has not been reversed yet.", "On the final flip, current becomes null and head moves to previous automatically."],

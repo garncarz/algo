@@ -99,10 +99,8 @@ function transact(label, statement, explanation, mutation, changedId = null) {
 }
 
 function evaluateAndRender(explanation = "") {
-  const result = challenge().id === "reverse" && reverseState?.currentId !== null
-    ? { ok: false, message: "The chain is partway through reversal. The saved next reference keeps the unprocessed nodes available." }
-    : validateChallenge(model, challenge());
-  if (result.ok && (!reverseState || reverseState.currentId === null)) {
+  const result = validateChallenge(model, challenge());
+  if (result.ok) {
     completeChallenge();
   } else if (result.reason === "cycle") {
     setStatus(`${result.message} Undo or change one of the references to repair it.`, "error");
@@ -193,7 +191,7 @@ function renderControls() {
     const source = model.getNode(selectedConnectionId);
     if (source) ui.actions.append(makeButton(`Disconnect ${source.value}.next`, "disconnect", "action-button danger"));
   }
-  if (current.actions.includes("reverse-step")) {
+  if (current.actions.includes("reverse-step") && reverseState) {
     ui.actions.append(makeButton("Flip the next arrow", "reverse-step", "action-button primary"));
   }
   if (pickerMode && pickerMode.type !== "create") renderTargetPicker();
@@ -496,6 +494,7 @@ function disconnectSelectedConnection() {
   const statement = `${variableName(source)}.next = null;`;
   const completed = transact(`Disconnect node ${source.value}.next`, statement, `Set node ${source.value}.next to null. The old target ${targetDescription} is no longer connected through this reference.`, () => {
     model.setNext(source.id, null);
+    reverseState = null;
   }, source.id);
   if (completed) selectedConnectionId = null;
   render();
@@ -752,11 +751,11 @@ function chooseTarget(targetId) {
     const explanation = oldTarget && oldTarget !== target
       ? `This overwrote node ${source.value}.next. Its old target ${oldTarget.value} is no longer referenced by that field and may now be unreachable.`
       : `This changes only node ${source.value}.next; it does not change head or any other node's next reference.`;
-    transact(`Set node ${source.value}.next`, statement, explanation, () => model.setNext(source.id, target?.id ?? null), source.id);
+    transact(`Set node ${source.value}.next`, statement, explanation, () => { model.setNext(source.id, target?.id ?? null); reverseState = null; }, source.id);
   } else {
     const statement = `head = ${target ? variableName(target) : "null"};`;
     const explanation = `This changes the separate head reference to ${target ? `node ${target.value}` : "null"}. It does not alter any node's next field.`;
-    transact("Change head", statement, explanation, () => model.setHead(target?.id ?? null), target?.id ?? null);
+    transact("Change head", statement, explanation, () => { model.setHead(target?.id ?? null); reverseState = null; }, target?.id ?? null);
   }
 }
 
