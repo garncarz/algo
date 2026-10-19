@@ -63,7 +63,8 @@
   .complexity-tag { color: var(--green); }
   pre { overflow-x: auto; margin: 0; padding: 19px 21px 22px; color: #24342e; font: 600 clamp(15px, 2vw, 19px)/1.58 ui-monospace, "SFMono-Regular", Consolas, monospace; tab-size: 4; }
   .answers { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-  fieldset { min-width: 0; margin: 0; border: 0; padding: 0; }
+  fieldset { min-width: 0; margin: 0; border: 0; padding: 12px 0; }
+  .space-fieldset { border-left: 1px solid var(--line); padding-left: 18px; }
   legend { margin-bottom: 9px; font-size: 14px; font-weight: 900; letter-spacing: .04em; }
   .choices { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; }
   .choice { position: relative; min-width: 0; }
@@ -132,6 +133,7 @@
   }
   @media (max-width: 650px) {
     .answers { grid-template-columns: 1fr; gap: 15px; }
+    .space-fieldset { border-top: 1px solid var(--line); border-left: 0; padding: 15px 0 0; }
     .visual-panels { gap: 12px; }
     .tree-level { justify-content: flex-start; gap: 2px; }
     .tree-level-label { width: 54px; font-size: 10px; }
@@ -168,8 +170,8 @@
     </section>
     <form id="answer-form">
       <div class="answers">
-        <fieldset><legend>TIME COMPLEXITY</legend><div id="time-choices" class="choices"></div></fieldset>
-        <fieldset><legend>SPACE COMPLEXITY</legend><div id="space-choices" class="choices"></div></fieldset>
+        <fieldset class="time-fieldset"><legend>TIME COMPLEXITY</legend><div id="time-choices" class="choices"></div></fieldset>
+        <fieldset class="space-fieldset"><legend>SPACE COMPLEXITY</legend><div id="space-choices" class="choices"></div></fieldset>
       </div>
     </form>
     <div class="actions">
