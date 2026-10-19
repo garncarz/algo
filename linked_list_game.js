@@ -73,20 +73,11 @@ function captureState() {
 
 function transact(label, statement, explanation, mutation, changedId = null) {
   const before = captureState();
-  const reachableBefore = new Set(model.inspect().nodes.map(node => node.id));
   try {
     mutation();
   } catch (error) {
     setStatus(error.message, "error");
     return false;
-  }
-  const reachableAfter = new Set(model.inspect().nodes.map(node => node.id));
-  const detachedNow = [...model.nodes.values()].filter(node => reachableBefore.has(node.id) && !reachableAfter.has(node.id));
-  if (detachedNow.length) {
-    const reachablePositions = [...reachableAfter].map(id => nodePositions.get(id)).filter(Boolean);
-    const shelfY = Math.max(28, ...reachablePositions.map(point => point.y + 180));
-    const existingDetachedCount = model.unreachableNodes().filter(node => !detachedNow.some(detached => detached.id === node.id)).length;
-    detachedNow.forEach((node, index) => nodePositions.set(node.id, { x: 28 + (existingDetachedCount + index) * 178, y: shelfY }));
   }
   undoStack.push(before);
   history.push({ label, statement, explanation });
@@ -345,14 +336,6 @@ function renderStage() {
       const disconnected = document.createElement("span"); disconnected.className = "disconnected-label"; disconnected.textContent = "NOT REACHABLE FROM HEAD"; unit.append(disconnected);
     }
     inner.append(unit);
-  }
-  if (disconnectedNodes.length) {
-    const shelfY = Math.min(...disconnectedNodes.map(node => positions.get(node.id).y));
-    const shelfLabel = document.createElement("span");
-    shelfLabel.className = "detached-shelf-label";
-    shelfLabel.textContent = "DETACHED FROM THE LIST · STILL IN MEMORY";
-    shelfLabel.style.top = `${shelfY - 22}px`;
-    inner.append(shelfLabel);
   }
   ui.stage.replaceChildren(inner);
   ui.structure.textContent = anyCycle ? "cycle detected" : `${inspected.nodes.length} reachable · ${disconnectedNodes.length} disconnected`;

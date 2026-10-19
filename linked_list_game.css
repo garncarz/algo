@@ -118,7 +118,6 @@ h2 { margin: 5px 0 3px; font: 700 25px/1.1 Georgia, "Times New Roman", serif; }
 .reference-edge-hit:focus-visible { stroke: rgba(212,154,37,.38); stroke-width: 14; outline: none; }
 .head-edge { fill: none; stroke: var(--coral); stroke-width: 2.5; pointer-events: none; }
 .head-link.dragging { border-radius: 5px; background: var(--coral-soft); box-shadow: 0 0 0 4px rgba(191,73,53,.16); }
-.detached-shelf-label { position: absolute; left: 16px; z-index: 1; color: #7a6652; font-size: 9px; font-weight: 900; letter-spacing: .06em; }
 .node-unit.disconnected { margin-top: 0; }
 .node-unit.disconnected .node-card { border-style: dashed; border-color: #a99479; background: #f3eee6; }
 .node-unit.disconnected .node-pointer { color: var(--muted); }
