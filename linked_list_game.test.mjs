@@ -1,6 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { CHALLENGES, LinkedListModel, validateChallenge } from "./linked_list_model.mjs";
+import { readFileSync } from "node:fs";
+
+const html = readFileSync(new URL("./linked_list_game.html", import.meta.url), "utf8");
+const model = html.match(/\/\/ <model>\n([\s\S]*?)\/\/ <\/model>/)?.[1];
+assert.ok(model, "model section missing in linked_list_game.html");
+const source = `${model}\nexport { CHALLENGES, LinkedListModel, validateChallenge };`;
+const { CHALLENGES, LinkedListModel, validateChallenge } = await import(`data:text/javascript;base64,${Buffer.from(source).toString("base64")}`);
 
 const challenge = id => CHALLENGES.find(item => item.id === id);
 

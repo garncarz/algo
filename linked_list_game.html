@@ -6,8 +6,225 @@
   <meta name="theme-color" content="#f7f8f4">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
   <title>Linked Lists · Algorithms</title>
-  <link rel="stylesheet" href="linked_list_game.css">
-  <script type="module" src="linked_list_game.js"></script>
+<style>
+:root {
+  color-scheme: light;
+  --paper: #f7f8f4;
+  --white: #fff;
+  --ink: #17211e;
+  --muted: #58645f;
+  --line: #cbd3cd;
+  --green: #176b52;
+  --green-soft: #d9eee5;
+  --coral: #bf4935;
+  --coral-soft: #f8dfd8;
+  --gold: #d49a25;
+  --gold-soft: #fff0c4;
+  --blue: #356f9b;
+  --blue-soft: #e0edf5;
+  font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+* { box-sizing: border-box; }
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  color: var(--ink);
+  background-color: var(--paper);
+  background-image: linear-gradient(rgba(23,33,30,.027) 1px, transparent 1px), linear-gradient(90deg, rgba(23,33,30,.027) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+button, input { font: inherit; }
+button { cursor: pointer; }
+button:focus-visible, input:focus-visible, [tabindex]:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+button:disabled { cursor: not-allowed; opacity: .48; }
+.page { width: min(1500px, calc(100% - 48px)); margin: 0 auto; padding: 20px 0 15px; }
+.topbar { min-height: 92px; display: flex; align-items: center; justify-content: space-between; gap: 18px; border-bottom: 1px solid var(--line); padding-bottom: 12px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.eyebrow a { color: inherit; text-decoration: none; }
+.eyebrow a:hover, .eyebrow a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+.brand-stamp { width: 42px; height: 42px; display: grid; place-items: center; border: 2px solid var(--green); color: var(--green); font: 800 14px/1 Georgia, serif; transform: rotate(-4deg); }
+.eyebrow, .panel-eyebrow, .progress-label, .definition-label { margin: 0; color: var(--green); font-size: 10px; line-height: 1.2; font-weight: 900; letter-spacing: .08em; }
+h1 { margin: 3px 0 0; font: 700 48px/1 Georgia, "Times New Roman", serif; }
+.level-progress { display: flex; align-items: center; gap: 7px; color: var(--muted); font-size: 11px; font-weight: 800; }
+.progress-dots { display: flex; align-items: center; gap: 3px; }
+.progress-dot { width: 27px; height: 27px; border: 1.5px solid #8c9891; border-radius: 50%; padding: 0; color: var(--ink); background: rgba(255,255,255,.75); font-size: 11px; font-weight: 900; cursor: pointer; }
+.progress-dot:hover { border-color: var(--green); background: var(--green-soft); }
+.progress-dot.active { border-color: var(--green); color: #fff; background: var(--green); box-shadow: 0 0 0 3px var(--green-soft); }
+.progress-dot.done:not(.active) { border-color: var(--green); color: var(--green); background: var(--green-soft); }
+.level-label { min-width: 66px; text-align: right; }
+.mission { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 19px 0 15px; }
+.mission-copy { min-width: 0; }
+.mission-kicker { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 11px; font-weight: 800; }
+.mission-kicker > span:first-child { display: grid; width: 24px; height: 24px; place-items: center; border-radius: 50%; color: var(--ink); background: var(--gold-soft); font-size: 10px; }
+h2 { margin: 5px 0 3px; font: 700 25px/1.1 Georgia, "Times New Roman", serif; }
+.mission-copy > p { max-width: 800px; margin: 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
+.mission-actions { display: flex; flex: 0 0 auto; align-items: center; gap: 8px; }
+.moves { display: flex; align-items: baseline; gap: 5px; margin-right: 4px; color: var(--muted); font-size: 11px; font-weight: 700; }
+.moves strong { color: var(--ink); font: 700 21px/1 Georgia, serif; }
+.quiet-button, .icon-button { min-height: 38px; border: 1px solid var(--line); border-radius: 3px; color: var(--ink); background: var(--white); }
+.quiet-button { padding: 0 11px; font-size: 12px; font-weight: 800; }
+.quiet-button span { color: var(--green); }
+.icon-button { width: 38px; padding: 0; font-size: 21px; }
+.quiet-button:hover, .icon-button:hover:not(:disabled) { border-color: var(--ink); background: var(--gold-soft); }
+.status { min-height: 39px; display: flex; align-items: center; gap: 9px; margin-bottom: 13px; border-left: 4px solid var(--gold); padding: 7px 11px; background: rgba(255,255,255,.78); font-size: 13px; line-height: 1.4; font-weight: 700; }
+.status::before { content: ""; width: 8px; height: 8px; flex: 0 0 auto; border-radius: 50%; background: var(--gold); }
+.status.error { border-color: var(--coral); }
+.status.error::before { background: var(--coral); }
+.status.success { border-color: var(--green); }
+.status.success::before { background: var(--green); }
+.workbench { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(430px, 1fr); gap: 20px; align-items: stretch; }
+.diagram-panel, .code-panel, .history-panel, .memory-panel { min-width: 0; border-top: 2px solid var(--ink); padding-top: 11px; }
+.diagram-panel { min-height: 450px; display: flex; flex-direction: column; }
+.panel-heading { min-height: 38px; display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 9px; }
+.panel-heading h3 { margin: 3px 0 0; font: 700 18px/1.1 Georgia, "Times New Roman", serif; }
+.panel-heading.compact { min-height: 34px; margin-bottom: 8px; }
+.panel-heading.compact h3 { font-size: 16px; }
+.legend { display: flex; gap: 12px; color: var(--muted); font-size: 10px; font-weight: 750; }
+.legend span { display: inline-flex; align-items: center; gap: 5px; }
+.legend i { display: inline-block; width: 9px; height: 9px; }
+.legend-head { border-radius: 50%; background: var(--coral); }
+.legend-next { border: 1px solid var(--blue); background: var(--blue-soft); }
+.list-stage { position: relative; min-height: 285px; flex: 1; overflow-x: auto; overflow-y: hidden; border: 2px solid #d0dbd2; border-radius: 10px; background-color: rgba(255,255,255,.84); background-image: radial-gradient(#c8d4cc 1px, transparent 1px); background-size: 18px 18px; box-shadow: inset 0 -7px 0 rgba(23,33,30,.035); }
+.stage-inner { position: relative; min-width: 630px; min-height: 285px; padding: 26px 20px; }
+.chain-row { position: relative; z-index: 1; min-height: 146px; display: flex; align-items: flex-start; gap: 0; width: max-content; }
+.head-column { width: 82px; flex: 0 0 82px; padding-top: 32px; }
+.head-link { min-height: 32px; display: inline-flex; align-items: center; gap: 5px; border: 0; padding: 0; color: var(--coral); background: transparent; font: 800 12px/1 ui-monospace, monospace; }
+.head-link { position: absolute; z-index: 5; min-width: 40px; justify-content: center; color: var(--coral); }
+.node-unit { position: relative; width: 178px; flex: 0 0 178px; min-height: 140px; }
+.node-card { position: relative; z-index: 2; width: 104px; min-height: 76px; display: grid; grid-template-columns: 1fr; grid-template-rows: 20px 1fr; border: 2px solid #82928a; border-radius: 12px; padding: 5px 34px 5px 7px; background: #fff; box-shadow: 0 5px 0 rgba(23,33,30,.1); color: var(--ink); text-align: left; transition: border-color .16s, background-color .16s, transform .16s; }
+.node-card { touch-action: none; user-select: none; cursor: grab; }
+.node-card:active { cursor: grabbing; }
+.node-card:hover { transform: translateY(-2px); border-color: var(--green); }
+.node-card.drop-ready { border-color: var(--gold); background: var(--gold-soft); box-shadow: 0 0 0 5px rgba(212,154,37,.24), 0 5px 0 rgba(23,33,30,.1); transform: translateY(-3px); }
+.node-card.selected { border-color: var(--coral); background: var(--coral-soft); }
+.node-card.recent { border-color: var(--green); background: var(--green-soft); }
+.node-value-label { grid-column: 1; color: var(--muted); font-size: 9px; font-weight: 800; text-transform: uppercase; }
+.node-value { grid-column: 1; align-self: center; padding-left: 3px; font: 700 28px/1 Georgia, serif; }
+.next-port { position: absolute; z-index: 3; top: 11px; left: 73px; width: 27px; height: 51px; display: grid; place-content: center; gap: 4px; border: 0; border-left: 1px solid var(--line); padding: 0 2px; color: var(--blue); background: transparent; font: 800 9px/1 ui-monospace, monospace; writing-mode: vertical-rl; cursor: pointer; }
+.next-port { touch-action: none; }
+.next-port::after { content: ""; width: 8px; height: 8px; margin: auto; border: 2px solid var(--blue); border-radius: 50%; background: var(--white); }
+.next-port:hover::after, .next-port:focus-visible::after { border-color: var(--coral); background: var(--gold-soft); transform: scale(1.2); }
+.next-port.dragging::after { width: 13px; height: 13px; border-color: var(--coral); background: var(--gold-soft); box-shadow: 0 0 0 5px rgba(191,73,53,.16); }
+.node-pointer { position: absolute; top: 89px; left: 0; width: 104px; height: 24px; color: var(--coral); font-size: 10px; font-weight: 850; text-align: center; }
+.next-arrow { position: absolute; top: 37px; left: 108px; width: 64px; height: 24px; overflow: visible; }
+.next-arrow line { stroke: var(--blue); stroke-width: 2; transition: stroke .15s; }
+.next-arrow polygon { fill: var(--blue); }
+.next-arrow.changed line { stroke: var(--green); stroke-width: 3; }
+.next-arrow.changed polygon { fill: var(--green); }
+.null-target { position: absolute; top: 38px; left: 118px; min-width: 48px; height: 24px; display: flex; align-items: center; gap: 7px; color: var(--blue); font: 800 12px/1 ui-monospace, monospace; }
+.null-target { z-index: 6; border: 0; border-radius: 3px; padding: 2px 3px; background: transparent; cursor: pointer; }
+.null-target::before { content: none; }
+.null-target::after { content: ""; width: 0; height: 0; border-top: 4px solid transparent; border-bottom: 4px solid transparent; border-left: 6px solid var(--blue); }
+.null-target.drop-ready { border-radius: 7px; outline: 3px solid var(--gold); outline-offset: 3px; background: var(--gold-soft); }
+.null-target.selected { outline: 2px solid var(--coral); outline-offset: 2px; background: var(--coral-soft); }
+.reference-edge { fill: none; stroke: var(--blue); stroke-width: 2.5; pointer-events: none; transition: stroke .12s, stroke-width .12s; }
+.reference-edge.changed { stroke: var(--green); stroke-width: 3.5; }
+.reference-edge.selected { stroke: var(--coral); stroke-width: 4; }
+.reference-edge-hit { fill: none; stroke: rgba(23,33,30,.01); stroke-width: 18; pointer-events: stroke; cursor: pointer; }
+.reference-edge-hit:focus-visible { stroke: rgba(212,154,37,.38); stroke-width: 14; outline: none; }
+.head-edge { fill: none; stroke: var(--coral); stroke-width: 2.5; pointer-events: none; }
+.head-link.dragging { border-radius: 5px; background: var(--coral-soft); box-shadow: 0 0 0 4px rgba(191,73,53,.16); }
+.node-unit.disconnected { margin-top: 0; }
+.node-unit.disconnected .node-card { border-style: dashed; border-color: #a99479; background: #f3eee6; }
+.node-unit.disconnected .node-pointer { color: var(--muted); }
+.disconnected-label { position: absolute; top: 81px; left: 0; width: 104px; color: #7a6652; font-size: 8px; font-weight: 800; text-align: center; }
+.empty-state { position: absolute; top: 96px; left: 50%; transform: translateX(-50%); color: var(--muted); font: 700 16px Georgia, serif; white-space: nowrap; }
+.drag-link-line { fill: none; stroke: var(--coral); stroke-width: 3; stroke-linecap: round; pointer-events: none; }
+.stage-caption { position: absolute; right: 12px; bottom: 10px; color: #78867f; font-size: 10px; font-weight: 700; }
+.reverse-track { display: flex; gap: 8px; flex-wrap: wrap; min-height: 48px; padding: 8px 10px; border-top: 1px solid var(--line); background: rgba(224,237,245,.35); color: var(--muted); font-size: 11px; }
+.reverse-track[hidden] { display: none; }
+.track-token { display: inline-flex; align-items: center; gap: 5px; border: 1px solid var(--line); padding: 4px 7px; background: white; font: 700 11px ui-monospace, monospace; }
+.track-token.current { border-color: var(--coral); background: var(--coral-soft); }
+.track-token.previous { border-color: var(--green); background: var(--green-soft); }
+.game-tools { min-height: 54px; display: flex; align-items: center; flex-wrap: wrap; gap: 7px; border: 1px solid #d5ddd7; border-top: 0; border-radius: 0 0 10px 10px; padding: 9px 10px; background: #eff5ef; }
+.action-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+.selection-summary { flex: 1 1 210px; margin: 0 0 0 auto; color: var(--muted); font-size: 11px; line-height: 1.35; font-weight: 750; text-align: right; }
+.diagram-footer { min-height: 35px; display: flex; align-items: center; justify-content: flex-end; gap: 10px; padding: 5px 2px 0; }
+.structure-note { display: inline-flex; flex: 0 0 auto; align-items: center; gap: 6px; color: var(--muted); font-size: 10px; font-weight: 750; }
+.structure-note i { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+.structure-note.broken i { background: var(--coral); }
+.side-panel { min-width: 0; display: block; }
+.action-button, .primary-button, .value-choice { min-height: 40px; border: 1.5px solid var(--ink); border-radius: 10px; padding: 7px 12px; color: var(--ink); background: var(--white); font-size: 12px; font-weight: 850; transition: transform .12s, background-color .12s; }
+.action-button:hover, .primary-button:hover { transform: translateY(-1px); background: var(--gold-soft); }
+.action-button.primary { border-color: var(--green); color: var(--white); background: var(--green); box-shadow: 0 3px 0 #105640; }
+.action-button.primary:hover { background: #105640; }
+.action-button.danger { border-color: #b96b5d; color: #8b362b; background: var(--coral-soft); }
+.action-button[aria-pressed="true"] { border-color: var(--coral); background: var(--coral-soft); }
+.value-choice { min-width: 42px; border-color: var(--gold); background: var(--gold-soft); font: 800 16px Georgia, serif; }
+.value-choice:hover { transform: translateY(-2px) rotate(-3deg); }
+.target-picker { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 7px; }
+.target-picker[hidden] { display: none; }
+.picker-label { margin: 0 0 7px; color: var(--muted); font-size: 10px; font-weight: 850; }
+.target-option { min-height: 34px; border: 1px solid var(--blue); border-radius: 9px; padding: 5px 11px; color: #244b68; background: var(--blue-soft); font: 800 12px ui-monospace, monospace; cursor: pointer; }
+.target-option:hover { border-color: var(--ink); }
+.code-panel { display: flex; flex-direction: column; min-height: 560px; }
+.code-panel .panel-heading.compact { min-height: 38px; margin-bottom: 9px; }
+.code-step { color: var(--muted); font: 800 9px ui-monospace, monospace; }
+.code-window { min-height: 0; max-height: none; overflow: visible; margin: 0; border: 1px solid var(--line); padding: 9px 11px; color: #24342e; background: var(--white); font: 12px/1.55 "SFMono-Regular", Consolas, "Liberation Mono", monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.code-window { min-height: 440px; }
+.code-line { display: block; min-height: 1.55em; padding: 0 3px; }
+.code-line.latest { background: var(--gold-soft); font-weight: 800; }
+.code-keyword { color: var(--blue); font-weight: 800; }
+.code-definition { display: flex; align-items: start; gap: 10px; margin-top: 8px; color: var(--muted); }
+.code-definition .definition-label { flex: 0 0 auto; padding-top: 2px; font-size: 8px; }
+.code-definition pre { overflow-x: auto; margin: 0; color: #52615a; font: 9px/1.4 "SFMono-Regular", Consolas, monospace; white-space: pre-wrap; }
+.bottom-grid { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(430px, 1fr); gap: 20px; margin-top: 14px; }
+.history-panel, .memory-panel { min-height: 99px; }
+.history-count { color: var(--muted); font-size: 10px; font-weight: 750; }
+.history-list { max-height: 90px; overflow: auto; margin: 0; padding: 0 0 0 20px; color: var(--muted); font-size: 10px; }
+.history-list li { padding: 2px 0; }
+.history-list li::marker { color: var(--green); font-weight: 900; }
+.history-empty { list-style: none; margin-left: -20px; color: var(--muted); }
+.memory-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.memory-stats > div { display: flex; flex-direction: column; gap: 3px; color: var(--muted); font-size: 9px; font-weight: 750; }
+.stat-value { color: var(--ink); font: 700 20px/1 Georgia, serif; }
+.page-footer { display: flex; justify-content: space-between; gap: 12px; border-top: 1px solid var(--line); margin-top: 14px; padding-top: 8px; color: var(--muted); font-size: 8px; font-weight: 850; letter-spacing: .07em; }
+.page-footer:has(#completion-count:only-child) { justify-content: flex-end; }
+.success-banner { position: fixed; z-index: 10; right: 20px; bottom: 20px; width: min(680px, calc(100vw - 40px)); display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 13px; border: 2px solid var(--green); padding: 14px; background: var(--white); box-shadow: 0 8px 30px rgba(23,33,30,.18); animation: arrive .2s ease-out; }
+.success-banner[hidden] { display: none; }
+.success-mark { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 50%; color: var(--green); background: var(--green-soft); font-size: 20px; font-weight: 900; }
+.success-banner h2 { margin: 2px 0 3px; font-size: 18px; }
+.success-banner p:last-child { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.4; }
+.success-banner .primary-button { white-space: nowrap; border-color: var(--green); color: white; background: var(--green); }
+@keyframes arrive { from { opacity: 0; transform: translateY(7px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 960px) {
+  .workbench, .bottom-grid { grid-template-columns: minmax(0, 1fr); }
+  .workbench { gap: 14px; }
+  .diagram-panel { min-height: 400px; }
+  .code-panel { min-height: 0; }
+  .bottom-grid { gap: 12px; }
+  .memory-panel { min-height: auto; }
+}
+@media (max-width: 620px) {
+  .page { width: min(100% - 26px, 1500px); padding-top: 13px; }
+  .topbar { align-items: flex-start; flex-direction: column; gap: 12px; }
+  .level-progress { width: 100%; justify-content: flex-end; }
+  .level-progress { flex-wrap: wrap; justify-content: space-between; row-gap: 7px; }
+  .progress-dots { order: 3; flex: 0 0 100%; justify-content: space-between; }
+  .progress-dot { width: 25px; height: 25px; }
+  .mission { align-items: flex-start; flex-direction: column; gap: 12px; padding: 15px 0 12px; }
+  .mission-actions { width: 100%; justify-content: flex-end; }
+  .moves { margin-right: auto; }
+  h2 { font-size: 23px; }
+  .status { margin-bottom: 10px; }
+  .diagram-panel { min-height: 360px; }
+  .list-stage { min-height: 250px; }
+  .stage-inner { min-height: 250px; padding: 18px 12px; }
+  .workbench, .bottom-grid { grid-template-columns: minmax(0, 1fr); }
+  .code-panel { min-height: 0; }
+  .selection-summary { flex-basis: 100%; margin-left: 0; text-align: left; }
+  .diagram-footer { align-items: flex-start; flex-direction: column; }
+  .success-banner { right: 10px; bottom: 10px; width: calc(100vw - 20px); grid-template-columns: auto 1fr; }
+  .success-banner .primary-button { grid-column: 1 / -1; width: 100%; }
+  .page-footer { align-items: flex-start; flex-direction: column; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+</style>
 </head>
 <body>
   <main class="page">
@@ -78,5 +295,1045 @@
     <div class="success-mark" aria-hidden="true">✓</div><div><p class="panel-eyebrow">NICE WORK</p><h2 id="success-title">Challenge complete</h2><p id="success-explanation"></p></div>
     <button id="next-challenge" class="primary-button" type="button">Next challenge <span aria-hidden="true">→</span></button>
   </div>
+<script type="module">
+"use strict";
+// <model>
+class ListNode {
+  constructor(id, value) {
+    this.id = id;
+    this.value = value;
+    this.next = null;
+  }
+}
+
+class LinkedListModel {
+  constructor(initialValues = []) {
+    this.nodes = new Map();
+    this.head = null;
+    this.nextId = 1;
+    for (const value of initialValues) {
+      const node = this.createNode(value);
+      if (this.head === null) this.head = node;
+      else this.chainTail().next = node;
+    }
+  }
+
+  createNode(value) {
+    if (!Number.isInteger(value) || value < -2147483648 || value > 2147483647) throw new TypeError("Node values must fit in a Java int.");
+    const node = new ListNode(`node-${this.nextId}`, value);
+    this.nextId += 1;
+    this.nodes.set(node.id, node);
+    return node;
+  }
+
+  getNode(id) {
+    return this.nodes.get(id) ?? null;
+  }
+
+  chainTail() {
+    const { nodes, cycle } = this.inspect();
+    if (cycle) throw new Error("The reachable list contains a cycle.");
+    return nodes.at(-1) ?? null;
+  }
+
+  setNext(sourceId, targetId) {
+    const source = this.getNode(sourceId);
+    const target = targetId === null ? null : this.getNode(targetId);
+    if (!source || (targetId !== null && !target)) throw new Error("Choose existing nodes for this reference assignment.");
+    source.next = target;
+  }
+
+  setHead(targetId) {
+    const target = targetId === null ? null : this.getNode(targetId);
+    if (targetId !== null && !target) throw new Error("The head must refer to an existing node or null.");
+    this.head = target;
+  }
+
+  unlink(nodeId) {
+    const selected = this.getNode(nodeId);
+    if (!selected) throw new Error("Choose a node that still exists in memory.");
+    const { nodes, cycle } = this.inspect();
+    if (cycle) throw new Error("Break the cycle before unlinking a node.");
+    const index = nodes.findIndex(node => node.id === nodeId);
+    if (index < 0) throw new Error("That node is already unreachable from head.");
+    if (index === 0) {
+      this.head = selected.next;
+      return { statement: "head = head.next;", explanation: "Move the separate head reference forward. The old first node still exists, but is no longer reachable from head." };
+    }
+    const previous = nodes[index - 1];
+    previous.next = selected.next;
+    return {
+      statement: `${variableName(previous)}.next = ${selected.next ? variableName(selected.next) : "null"};`,
+      explanation: `Bypass ${selected.value} by pointing ${previous.value}.next to its successor. The unlinked node still exists in memory.`,
+    };
+  }
+
+  inspect() {
+    const reachable = [];
+    const seen = new Set();
+    let current = this.head;
+    while (current && !seen.has(current.id)) {
+      seen.add(current.id);
+      reachable.push(current);
+      current = current.next;
+    }
+    return { nodes: reachable, cycle: current !== null, cycleAt: current };
+  }
+
+  findCycle() {
+    const fullyVisited = new Set();
+    for (const start of this.nodes.values()) {
+      if (fullyVisited.has(start.id)) continue;
+      const path = new Set();
+      let current = start;
+      while (current && !fullyVisited.has(current.id)) {
+        if (path.has(current.id)) return current;
+        path.add(current.id);
+        current = current.next;
+      }
+      for (const id of path) fullyVisited.add(id);
+    }
+    return null;
+  }
+
+  unreachableNodes() {
+    const reachableIds = new Set(this.inspect().nodes.map(node => node.id));
+    return [...this.nodes.values()].filter(node => !reachableIds.has(node.id));
+  }
+
+  snapshot() {
+    return {
+      headId: this.head?.id ?? null,
+      nextId: this.nextId,
+      nodes: [...this.nodes.values()].map(node => ({ id: node.id, value: node.value, nextId: node.next?.id ?? null })),
+    };
+  }
+
+  restore(snapshot) {
+    const restored = new Map(snapshot.nodes.map(data => [data.id, new ListNode(data.id, data.value)]));
+    for (const data of snapshot.nodes) {
+      restored.get(data.id).next = data.nextId === null ? null : restored.get(data.nextId) ?? null;
+    }
+    this.nodes = restored;
+    this.head = snapshot.headId === null ? null : restored.get(snapshot.headId) ?? null;
+    this.nextId = snapshot.nextId;
+  }
+}
+
+function variableName(node) {
+  return `node${node.value}`;
+}
+
+const CHALLENGES = [
+  {
+    id: "build", level: 1, title: "Build the chain", subtitle: "Every list begins with a reference, not a row of boxes.",
+    instruction: "Make a chain: 8, then 16, then 24. Point head to 8 and connect the blue next arrows. End at null.",
+    initial: [], targetValues: [8, 16, 24], unreachableValues: [], expectedNodes: 3,
+    actions: ["create", "set-next", "change-head"],
+    hints: ["Create each node first; creating a node does not put it in the list.", "Set head to the first node, then set 8.next to 16 and 16.next to 24.", "The last node's next reference should be null."],
+    success: "You built a three-node chain. head refers to the first node, and null marks the end. A single-node list is the same idea: head points to one node whose next is null.",
+  },
+  {
+    id: "insert", level: 2, title: "Insert a passenger", subtitle: "Preserve the old successor before you redirect the link.",
+    instruction: "Insert a new node containing 30 between 25 and 40. Keep every existing node reachable.",
+    initial: [12, 25, 40], targetValues: [12, 25, 30, 40], unreachableValues: [], expectedNodes: 4,
+    actions: ["create", "set-next", "change-head"],
+    hints: ["Create node 30 without changing the existing links.", "First assign node30.next = node40; then assign node25.next = node30.", "If 25.next is changed to 30 first, node 40 is disconnected until you reconnect it."],
+    success: "Both links now form one chain. Setting the new node's next first preserves the old successor before the predecessor is redirected. These are pointer assignments; a general insertion method would also need to handle other positions and edge cases.",
+  },
+  {
+    id: "remove-middle", level: 3, title: "Repair the chain", subtitle: "Change the link yourself; Java has no delete statement for objects.",
+    instruction: "Make 25 unreachable from head by setting 12.next to 40. Keep 12 and 40 connected; 25 stays in memory.",
+    initial: [12, 25, 40], targetValues: [12, 40], unreachableValues: [25], expectedNodes: 3,
+    actions: ["set-next", "change-head"],
+    hints: ["Pick up the next pocket on node 12, then drop it on node 40.", "Only node12.next changes. Node 25 still exists, but head can no longer reach it.", "Java does not have a delete statement for ordinary objects. Garbage collection reclaims objects only after they become unreachable."],
+    success: "You changed the predecessor's next reference to bypass 25. The Node object remains allocated in this lesson model; Java's garbage collector may reclaim it later because it is unreachable.",
+  },
+  {
+    id: "remove-head", level: 3, title: "Repair the chain: head", subtitle: "The head reference is separate from every node's next field.",
+    instruction: "Remove the first node, 12. Keep 25 and 40 reachable.",
+    initial: [12, 25, 40], targetValues: [25, 40], unreachableValues: [12], expectedNodes: 3,
+    actions: ["set-next", "change-head"],
+    hints: ["Drag the head arrow from node 12 to node 25.", "This changes head; it does not change node12.next.", "Java does not destroy node 12 directly. It becomes unreachable from head and may later be collected."],
+    success: "You changed the separate head reference. Node 12 still exists in memory, but the list now starts at node 25.",
+  },
+  {
+    id: "reverse", level: 4, title: "Reverse the chain", subtitle: "Keep a temporary next reference before turning each arrow around.",
+    instruction: "Reverse 10 → 20 → 30 so head leads 30 → 20 → 10. Drag the arrows and head yourself, or use the optional guided flip button.",
+    initial: [10, 20, 30], targetValues: [30, 20, 10], unreachableValues: [], expectedNodes: 3,
+    actions: ["reverse-step"], guided: true,
+    hints: ["At each step: save current.next, point current.next to previous, then advance previous and current.", "The temporary next value protects the part of the chain that has not been reversed yet.", "On the final flip, current becomes null and head moves to previous automatically."],
+    success: "The reversed prefix grew one node at a time while the saved next reference kept the remaining suffix reachable. Finally, head was updated to previous.",
+  },
+  {
+    id: "edge-empty", level: 5, title: "Edge-case challenge", subtitle: "Fewer hints now: reason about the actual references.",
+    instruction: "Start with an empty list and create a one-node list containing 5.",
+    initial: [], targetValues: [5], unreachableValues: [], expectedNodes: 1,
+    actions: ["create", "set-next", "change-head"],
+    hints: ["Create a node, then change head to point to it.", "The node's next reference is already null."],
+    success: "An empty list has head == null. After the insertion, head refers to one node and that node's next remains null.",
+  },
+  {
+    id: "edge-tail", level: 5, title: "Edge-case challenge", subtitle: "Fewer hints now: reason about the actual references.",
+    instruction: "Remove the last node, 15, from 4 → 9 → 15. Keep 4 and 9 reachable.",
+    initial: [4, 9, 15], targetValues: [4, 9], unreachableValues: [15], expectedNodes: 3,
+    actions: ["create", "set-next", "change-head"],
+    hints: ["Pick up the next pocket on node 9 and drop it on null.", "Node 15 remains an object in memory, but node 9.next no longer reaches it."],
+    success: "Node 9 is now the last node because its next reference is null. Node 15 still exists as an unreachable object in this model.",
+  },
+  {
+    id: "edge-single", level: 5, title: "Edge-case challenge", subtitle: "Fewer hints now: reason about the actual references.",
+    instruction: "Remove the only node, 7, from this single-node list.",
+    initial: [7], targetValues: [], unreachableValues: [7], expectedNodes: 1,
+    actions: ["set-next", "change-head"],
+    hints: ["Drag head away from node 7 and drop it on null.", "Node 7 remains an object in memory; the list is empty because head is null."],
+    success: "After changing head to null, the list is empty. Node 7 is still an object in memory and may later be reclaimed by Java's garbage collector.",
+  },
+];
+
+function validateChallenge(model, challenge) {
+  const inspected = model.inspect();
+  if (model.findCycle()) return { ok: false, reason: "cycle", message: "A next reference loops back to an earlier node. Ordinary lists must end at null." };
+  if (model.nodes.size !== challenge.expectedNodes) return { ok: false, reason: "node-count", message: `There should be ${challenge.expectedNodes} node${challenge.expectedNodes === 1 ? "" : "s"} in memory for this challenge.` };
+  const values = inspected.nodes.map(node => node.value);
+  if (values.length !== challenge.targetValues.length || values.some((value, index) => value !== challenge.targetValues[index])) {
+    return { ok: false, reason: "chain", message: `From head, the chain should read ${formatValues(challenge.targetValues)} and end at null.` };
+  }
+  const actualUnreachable = model.unreachableNodes().map(node => node.value).sort((a, b) => a - b);
+  const expectedUnreachable = [...challenge.unreachableValues].sort((a, b) => a - b);
+  if (actualUnreachable.length !== expectedUnreachable.length || actualUnreachable.some((value, index) => value !== expectedUnreachable[index])) {
+    return { ok: false, reason: "unreachable", message: "There are nodes in memory that are not reachable from head. Check whether a link was overwritten or a node should have been unlinked." };
+  }
+  return { ok: true, reason: "complete", message: "The structure matches the goal." };
+}
+
+function formatValues(values) {
+  return values.length ? values.join(" → ") : "an empty list";
+}
+// </model>
+
+
+const $ = selector => document.querySelector(selector);
+const ui = {
+  title: $("#challenge-title"), subtitle: $("#challenge-subtitle"), instruction: $("#challenge-instruction"), number: $("#challenge-number"),
+  level: $("#level-label"), progress: $("#progress-dots"), status: $("#status"), stage: $("#list-stage"), reverseTrack: $("#reverse-track"),
+  actions: $("#action-controls"), picker: $("#target-picker"),
+  selection: $("#selection-summary"), structure: $("#structure-summary"), structureNote: $(".structure-note"),
+  code: $("#java-code"), codeStep: $("#code-step"),
+  history: $("#history-list"), historyCount: $("#history-count"), moves: $("#move-count"), undo: $("#undo-button"),
+  allocated: $("#allocated-count"), reachable: $("#reachable-count"), disconnected: $("#disconnected-count"),
+  hint: $("#hint-button"), hintCount: $("#hint-count"),
+  success: $("#success-banner"), successExplanation: $("#success-explanation"), next: $("#next-challenge"),
+};
+
+let challengeIndex = 0;
+let model;
+let selectedId = null;
+let pickerMode = null;
+let selectedConnectionId = null;
+let nodePositions = new Map();
+let history = [];
+let undoStack = [];
+let hintIndex = 0;
+let reverseState = null;
+let lastChangedId = null;
+let completedChallenges = new Set();
+let isComplete = false;
+let draggedLink = null;
+let draggedNode = null;
+let suppressPortClickUntil = 0;
+let suppressNodeClickUntil = 0;
+
+function challenge() { return CHALLENGES[challengeIndex]; }
+
+function initializeChallenge(index = challengeIndex) {
+  challengeIndex = Math.max(0, Math.min(index, CHALLENGES.length - 1));
+  const current = challenge();
+  model = new LinkedListModel(current.initial);
+  nodePositions = new Map();
+  [...model.nodes.values()].forEach((node, index) => nodePositions.set(node.id, defaultNodePosition(index)));
+  selectedId = null;
+  pickerMode = null;
+  selectedConnectionId = null;
+  history = [];
+  undoStack = [];
+  hintIndex = 0;
+  lastChangedId = null;
+  isComplete = false;
+  reverseState = current.id === "reverse" ? { previousId: null, currentId: model.head?.id ?? null, steps: 0 } : null;
+  ui.success.hidden = true;
+  ui.number.textContent = String(challengeIndex + 1).padStart(2, "0");
+  ui.title.textContent = current.title;
+  ui.subtitle.textContent = current.subtitle;
+  ui.instruction.textContent = current.instruction;
+  ui.level.textContent = `TASK ${challengeIndex + 1} / ${CHALLENGES.length}`;
+  ui.hintCount.textContent = `1/${current.hints.length}`;
+  ui.hint.disabled = false;
+  ui.status.className = "status";
+  ui.status.textContent = "Tap a blue next pocket to move an arrow. Tap head to choose the first node.";
+  ui.codeStep.textContent = "READY";
+  render();
+}
+
+function captureState() {
+  return {
+    model: model.snapshot(), selectedId, historyLength: history.length,
+    reverseState: reverseState ? { ...reverseState } : null, lastChangedId, selectedConnectionId,
+    nodePositions: [...nodePositions].map(([id, point]) => [id, { ...point }]),
+    nodePositions: [...nodePositions].map(([id, point]) => [id, { ...point }]),
+  };
+}
+
+function transact(label, statement, explanation, mutation, changedId = null) {
+  const before = captureState();
+  try {
+    mutation();
+  } catch (error) {
+    setStatus(error.message, "error");
+    return false;
+  }
+  undoStack.push(before);
+  history.push({ label, statement, explanation });
+  lastChangedId = changedId;
+  selectedId = changedId ?? selectedId;
+  selectedConnectionId = null;
+  pickerMode = null;
+  evaluateAndRender(explanation);
+  return true;
+}
+
+function evaluateAndRender(explanation = "") {
+  const result = validateChallenge(model, challenge());
+  if (result.ok) {
+    completeChallenge();
+  } else if (result.reason === "cycle") {
+    setStatus(`${result.message} Undo or change one of the references to repair it.`, "error");
+  } else if (explanation) {
+    setStatus(explanation, "");
+  } else if (result.reason === "unreachable") {
+    setStatus(result.message, "error");
+  } else if (model.unreachableNodes().length) {
+    setStatus("Some allocated nodes are disconnected from head. They still exist; reconnect a reference, undo, or restart.", "");
+  } else {
+    setStatus("Reference updated. Compare the chain from head with the objective.", "");
+  }
+  render();
+}
+
+function completeChallenge() {
+  isComplete = true;
+  completedChallenges.add(challenge().id);
+  ui.status.className = "status success";
+  ui.status.textContent = "Structure verified. The list matches the challenge goal.";
+  ui.successExplanation.textContent = challenge().success;
+  ui.success.hidden = false;
+}
+
+function setStatus(message, kind = "") {
+  ui.status.className = `status${kind ? ` ${kind}` : ""}`;
+  ui.status.textContent = message;
+}
+
+function render() {
+  renderProgress();
+  renderControls();
+  renderStage();
+  renderMemory();
+  renderHistoryAndCode();
+  renderReverseTrack();
+  ui.moves.textContent = String(history.length);
+  ui.undo.disabled = undoStack.length === 0;
+}
+
+function renderProgress() {
+  const level = challenge().level;
+  ui.progress.replaceChildren();
+  for (let number = 1; number <= CHALLENGES.length; number += 1) {
+    const dot = document.createElement("button");
+    dot.type = "button";
+    const taskIndex = number - 1;
+    const task = CHALLENGES[taskIndex];
+    dot.className = `progress-dot${taskIndex === challengeIndex ? " active" : ""}${completedChallenges.has(task.id) ? " done" : ""}`;
+    dot.textContent = String(number);
+    dot.setAttribute("aria-label", `Choose task ${number}${dot.classList.contains("done") ? ", complete" : ""}`);
+    dot.setAttribute("aria-pressed", String(taskIndex === challengeIndex));
+    dot.title = `Go to task ${number}: ${task.title}`;
+    dot.addEventListener("click", () => {
+      initializeChallenge(taskIndex);
+    });
+    ui.progress.append(dot);
+  }
+}
+
+function makeButton(text, action, className = "action-button", extra = {}) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = className;
+  button.textContent = text;
+  button.dataset.action = action;
+  for (const [key, value] of Object.entries(extra)) button.setAttribute(key, value);
+  return button;
+}
+
+function renderControls() {
+  const current = challenge();
+  ui.actions.replaceChildren();
+  ui.picker.hidden = true;
+  ui.picker.replaceChildren();
+  if (current.actions.includes("create")) {
+    ui.actions.append(makeButton("＋ Add a node", "create", "action-button primary"));
+    if (pickerMode?.type === "create") {
+      const neededValues = current.targetValues.filter(value => ![...model.nodes.values()].some(node => node.value === value));
+      for (const value of neededValues) {
+        const option = makeButton(String(value), "create-value", "value-choice");
+        option.dataset.value = String(value);
+        ui.actions.append(option);
+      }
+    }
+  }
+  if (selectedConnectionId) {
+    const source = model.getNode(selectedConnectionId);
+    if (source) ui.actions.append(makeButton(`Disconnect ${source.value}.next`, "disconnect", "action-button danger"));
+  }
+  if (current.actions.includes("reverse-step") && reverseState) {
+    ui.actions.append(makeButton("Flip the next arrow", "reverse-step", "action-button primary"));
+  }
+  if (pickerMode && pickerMode.type !== "create") renderTargetPicker();
+  if (!selectedId && !pickerMode && !current.guided) ui.selection.textContent = "Tap a blue next pocket, then tap where its arrow should go.";
+  else if (pickerMode?.type === "next") ui.selection.textContent = `Moving node ${model.getNode(pickerMode.sourceId)?.value ?? "?"}.next. Tap a node or null.`;
+  else if (pickerMode?.type === "head") ui.selection.textContent = "Moving head. Tap the first node or null.";
+  else if (pickerMode?.type === "create") ui.selection.textContent = "Choose a number for your new node.";
+  else if (selectedId) {
+    const node = model.getNode(selectedId);
+    if (node) ui.selection.textContent = `Node ${node.value} is picked up. Its next arrow points to ${node.next ? node.next.value : "null"}.`;
+  } else if (current.guided) ui.selection.textContent = "Follow the highlighted current reference, one link at a time.";
+}
+
+function renderTargetPicker() {
+  ui.picker.hidden = false;
+  const label = document.createElement("p");
+  label.className = "picker-label";
+  label.textContent = "Choose where the arrow should point:";
+  const nullButton = makeButton("null", "target-null", "target-option");
+  ui.picker.replaceChildren(label, nullButton);
+}
+
+function defaultNodePosition(index) {
+  return { x: 105 + (index % 3) * 178, y: 28 + Math.floor(index / 3) * 155 };
+}
+
+function renderStage() {
+  const inspected = model.inspect();
+  const anyCycle = model.findCycle();
+  const allNodes = [...model.nodes.values()];
+  const reachableIds = new Set(inspected.nodes.map(node => node.id));
+  const disconnectedNodes = allNodes.filter(node => !reachableIds.has(node.id));
+  allNodes.forEach((node, index) => {
+    if (!nodePositions.has(node.id)) nodePositions.set(node.id, defaultNodePosition(index));
+  });
+  for (const id of nodePositions.keys()) if (!model.nodes.has(id)) nodePositions.delete(id);
+  const positions = nodePositions;
+  const width = Math.max(630, ...[...positions.values()].map(point => point.x + 240));
+  const height = Math.max(285, ...[...positions.values()].map(point => point.y + 145));
+  const inner = document.createElement("div");
+  inner.className = "stage-inner";
+  inner.style.width = `${width}px`;
+  inner.style.minHeight = `${height}px`;
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("class", "reference-layer");
+  svg.setAttribute("aria-label", "Selectable next connections");
+  svg.setAttribute("width", String(width));
+  svg.setAttribute("height", String(height));
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  svg.style.cssText = `position:absolute;inset:0;z-index:1;pointer-events:auto;overflow:visible`;
+  const defs = document.createElementNS(svg.namespaceURI, "defs");
+  const marker = document.createElementNS(svg.namespaceURI, "marker");
+  marker.id = "arrowhead";
+  marker.setAttribute("markerWidth", "8"); marker.setAttribute("markerHeight", "8");
+  marker.setAttribute("refX", "7"); marker.setAttribute("refY", "4"); marker.setAttribute("orient", "auto");
+  const tip = document.createElementNS(svg.namespaceURI, "path");
+  tip.setAttribute("d", "M0,0 L8,4 L0,8 Z"); tip.setAttribute("fill", "context-stroke");
+  marker.append(tip); defs.append(marker); svg.append(defs);
+  for (const node of allNodes) {
+    const from = positions.get(node.id);
+    const startX = from.x + 104;
+    const startY = from.y + 36;
+    if (node.next && positions.has(node.next.id)) {
+      const to = positions.get(node.next.id);
+      const path = createReferencePath(svg, node, startX, startY, to.x, to.y + 36, node.next.id);
+      svg.append(path.visible, path.hit);
+    } else {
+      const nullX = from.x + 145;
+      const path = createReferencePath(svg, node, startX, startY, nullX, startY, "null");
+      svg.append(path.visible, path.hit);
+      const nullLabel = document.createElement("button");
+      nullLabel.type = "button";
+      nullLabel.className = `null-target${selectedConnectionId === node.id ? " selected" : ""}`;
+      nullLabel.textContent = "null";
+      nullLabel.dataset.nullSource = node.id;
+      nullLabel.style.left = `${nullX + 5}px`; nullLabel.style.top = `${from.y + 25}px`;
+      nullLabel.setAttribute("aria-label", `Null endpoint for node ${node.value}'s next reference`);
+      nullLabel.addEventListener("click", () => {
+        if (pickerMode?.type === "next") chooseTarget("null");
+        else selectConnection(node.id);
+      });
+      inner.append(nullLabel);
+    }
+  }
+  if (model.head) {
+    const point = positions.get(model.head.id);
+    const headLeft = Math.max(12, point.x - 86);
+    const headEdge = document.createElementNS(svg.namespaceURI, "path");
+    headEdge.setAttribute("class", "head-edge");
+    headEdge.setAttribute("d", `M ${headLeft + 40} ${point.y + 36} L ${point.x - 7} ${point.y + 36}`);
+    headEdge.setAttribute("marker-end", "url(#arrowhead)");
+    headEdge.dataset.headReference = model.head.id;
+    svg.append(headEdge);
+  }
+  inner.append(svg);
+  if (!allNodes.length) {
+    const empty = document.createElement("div"); empty.className = "empty-state"; empty.textContent = "Let’s add your first node!"; inner.append(empty);
+  }
+  const headLabel = document.createElement("button");
+  headLabel.type = "button"; headLabel.className = "head-link"; headLabel.textContent = "head";
+  headLabel.setAttribute("aria-label", `Head refers to ${model.head ? `node ${model.head.value}` : "null"}`);
+  const headPosition = model.head ? positions.get(model.head.id) : null;
+  headLabel.style.cssText = `position:absolute;left:${headPosition ? Math.max(12, headPosition.x - 86) : 12}px;top:${(headPosition?.y ?? 28) + 27}px;z-index:5`;
+  headLabel.addEventListener("pointerdown", event => startHeadDrag(event, headLabel));
+  headLabel.addEventListener("click", () => {
+    if (Date.now() < suppressPortClickUntil) return;
+    selectedConnectionId = null;
+    if (pickerMode?.type === "head") { pickerMode = null; setStatus("Head move cancelled."); }
+    else { selectedId = null; pickerMode = { type: "head" }; setStatus("Head is picked up. Tap the node that should be first, or choose null below."); }
+    render();
+  });
+  inner.append(headLabel);
+  for (const node of allNodes) {
+    const point = positions.get(node.id);
+    const unit = document.createElement("div");
+    unit.className = `node-unit${!reachableIds.has(node.id) ? " disconnected" : ""}`;
+    unit.dataset.nodeUnit = node.id;
+    unit.style.cssText = `position:absolute;left:${point.x}px;top:${point.y}px;width:120px;height:125px;z-index:2`;
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = `node-card${selectedId === node.id ? " selected" : ""}${lastChangedId === node.id ? " recent" : ""}`;
+    card.dataset.nodeId = node.id;
+    card.setAttribute("aria-label", `Node ${node.value}${model.head === node ? ", head points here" : ""}. Next points to ${node.next ? `node ${node.next.value}` : "null"}. Select node.`);
+    card.style.cssText = "position:absolute;left:0;top:0";
+    card.addEventListener("pointerdown", event => startNodeDrag(event, card, node));
+    const valueLabel = document.createElement("span"); valueLabel.className = "node-value-label"; valueLabel.textContent = "value";
+    const value = document.createElement("span"); value.className = "node-value"; value.textContent = String(node.value);
+    card.append(valueLabel, value);
+    card.addEventListener("click", () => {
+      if (Date.now() < suppressNodeClickUntil) return;
+      if (pickerMode?.type === "next" || pickerMode?.type === "head") { chooseTarget(node.id); return; }
+      selectedId = node.id; selectedConnectionId = null; pickerMode = null; render();
+      setStatus(`Node ${node.value} picked up. Tap its next pocket to move that arrow.`);
+    });
+    unit.append(card);
+    const port = document.createElement("button");
+    port.type = "button"; port.className = "next-port"; port.textContent = "next";
+    port.dataset.sourceId = node.id;
+    port.setAttribute("aria-label", `Pick up node ${node.value}'s next arrow, currently pointing to ${node.next ? node.next.value : "null"}`);
+    port.addEventListener("pointerdown", event => startLinkDrag(event, port, node));
+    port.addEventListener("click", () => {
+      if (Date.now() < suppressPortClickUntil) return;
+      selectedId = node.id;
+      selectedConnectionId = null;
+      pickerMode = pickerMode?.type === "next" && pickerMode.sourceId === node.id ? null : { type: "next", sourceId: node.id };
+      render();
+      setStatus(pickerMode ? `Node ${node.value}'s next arrow is picked up. Tap its new destination, or null.` : `Node ${node.value}'s arrow move cancelled.`);
+    });
+    unit.append(port);
+    if (!reachableIds.has(node.id)) {
+      const disconnected = document.createElement("span"); disconnected.className = "disconnected-label"; disconnected.textContent = "NOT REACHABLE FROM HEAD"; unit.append(disconnected);
+    }
+    inner.append(unit);
+  }
+  ui.stage.replaceChildren(inner);
+  ui.structure.textContent = anyCycle ? "cycle detected" : `${inspected.nodes.length} reachable · ${disconnectedNodes.length} disconnected`;
+  ui.structureNote.classList.toggle("broken", Boolean(anyCycle) || disconnectedNodes.length > 0);
+  ui.stage.setAttribute("aria-label", anyCycle ? "Linked list visualization; cycle detected" : `${inspected.nodes.length} nodes reachable from head, ${disconnectedNodes.length} disconnected nodes`);
+}
+
+function createReferencePath(svg, source, startX, startY, endX, endY, targetId) {
+  const pathData = targetId === "null"
+    ? `M ${startX} ${startY} L ${endX} ${endY}`
+    : referencePath(startX, startY, endX, endY);
+  const visible = document.createElementNS(svg.namespaceURI, "path");
+  visible.setAttribute("class", `reference-edge${selectedConnectionId === source.id ? " selected" : ""}${source.id === lastChangedId ? " changed" : ""}`);
+  visible.setAttribute("d", pathData);
+  visible.setAttribute("marker-end", "url(#arrowhead)");
+  visible.dataset.edgeSource = source.id;
+  visible.dataset.edgeTarget = targetId;
+  const hit = document.createElementNS(svg.namespaceURI, "path");
+  hit.setAttribute("class", "reference-edge-hit");
+  hit.setAttribute("d", pathData);
+  hit.dataset.edgeSource = source.id;
+  hit.dataset.edgeTarget = targetId;
+  hit.setAttribute("role", "button");
+  hit.setAttribute("tabindex", "0");
+  hit.setAttribute("aria-label", `Select connection from node ${source.value}.next to ${targetId === "null" ? "null" : `node ${model.getNode(targetId)?.value}`}`);
+  hit.addEventListener("click", () => selectConnection(source.id));
+  hit.addEventListener("keydown", event => {
+    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); selectConnection(source.id); }
+  });
+  return { visible, hit };
+}
+
+function referencePath(startX, startY, endX, endY) {
+  if (Math.abs(endY - startY) < 2) {
+    const direction = endX >= startX ? -1 : 1;
+    const bend = direction * Math.min(12, Math.abs(endX - startX) * 0.08);
+    const distance = endX - startX;
+    return `M ${startX} ${startY} C ${startX + distance * 0.34} ${startY + bend}, ${startX + distance * 0.72} ${endY + bend}, ${endX - 6} ${endY}`;
+  }
+  const bend = endY >= startY ? 58 : -58;
+  return `M ${startX} ${startY} C ${startX + 42} ${startY + bend}, ${endX - 42} ${endY + bend}, ${endX - 6} ${endY}`;
+}
+
+function dragPath(startX, startY, endX, endY) {
+  const dx = endX - startX;
+  const dy = endY - startY;
+  const length = Math.max(1, Math.hypot(dx, dy));
+  const bend = Math.min(14, length * 0.06);
+  const controlX = (startX + endX) / 2 - (dy / length) * bend;
+  const controlY = (startY + endY) / 2 + (dx / length) * bend;
+  return `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`;
+}
+
+function randomNodePosition() {
+  const boardWidth = Math.max(630, ui.stage.clientWidth);
+  const boardHeight = Math.max(285, ui.stage.clientHeight);
+  const maxX = Math.max(28, boardWidth - 155);
+  const maxY = Math.max(24, boardHeight - 130);
+  for (let attempt = 0; attempt < 80; attempt += 1) {
+    const point = {
+      x: 24 + Math.random() * Math.max(1, maxX - 24),
+      y: 18 + Math.random() * Math.max(1, maxY - 18),
+    };
+    const overlaps = [...nodePositions.values()].some(existing => Math.abs(point.x - existing.x) < 132 && Math.abs(point.y - existing.y) < 92);
+    if (!overlaps) return point;
+  }
+  return { x: Math.max(24, ...[...nodePositions.values()].map(point => point.x + 160)), y: 24 };
+}
+
+function startNodeDrag(event, card, node) {
+  if (event.button !== 0 || pickerMode?.type === "next" || pickerMode?.type === "head") return;
+  const unit = card.closest("[data-node-unit]");
+  const inner = card.closest(".stage-inner");
+  if (!unit || !inner) return;
+  const point = nodePositions.get(node.id);
+  draggedNode = {
+    id: node.id, value: node.value, unit, inner, pointerId: event.pointerId,
+    offsetX: event.clientX - unit.getBoundingClientRect().left,
+    offsetY: event.clientY - unit.getBoundingClientRect().top,
+    startX: point.x, startY: point.y, moved: false,
+  };
+  card.setPointerCapture(event.pointerId);
+  selectedId = node.id;
+  selectedConnectionId = null;
+}
+
+function updateReferenceGeometry(inner) {
+  const svg = inner.querySelector(".reference-layer");
+  const coordinates = [...nodePositions.values()];
+  const width = Math.max(630, ...coordinates.map(point => point.x + 240));
+  const height = Math.max(285, ...coordinates.map(point => point.y + 145));
+  inner.style.width = `${width}px`;
+  inner.style.minHeight = `${height}px`;
+  svg.setAttribute("width", String(width));
+  svg.setAttribute("height", String(height));
+  svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+  for (const path of svg.querySelectorAll("[data-edge-source]")) {
+    const source = model.getNode(path.dataset.edgeSource);
+    const from = source && nodePositions.get(source.id);
+    if (!source || !from) continue;
+    const to = path.dataset.edgeTarget === "null" ? null : nodePositions.get(path.dataset.edgeTarget);
+    const startX = from.x + 104;
+    const startY = from.y + 36;
+    const endX = to ? to.x : startX + 34;
+    const endY = to ? to.y + 36 : startY;
+    path.setAttribute("d", referencePath(startX, startY, endX, endY));
+  }
+  const headEdge = svg.querySelector("[data-head-reference]");
+  const headPosition = model.head && nodePositions.get(model.head.id);
+  if (headEdge && headPosition) {
+    const headLeft = Math.max(12, headPosition.x - 86);
+    headEdge.setAttribute("d", `M ${headLeft + 40} ${headPosition.y + 36} L ${headPosition.x - 7} ${headPosition.y + 36}`);
+  }
+  for (const label of inner.querySelectorAll("[data-null-source]")) {
+    const point = nodePositions.get(label.dataset.nullSource);
+    if (point) { label.style.left = `${point.x + 150}px`; label.style.top = `${point.y + 25}px`; }
+  }
+  const headLabel = inner.querySelector(".head-link");
+  const labelPosition = model.head && nodePositions.get(model.head.id);
+  if (headLabel) {
+    headLabel.style.left = `${labelPosition ? Math.max(12, labelPosition.x - 86) : 12}px`;
+    headLabel.style.top = `${(labelPosition?.y ?? 28) + 27}px`;
+  }
+}
+
+function selectConnection(sourceId) {
+  selectedConnectionId = sourceId;
+  selectedId = null;
+  pickerMode = null;
+  render();
+  const source = model.getNode(sourceId);
+  setStatus(`Selected node ${source.value}'s next connection. Press Delete or Backspace, or choose Disconnect.`);
+}
+
+function disconnectSelectedConnection() {
+  const source = model.getNode(selectedConnectionId);
+  if (!source) return;
+  const targetDescription = source.next ? `node ${source.next.value}` : "null";
+  const statement = `${variableName(source)}.next = null;`;
+  const completed = transact(`Disconnect node ${source.value}.next`, statement, `Set node ${source.value}.next to null. The old target ${targetDescription} is no longer connected through this reference.`, () => {
+    model.setNext(source.id, null);
+    reverseState = null;
+  }, source.id);
+  if (completed) selectedConnectionId = null;
+  render();
+}
+
+function startLinkDrag(event, port, source) {
+  if (event.button !== 0 || pickerMode?.type === "head") return;
+  event.preventDefault();
+  const inner = port.closest(".stage-inner");
+  const svg = inner?.querySelector(".reference-layer");
+  if (!inner || !svg) return;
+  const innerRect = inner.getBoundingClientRect();
+  const portRect = port.getBoundingClientRect();
+  const startX = portRect.left + portRect.width / 2 - innerRect.left;
+  const startY = portRect.top + portRect.height / 2 - innerRect.top;
+  const line = document.createElementNS(svg.namespaceURI, "path");
+  line.setAttribute("class", "drag-link-line");
+  line.setAttribute("d", `M ${startX} ${startY} L ${startX} ${startY}`);
+  line.setAttribute("marker-end", "url(#arrowhead)");
+  svg.append(line);
+  draggedLink = { kind: "next", sourceId: source.id, sourceValue: source.value, inner, line, port, startX, startY, moved: false, pointerId: event.pointerId };
+  port.classList.add("dragging");
+  port.setPointerCapture(event.pointerId);
+  selectedId = source.id;
+  pickerMode = null;
+  setStatus(`Arrow picked up from ${source.value}. Drag it onto another node.`);
+}
+
+function startHeadDrag(event, handle) {
+  if (event.button !== 0) return;
+  event.preventDefault();
+  const inner = handle.closest(".stage-inner");
+  const svg = inner?.querySelector(".reference-layer");
+  if (!inner || !svg) return;
+  const bounds = inner.getBoundingClientRect();
+  const handleBounds = handle.getBoundingClientRect();
+  const startX = handleBounds.right - bounds.left;
+  const startY = handleBounds.top + handleBounds.height / 2 - bounds.top;
+  const line = document.createElementNS(svg.namespaceURI, "path");
+  line.setAttribute("class", "drag-link-line head-drag-line");
+  line.setAttribute("d", `M ${startX} ${startY} L ${startX} ${startY}`);
+  line.setAttribute("marker-end", "url(#arrowhead)");
+  svg.append(line);
+  draggedLink = { kind: "head", sourceValue: "head", inner, line, port: handle, startX, startY, moved: false, pointerId: event.pointerId };
+  handle.classList.add("dragging");
+  handle.setPointerCapture(event.pointerId);
+  pickerMode = null;
+  selectedId = null;
+  setStatus("Head picked up. Drag it to the node that should start the list.");
+}
+
+window.addEventListener("pointermove", event => {
+  if (draggedNode && event.pointerId === draggedNode.pointerId) {
+    const bounds = draggedNode.inner.getBoundingClientRect();
+    const x = Math.max(20, event.clientX - bounds.left - draggedNode.offsetX);
+    const y = Math.max(18, event.clientY - bounds.top - draggedNode.offsetY);
+    if (Math.hypot(x - draggedNode.startX, y - draggedNode.startY) > 5) draggedNode.moved = true;
+    if (draggedNode.moved) {
+      nodePositions.set(draggedNode.id, { x, y });
+      draggedNode.unit.style.left = `${x}px`;
+      draggedNode.unit.style.top = `${y}px`;
+      updateReferenceGeometry(draggedNode.inner);
+    }
+    return;
+  }
+  if (!draggedLink || event.pointerId !== draggedLink.pointerId) return;
+  const bounds = draggedLink.inner.getBoundingClientRect();
+  const x = event.clientX - bounds.left;
+  const y = event.clientY - bounds.top;
+  if (Math.hypot(x - draggedLink.startX, y - draggedLink.startY) > 7) draggedLink.moved = true;
+  draggedLink.line.setAttribute("d", dragPath(draggedLink.startX, draggedLink.startY, x, y));
+  document.querySelectorAll(".drop-ready").forEach(target => target.classList.remove("drop-ready"));
+  const target = document.elementFromPoint(event.clientX, event.clientY)?.closest(".node-card, .null-target");
+  if (target && (!target.classList.contains("node-card") || target.dataset.nodeId !== draggedLink.sourceId)) target.classList.add("drop-ready");
+});
+
+window.addEventListener("pointerup", event => {
+  if (draggedNode && event.pointerId === draggedNode.pointerId) {
+    const drag = draggedNode;
+    draggedNode = null;
+    if (drag.moved) {
+      suppressNodeClickUntil = Date.now() + 450;
+      render();
+      setStatus(`Node ${drag.value} moved. Its next arrow still points to the same node.`);
+    }
+    return;
+  }
+  if (!draggedLink || event.pointerId !== draggedLink.pointerId) return;
+  const drag = draggedLink;
+  draggedLink = null;
+  drag.line.remove();
+  drag.port.classList.remove("dragging");
+  document.querySelectorAll(".drop-ready").forEach(target => target.classList.remove("drop-ready"));
+  if (!drag.moved) return;
+  suppressPortClickUntil = Date.now() + 450;
+  const dropTarget = document.elementFromPoint(event.clientX, event.clientY);
+  const nodeCard = dropTarget?.closest(".node-card");
+  const nullTarget = dropTarget?.closest(".null-target");
+  if (nodeCard?.dataset.nodeId && (drag.kind === "head" || nodeCard.dataset.nodeId !== drag.sourceId)) {
+    selectedId = drag.sourceId ?? null;
+    pickerMode = drag.kind === "head" ? { type: "head" } : { type: "next", sourceId: drag.sourceId };
+    chooseTarget(nodeCard.dataset.nodeId);
+  } else if (nullTarget) {
+    selectedId = drag.sourceId ?? null;
+    pickerMode = drag.kind === "head" ? { type: "head" } : { type: "next", sourceId: drag.sourceId };
+    chooseTarget("null");
+  } else {
+    setStatus(`Arrow from ${drag.sourceValue} let go. Drop it on a node or null to connect it.`);
+    render();
+  }
+});
+
+window.addEventListener("pointercancel", () => {
+  if (draggedNode) {
+    const drag = draggedNode;
+    draggedNode = null;
+    nodePositions.set(drag.id, { x: drag.startX, y: drag.startY });
+    render();
+  }
+  if (!draggedLink) return;
+  draggedLink.line.remove();
+  draggedLink.port.classList.remove("dragging");
+  draggedLink = null;
+  document.querySelectorAll(".drop-ready").forEach(target => target.classList.remove("drop-ready"));
+  render();
+});
+
+function renderMemory() {
+  const inspected = model.inspect();
+  ui.allocated.textContent = String(model.nodes.size);
+  ui.reachable.textContent = String(inspected.nodes.length);
+  ui.disconnected.textContent = String(model.unreachableNodes().length);
+}
+
+function renderHistoryAndCode() {
+  ui.historyCount.textContent = `${history.length} ${history.length === 1 ? "move" : "moves"}`;
+  ui.history.replaceChildren();
+  if (!history.length) {
+    const empty = document.createElement("li"); empty.className = "history-empty"; empty.textContent = "No operations yet."; ui.history.append(empty);
+  } else {
+    history.forEach((operation, index) => {
+      const item = document.createElement("li"); item.textContent = `${operation.label} — ${operation.statement.replaceAll("\n", " ")}`;
+      if (index === history.length - 1) item.setAttribute("aria-current", "step");
+      ui.history.append(item);
+    });
+  }
+  const lines = javaScenarioLines();
+  const latestStatement = history.at(-1)?.statement ?? "";
+  const latestStatements = new Set(latestStatement.split("\n").map(line => line.trim()).filter(Boolean));
+  const definitionLines = [
+    "class Node {",
+    "    int value;",
+    "    Node next;",
+    "",
+    "    Node(int value) {",
+    "        this.value = value;",
+    "    }",
+    "}",
+  ];
+  renderCodeLines(ui.code, [...definitionLines, "", ...lines], latestStatements);
+  ui.codeStep.textContent = "LIVE SCENARIO";
+}
+
+function renderCodeLines(target, lines, latestStatements) {
+  target.replaceChildren();
+  lines.forEach((line, index) => {
+    const trimmed = line.trim();
+    const highlightsLatest = latestStatements.has(trimmed);
+    const span = document.createElement("span"); span.className = `code-line${highlightsLatest ? " latest" : ""}`;
+    const keyword = /^(class|public|static|void|String|Node|null|head)\b/.test(trimmed);
+    if (keyword) {
+      const match = line.match(/^(\s*)(class|public|static|void|String|Node|null|head)(.*)$/);
+      if (match) {
+        span.append(document.createTextNode(match[1]));
+        const kw = document.createElement("span"); kw.className = "code-keyword"; kw.textContent = match[2]; span.append(kw, document.createTextNode(match[3]));
+      } else span.textContent = line;
+    } else span.textContent = line;
+    target.append(span);
+  });
+}
+
+function javaScenarioLines() {
+  const lines = [
+    "class TaskScenario {",
+    "    public static void main(String[] args) {",
+  ];
+  const declared = new Set();
+  for (const value of challenge().initial) {
+    const name = `node${value}`;
+    lines.push(`        Node ${name} = new Node(${value});`);
+    declared.add(name);
+  }
+  if (challenge().initial.length) {
+    lines.push("");
+    challenge().initial.forEach((value, index) => {
+      const nextName = challenge().initial[index + 1];
+      lines.push(`        node${value}.next = ${nextName === undefined ? "null" : `node${nextName}`};`);
+    });
+  }
+  lines.push(`        Node head = ${challenge().initial.length ? `node${challenge().initial[0]}` : "null"};`);
+  for (const operation of history) {
+    if (!operation.statement) continue;
+    for (const statement of operation.statement.split("\n")) {
+      let line = statement.trim();
+      const declaration = line.match(/^Node\s+(\w+)\s*=/);
+      if (declaration && declared.has(declaration[1])) line = line.replace(/^Node\s+/, "");
+      else if (declaration) declared.add(declaration[1]);
+      lines.push(`        ${line}`);
+    }
+  }
+  lines.push("    }");
+  lines.push("}");
+  return lines;
+}
+
+function renderReverseTrack() {
+  if (!reverseState) { ui.reverseTrack.hidden = true; return; }
+  ui.reverseTrack.hidden = false;
+  ui.reverseTrack.replaceChildren();
+  const label = document.createElement("span"); label.textContent = "Algorithm state:"; ui.reverseTrack.append(label);
+  const addToken = (name, id, className) => {
+    const token = document.createElement("span"); token.className = `track-token ${className}`;
+    token.textContent = `${name} → ${id ? model.getNode(id)?.value ?? "null" : "null"}`; ui.reverseTrack.append(token);
+  };
+  addToken("previous", reverseState.previousId, "previous");
+  addToken("current", reverseState.currentId, "current");
+  if (reverseState.currentId) addToken("saved next", model.getNode(reverseState.currentId)?.next?.id ?? null, "");
+}
+
+function beginCreate() {
+  pickerMode = pickerMode?.type === "create" ? null : { type: "create" };
+  render();
+  setStatus(pickerMode ? "Choose a value. Your new node will appear in memory, ready to connect." : "Node creation cancelled.");
+}
+
+function createNode(value) {
+  if (!Number.isInteger(value) || value < -2147483648 || value > 2147483647) { setStatus("Choose a whole number that fits in a Java int.", "error"); return; }
+  if ([...model.nodes.values()].some(node => node.value === value)) { setStatus(`A node with value ${value} already exists.`, "error"); return; }
+  const name = variableName({ value });
+  transact(`Create node ${value}`, `Node ${name} = new Node(${value});`, `Node ${value} now exists in memory. It is not connected to head until you link it.`, () => {
+    const node = model.createNode(value);
+    nodePositions.set(node.id, randomNodePosition());
+    selectedId = node.id;
+  }, null);
+}
+
+function chooseTarget(targetId) {
+  const target = targetId === "null" ? null : model.getNode(targetId);
+  if (pickerMode.type === "next") {
+    const source = model.getNode(pickerMode.sourceId);
+    const oldTarget = source?.next ?? null;
+    const targetName = target ? variableName(target) : "null";
+    const statement = `${variableName(source)}.next = ${targetName};`;
+    const explanation = oldTarget && oldTarget !== target
+      ? `This overwrote node ${source.value}.next. Its old target ${oldTarget.value} is no longer referenced by that field and may now be unreachable.`
+      : `This changes only node ${source.value}.next; it does not change head or any other node's next reference.`;
+    transact(`Set node ${source.value}.next`, statement, explanation, () => { model.setNext(source.id, target?.id ?? null); reverseState = null; }, source.id);
+  } else {
+    const statement = `head = ${target ? variableName(target) : "null"};`;
+    const explanation = `This changes the separate head reference to ${target ? `node ${target.value}` : "null"}. It does not alter any node's next field.`;
+    transact("Change head", statement, explanation, () => { model.setHead(target?.id ?? null); reverseState = null; }, target?.id ?? null);
+  }
+}
+
+function reverseOneStep() {
+  if (!reverseState) return;
+  if (reverseState.currentId === null) return;
+  const current = model.getNode(reverseState.currentId);
+  const previous = model.getNode(reverseState.previousId);
+  const next = current.next;
+  const firstStep = reverseState.steps === 0;
+  const isFinalStep = next === null;
+  const statement = `${firstStep ? "Node previous = null;\nNode current = head;\n" : ""}Node nextTemp = current.next;\ncurrent.next = previous;\nprevious = current;\ncurrent = nextTemp;${isFinalStep ? "\nhead = previous;" : ""}`;
+  const explanation = isFinalStep
+    ? `Saved null from current.next, reversed the final link, and moved head to previous. The chain is now reversed.`
+    : `Saved ${next ? `node ${next.value}` : "null"} from current.next before reversing node ${current.value}'s link. The unprocessed suffix remains available through nextTemp.`;
+  transact(`Reverse link at ${current.value}`, statement, explanation, () => {
+    current.next = previous;
+    reverseState.previousId = current.id;
+    reverseState.currentId = next?.id ?? null;
+    reverseState.steps += 1;
+    if (isFinalStep) model.setHead(current.id);
+  }, current.id);
+}
+
+ui.actions.addEventListener("click", event => {
+  const button = event.target.closest("button[data-action]");
+  if (!button) return;
+  switch (button.dataset.action) {
+    case "create": beginCreate(); break;
+    case "create-value": createNode(Number(button.dataset.value)); break;
+    case "disconnect": disconnectSelectedConnection(); break;
+    case "reverse-step": reverseOneStep(); break;
+  }
+});
+
+window.addEventListener("keydown", event => {
+  if (!selectedConnectionId || (event.key !== "Delete" && event.key !== "Backspace")) return;
+  if (event.target instanceof HTMLElement && ["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName)) return;
+  event.preventDefault();
+  disconnectSelectedConnection();
+});
+
+ui.picker.addEventListener("click", event => {
+  if (event.target.closest('[data-action="target-null"]')) chooseTarget("null");
+});
+
+ui.hint.addEventListener("click", () => {
+  const hints = challenge().hints;
+  const message = hints[Math.min(hintIndex, hints.length - 1)];
+  hintIndex += 1;
+  ui.hintCount.textContent = `${Math.min(hintIndex + 1, hints.length)}/${hints.length}`;
+  ui.hint.disabled = hintIndex >= hints.length;
+  setStatus(message);
+});
+
+ui.undo.addEventListener("click", () => {
+  const snapshot = undoStack.pop();
+  if (!snapshot) return;
+  model.restore(snapshot.model);
+  selectedId = snapshot.selectedId;
+  selectedConnectionId = snapshot.selectedConnectionId;
+  nodePositions = new Map(snapshot.nodePositions.map(([id, point]) => [id, { ...point }]));
+  history.length = snapshot.historyLength;
+  reverseState = snapshot.reverseState;
+  lastChangedId = snapshot.lastChangedId;
+  isComplete = false;
+  completedChallenges.delete(challenge().id);
+  ui.success.hidden = true;
+  setStatus("Last operation undone. The references are back to their previous state.");
+  render();
+});
+
+$("#restart-button").addEventListener("click", () => initializeChallenge(challengeIndex));
+ui.next.addEventListener("click", () => {
+  if (challengeIndex < CHALLENGES.length - 1) initializeChallenge(challengeIndex + 1);
+  else {
+    ui.success.hidden = true;
+    initializeChallenge(0);
+  }
+});
+
+initializeChallenge();
+</script>
 </body>
 </html>
