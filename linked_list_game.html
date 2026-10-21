@@ -167,7 +167,10 @@ h2 { margin: 5px 0 3px; font: 700 25px/1.1 Georgia, "Times New Roman", serif; }
 .code-window { min-height: 440px; }
 .code-line { display: block; min-height: 1.55em; padding: 0 3px; }
 .code-line.latest { background: var(--gold-soft); font-weight: 800; }
-.code-keyword { color: var(--blue); font-weight: 800; }
+.code-keyword { color: #4a8a85; font-weight: 600; }
+.code-type { color: #2563eb; font-weight: 600; }
+.code-literal { color: #a259ff; }
+.code-comment { color: #7c8a8a; font-style: italic; }
 .code-definition { display: flex; align-items: start; gap: 10px; margin-top: 8px; color: var(--muted); }
 .code-definition .definition-label { flex: 0 0 auto; padding-top: 2px; font-size: 8px; }
 .code-definition pre { overflow-x: auto; margin: 0; color: #52615a; font: 9px/1.4 "SFMono-Regular", Consolas, monospace; white-space: pre-wrap; }
@@ -1160,16 +1163,34 @@ function renderCodeLines(target, lines, latestStatements) {
     const trimmed = line.trim();
     const highlightsLatest = latestStatements.has(trimmed);
     const span = document.createElement("span"); span.className = `code-line${highlightsLatest ? " latest" : ""}`;
-    const keyword = /^(class|public|static|void|String|Node|null|head)\b/.test(trimmed);
-    if (keyword) {
-      const match = line.match(/^(\s*)(class|public|static|void|String|Node|null|head)(.*)$/);
-      if (match) {
-        span.append(document.createTextNode(match[1]));
-        const kw = document.createElement("span"); kw.className = "code-keyword"; kw.textContent = match[2]; span.append(kw, document.createTextNode(match[3]));
-      } else span.textContent = line;
-    } else span.textContent = line;
+    if (trimmed.startsWith("//")) {
+      const comment = document.createElement("span"); comment.className = "code-comment"; comment.textContent = line;
+      span.append(comment);
+    } else {
+      appendCodeTail(span, line);
+    }
     target.append(span);
   });
+}
+
+const JAVA_KEYWORDS = new Set(["class", "public", "static", "void", "int", "new", "return", "final", "if", "else", "for", "while", "this"]);
+const JAVA_TYPES = new Set(["Node", "String", "TaskScenario"]);
+const JAVA_LITERALS = new Set(["null", "true", "false"]);
+
+function appendCodeTail(span, text) {
+  const token = text.match(/^([a-zA-Z_$][a-zA-Z0-9_$]*|\d+|[{}()\[\];,.=<>+\-*\/&]|\s+)/);
+  if (!token) { span.append(document.createTextNode(text)); return; }
+  const word = token[1];
+  let cls = "";
+  if (JAVA_KEYWORDS.has(word)) cls = "code-keyword";
+  else if (JAVA_TYPES.has(word)) cls = "code-type";
+  else if (JAVA_LITERALS.has(word) || /^\d+$/.test(word)) cls = "code-literal";
+  if (cls) {
+    const el = document.createElement("span"); el.className = cls; el.textContent = word; span.append(el);
+  } else {
+    span.append(document.createTextNode(word));
+  }
+  appendCodeTail(span, text.slice(word.length));
 }
 
 function javaScenarioLines() {
