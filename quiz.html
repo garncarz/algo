@@ -1,0 +1,1000 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f5f4ed">
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<title>Trace the Code · Java Quiz</title>
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #f5f4ed;
+    --ink: #202d29;
+    --muted: #5d6a64;
+    --line: #cbd2ca;
+    --green: #176b52;
+    --green-soft: #e1f0e8;
+    --red: #a83f34;
+    --red-soft: #f8e7e1;
+    --gold: #d49a25;
+    --blue: #3975a3;
+    --blue-soft: #e5eff5;
+    font-family: "Avenir Next", Avenir, "Segoe UI", sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    min-width: 0;
+    min-height: 100vh;
+    color: var(--ink);
+    background-color: var(--paper);
+    background-image: linear-gradient(rgba(32,45,41,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(32,45,41,.025) 1px, transparent 1px);
+    background-size: 28px 28px;
+  }
+  button, input, select { font: inherit; }
+  button {
+    min-height: 44px;
+    border: 2px solid var(--ink);
+    border-radius: 4px;
+    padding: 8px 14px;
+    color: var(--ink);
+    background: #fff;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 120ms ease, background-color 120ms ease;
+  }
+  button:hover:not(:disabled) { background: #edf1eb; }
+  button:disabled { opacity: .45; cursor: default; }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+  .page { width: min(100% - 40px, 1060px); margin: 0 auto; padding: 26px 0 20px; }
+  header { margin-bottom: 18px; }
+  .eyebrow { color: var(--green); font-size: 13px; font-weight: 900; letter-spacing: .08em; }
+  .eyebrow a { color: inherit; text-decoration: none; }
+  .eyebrow a:hover, .eyebrow a:focus-visible { text-decoration: underline; text-underline-offset: 3px; }
+  h1 { margin: 6px 0 6px; font: 700 clamp(34px, 6vw, 52px)/1 Georgia, "Times New Roman", serif; }
+  .intro { margin: 0; color: var(--muted); font-size: 17px; font-weight: 650; max-width: 62ch; }
+
+  .session-strip {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px;
+    border: 1px solid var(--line); border-radius: 5px; background: #fff;
+    padding: 8px 14px; margin-bottom: 16px; font-size: 14px; font-weight: 700;
+  }
+  .session-strip .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); flex: 0 0 auto; }
+  .session-strip.live .dot { background: var(--green); }
+  .session-strip.closed .dot { background: var(--gold); }
+  .session-strip .spacer { flex: 1 1 auto; }
+  .session-strip .timer { font: 800 20px/1 ui-monospace, "SFMono-Regular", Consolas, monospace; letter-spacing: .04em; }
+  .session-strip .timer.urgent { color: var(--red); }
+  .session-strip .meta { color: var(--muted); font-weight: 700; }
+
+  .layout { display: grid; gap: 16px; }
+  .qr-side {
+    position: fixed; top: 12px; right: 12px; z-index: 20; width: 128px;
+    border: 1px solid var(--line); border-radius: 5px;
+    background: #fff; padding: 8px; text-align: center;
+    box-shadow: 0 3px 0 rgba(32,45,41,.08);
+  }
+  .qr-side .qr-box { width: 100%; height: auto; display: block; image-rendering: pixelated; }
+  .qr-side p { margin: 5px 0 0; font-size: 10px; font-weight: 700; color: var(--muted); overflow-wrap: anywhere; }
+
+  .card { border: 2px solid var(--ink); border-radius: 5px; background: #fff; box-shadow: 0 5px 0 rgba(32,45,41,.09); }
+  .code-card { overflow: hidden; }
+  .code-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--line); padding: 10px 16px; color: var(--muted); font-size: 12px; font-weight: 900; letter-spacing: .07em; }
+  pre { overflow-x: auto; margin: 0; padding: 16px 18px; color: #24342e; font: 600 clamp(15px, 2vw, 19px)/1.55 ui-monospace, "SFMono-Regular", Consolas, monospace; tab-size: 4; }
+  pre .kw { color: #8a4f9e; font-weight: 800; }
+  pre .num { color: #b0562a; }
+  pre .str { color: var(--green); }
+  pre .type { color: var(--blue); }
+  .ask { padding: 0 18px 16px; font-size: clamp(17px, 2.2vw, 21px); font-weight: 800; }
+
+  .choices { display: grid; gap: 12px; padding: 14px 0; }
+  .choice { position: relative; }
+  .choice input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+  .choice label {
+    display: flex; align-items: center; gap: 12px; min-height: 54px;
+    border: 2px solid var(--line); border-radius: 4px; padding: 8px 14px;
+    background: #fff; font-weight: 750; font-size: clamp(16px, 2vw, 19px);
+    cursor: pointer; transition: border-color 120ms, background-color 120ms;
+  }
+  .choice label .letter {
+    flex: 0 0 auto; width: 34px; height: 34px; display: grid; place-items: center;
+    border: 2px solid var(--line); border-radius: 50%;
+    font: 800 16px Georgia, serif;
+  }
+  .choice label:hover { border-color: var(--green); }
+  .choice input:checked + label { border-color: var(--green); background: var(--green-soft); box-shadow: inset 0 0 0 1px var(--green); }
+  .choice input:focus-visible + label { outline: 3px solid var(--gold); outline-offset: 2px; }
+  .choice.locked label { cursor: default; }
+  .choice.locked label:hover { border-color: var(--line); }
+  .choice.locked input:checked + label { border-color: var(--green); }
+  .choice.reveal-correct label { border-color: var(--green); background: var(--green-soft); }
+  .choice.reveal-wrong label { border-color: var(--red); background: var(--red-soft); }
+  .choice.dim label { opacity: .6; }
+
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+  .primary { border-color: var(--green); color: #fff; background: var(--green); letter-spacing: .04em; }
+  .primary:hover:not(:disabled) { border-color: #105640; background: #105640; }
+  .feedback { min-height: 0; border-left: 7px solid transparent; padding: 0; font-size: 16px; font-weight: 700; line-height: 1.5; }
+  .feedback:not(:empty) { border-color: var(--green); padding: 12px 15px; background: rgba(255,255,255,.85); }
+  .feedback.incorrect { border-color: var(--red); }
+  .feedback .feedback-title { font-size: 19px; display: block; }
+  .feedback.correct .feedback-title { color: var(--green); }
+  .feedback.incorrect .feedback-title { color: var(--red); }
+  .feedback .feedback-detail { display: block; margin-top: 4px; color: var(--ink); font-size: 15px; font-weight: 550; }
+
+  .histogram { display: grid; gap: 6px; }
+  .hist-row { display: grid; grid-template-columns: 34px minmax(0, 1fr) 46px; align-items: center; gap: 10px; }
+  .hist-row .h-letter { font: 800 15px Georgia, serif; text-align: center; border: 2px solid var(--line); border-radius: 50%; width: 28px; height: 28px; display: grid; place-items: center; background: #fff; }
+  .hist-row.correct .h-letter { border-color: var(--green); background: var(--green-soft); }
+  .hist-track { height: 26px; background: rgba(32,45,41,.07); border-radius: 3px; overflow: hidden; }
+  .hist-fill { height: 100%; background: var(--blue); width: 0; transition: width 260ms ease; }
+  .hist-row.correct .hist-fill { background: var(--green); }
+  .hist-row .h-count { text-align: right; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .hist-round { margin: 10px 0 4px; color: var(--muted); font-size: 13px; font-weight: 900; letter-spacing: .06em; }
+
+  .panel { border: 1px solid var(--line); border-radius: 5px; background: #fff; padding: 14px 16px; }
+  .panel h2 { margin: 0 0 10px; font: 700 20px Georgia, serif; }
+  .panel .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .panel label { font-size: 13px; font-weight: 800; color: var(--muted); }
+  .panel select { min-height: 40px; border: 2px solid var(--line); border-radius: 4px; padding: 4px 8px; background: #fff; font-weight: 700; }
+  .panel .note { margin: 10px 0 0; color: var(--muted); font-size: 13px; }
+
+  .teacher-bar { display: none; gap: 10px; }
+  .teacher-bar.on { display: grid; }
+  .teacher-bar .group { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+  .teacher-bar .group + .group { border-top: 1px dashed var(--line); padding-top: 10px; }
+  .teacher-bar button { min-height: 40px; padding: 6px 12px; font-size: 14px; }
+  .teacher-bar .group-label { flex: 0 0 100%; color: var(--muted); font-size: 12px; font-weight: 900; letter-spacing: .06em; }
+  .kbd-hint { color: var(--muted); font-size: 12px; }
+
+  footer {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    margin-top: 22px; padding: 10px 0 6px; border-top: 1px solid var(--line);
+    color: var(--muted); font-size: 13px;
+  }
+  footer a { color: var(--muted); }
+  footer a:hover { color: var(--red); }
+  .teacher-toggle { margin-left: auto; min-height: 0; border: 0; background: none; padding: 4px; color: var(--muted); font-size: 16px; }
+  .teacher-toggle:hover:not(:disabled) { background: none; transform: none; color: var(--ink); }
+
+  dialog { border: 2px solid var(--ink); border-radius: 6px; padding: 20px 22px; max-width: 380px; background: #fff; }
+  dialog::backdrop { background: rgba(32,45,41,.4); }
+  dialog h2 { margin: 0 0 6px; font: 700 24px Georgia, serif; }
+  dialog p { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+  dialog input[type="password"], dialog input[type="url"] {
+    width: 100%; min-height: 44px; border: 2px solid var(--line); border-radius: 4px; padding: 6px 10px; margin-bottom: 10px;
+  }
+  dialog .dialog-actions { display: flex; justify-content: flex-end; gap: 8px; }
+  dialog .error { color: var(--red); font-size: 13px; font-weight: 800; min-height: 18px; margin: 0 0 8px; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 880px) {
+    .qr-side { position: static; width: auto; display: flex; align-items: center; gap: 10px; text-align: left; margin-bottom: 14px; }
+    .qr-side .qr-box { width: 76px; height: 76px; flex: 0 0 auto; }
+  }
+  @media (max-width: 520px) {
+    .page { width: min(100% - 24px, 1060px); padding-top: 18px; }
+    .actions button { flex: 1 1 auto; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+<main class="page">
+  <header>
+    <div class="eyebrow"><a href="index.html">ALGORITHMS</a> · JAVA CODE TRACING QUIZ</div>
+    <h1>Trace the code</h1>
+    <p class="intro">Read each Java fragment, execute it in your head, and predict the result.</p>
+  </header>
+
+  <div id="session-strip" class="session-strip" role="status">
+    <span class="dot" aria-hidden="true"></span>
+    <span id="session-label">Practice mode</span>
+    <span class="spacer"></span>
+    <span id="live-meta" class="meta"></span>
+    <span id="timer" class="timer hidden" aria-live="off"></span>
+  </div>
+
+  <div id="layout" class="layout">
+    <div class="main-col">
+      <section class="card code-card" aria-labelledby="question-heading">
+        <div class="code-heading">
+          <span id="question-heading">JAVA · TRACE</span>
+          <span id="question-tag"></span>
+        </div>
+        <pre id="code-pre"><code id="java-code"></code></pre>
+        <p class="ask" id="ask"></p>
+      </section>
+
+      <form id="answer-form">
+        <div id="choices" class="choices" role="radiogroup" aria-label="Answer choices"></div>
+      </form>
+
+      <div class="actions">
+        <button id="submit" class="primary" type="button">CHECK</button>
+        <button id="prev" type="button">← PREV</button>
+        <button id="next" type="button">NEXT →</button>
+        <button id="restart" type="button">↻ RESTART</button>
+      </div>
+
+      <div id="feedback" class="feedback" aria-live="polite" aria-atomic="true"></div>
+
+      <section id="results-panel" class="panel hidden" aria-label="Voting results">
+        <h2 id="results-heading">Responses</h2>
+        <div id="histogram" class="histogram"></div>
+        <p id="results-note" class="note"></p>
+      </section>
+
+      <section id="practice-panel" class="panel" aria-label="Practice settings">
+        <h2>Practice</h2>
+        <div class="row">
+          <label for="topic-select">Topic</label>
+          <select id="topic-select"></select>
+          <label for="difficulty-select">Difficulty</label>
+          <select id="difficulty-select">
+            <option value="all">All</option>
+            <option value="1">1 · easy</option>
+            <option value="2">2 · medium</option>
+            <option value="3">3 · harder</option>
+          </select>
+          <span id="progress" class="meta" style="font-weight:800"></span>
+        </div>
+      </section>
+
+      <section id="teacher-bar" class="panel teacher-bar" aria-label="Teacher controls">
+        <div class="group">
+          <span class="group-label">QUESTION</span>
+          <button type="button" data-taction="prev-q">◀ Question</button>
+          <button type="button" data-taction="next-q">Question ▶</button>
+          <button type="button" data-taction="end-session">End session</button>
+        </div>
+        <div class="group">
+          <span class="group-label">VOTING</span>
+          <button type="button" data-taction="open-voting">Start voting</button>
+          <button type="button" data-taction="close-voting">Close voting</button>
+          <button type="button" data-taction="restart-round">Revote (new round)</button>
+          <button type="button" data-taction="reveal-results">Reveal results</button>
+          <button type="button" data-taction="reveal-answer">Reveal answer</button>
+          <button type="button" data-taction="hide-panels">Hide results/answer</button>
+        </div>
+        <div class="group">
+          <span class="group-label">TIMER</span>
+          <select id="timer-select" aria-label="Voting time limit">
+            <option value="0">No limit</option>
+            <option value="15">15 s</option>
+            <option value="30">30 s</option>
+            <option value="60" selected>60 s</option>
+            <option value="90">90 s</option>
+            <option value="120">120 s</option>
+            <option value="180">180 s</option>
+          </select>
+          <button type="button" data-taction="extend-timer">+30 s</button>
+          <span class="kbd-hint">Keys: ←/→ question · S start · C close · R results · A answer · V revote</span>
+        </div>
+      </section>
+    </div>
+
+    <aside class="qr-side" aria-label="Open this quiz on your phone">
+      <img class="qr-box" id="qr-box" alt="QR code for https://garncarz.github.io/algo/quiz.html" width="296" height="296" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASgAAAEoAQAAAADDfFG0AAABsUlEQVR4nO1ay2rEQAyTyv7/L6sHy06mlLKHEnvBEzZMgiBCjN9L4Y319Q5oUYta1KIeRb0AgLFX7UXo/nYq+ya9UikKEAhBpG76TWXfpRcIKI4VBVDU9baF14eg5JvIh774YajX/YFimGUdrDZeU1HWK9RRKEWKt7ctvKaiQi8bH+ULECtAtvCaiuJhd7TLT4ffx2s0ir6gMEReP3byGoyioJAMFASBPmy9vKah7L8UNyFzViG8WBev2SgBpEBQIkjCdukkfzb7J1FxsvJJoRHoDcWtH4/1ApAKAZdlVrW9/usXFDMaRqYqAgoBNz6eK/o5EQ1ti1ePQsD6r19QKgsk8mTRFffa47Gq3paPWfmv7Oz08JqKSn2cmToeZtS0iY5l32WPBEApq2yCoNPV9V/H8vmKroRvQHbvs+ieyr65P0H52XlqNQ6nsu/KJ2Iv22UZaLr7sey74mNNN1xzl+PfecePdcyHWKWQ07H1X3+iBInRlGCkrc5aP4L98yjmHBK3HGMAr0Gocz4UBbf/DUBVvJzKvkuvnA8hBbrmQ9x84r7OOdATX1zUoha1qP9BfQPr9rJxxZmczAAAAABJRU5ErkJggg==">
+      <p>garncarz.github.io/algo/quiz.html</p>
+    </aside>
+  </div>
+
+  <footer>
+    <span id="score-line"></span>
+    <a href="https://github.com/garncarz/algo" target="_blank" rel="noopener noreferrer">Source</a>
+    <button id="teacher-toggle" class="teacher-toggle" type="button" aria-label="Teacher login" title="">⚙</button>
+  </footer>
+</main>
+
+<dialog id="login-dialog" aria-labelledby="login-title">
+  <h2 id="login-title">Teacher login</h2>
+  <p>Unlocks the session controls. Nothing is shown here that students shouldn't see.</p>
+  <form method="dialog" id="login-form">
+    <p class="error" id="login-error"></p>
+    <input type="password" id="teacher-password" autocomplete="current-password" placeholder="Teacher password" aria-label="Teacher password">
+    <div class="dialog-actions">
+      <button type="button" id="login-cancel">Cancel</button>
+      <button type="submit" class="primary" id="login-submit">Log in</button>
+    </div>
+  </form>
+</dialog>
+
+<script src="questions.js"></script>
+<script>
+"use strict";
+
+/* ================= configuration ================= */
+// Optional live-voting backend. Override for local development with
+// quiz.html?backend=http://127.0.0.1:8000 (stored in sessionStorage).
+const BACKEND_URL = (() => {
+  const param = new URLSearchParams(location.search).get("backend");
+  if (param) sessionStorage.setItem("quiz-backend-url", param);
+  return sessionStorage.getItem("quiz-backend-url") || "https://algo.geo.garncarz.cz";
+})();
+const HEALTH_TIMEOUT_MS = 2500;
+const POLL_MS = 1500;
+
+/* ================= tiny DOM helpers ================= */
+const el = id => document.getElementById(id);
+const sessionStrip = el("session-strip");
+const sessionLabel = el("session-label");
+const liveMeta = el("live-meta");
+const timerEl = el("timer");
+const questionTag = el("question-tag");
+const codePre = el("code-pre");
+const javaCode = el("java-code");
+const askEl = el("ask");
+const choicesEl = el("choices");
+const submitBtn = el("submit");
+const prevBtn = el("prev");
+const nextBtn = el("next");
+const restartBtn = el("restart");
+const feedback = el("feedback");
+const resultsPanel = el("results-panel");
+const resultsHeading = el("results-heading");
+const histogram = el("histogram");
+const resultsNote = el("results-note");
+const practicePanel = el("practice-panel");
+const topicSelect = el("topic-select");
+const difficultySelect = el("difficulty-select");
+const progressEl = el("progress");
+const teacherBar = el("teacher-bar");
+const timerSelect = el("timer-select");
+const scoreLine = el("score-line");
+const teacherToggle = el("teacher-toggle");
+const loginDialog = el("login-dialog");
+const loginError = el("login-error");
+const teacherPassword = el("teacher-password");
+
+const LETTERS = ["A", "B", "C", "D"];
+const UNKNOWN = "?";
+const UNKNOWN_LABEL = "I don't know";
+
+/* ================= code highlighting (lightweight) ================= */
+const KEYWORDS = new Set(["int", "boolean", "String", "if", "else", "for", "while", "return", "new", "true", "false", "void", "double", "char", "long", "break", "continue"]);
+function highlightJava(code) {
+  const escaped = code
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return escaped.replace(
+    /("(?:[^"\\]|\\.)*")|\b(\d+)\b|\b(int\[\]|int|boolean|String|if|else|for|while|return|new|true|false|void|double|char|long|break|continue)\b/g,
+    (match, str, num, kw) => {
+      if (str) return `<span class="str">${str}</span>`;
+      if (num) return `<span class="num">${num}</span>`;
+      if (kw === "int[]" || kw === "String") return `<span class="type">${kw}</span>`;
+      return `<span class="kw">${kw}</span>`;
+    }
+  );
+}
+
+/* ================= browser session voter token ================= */
+function voterToken() {
+  let token = sessionStorage.getItem("quiz-voter-token");
+  if (!token) {
+    const bytes = new Uint8Array(16);
+    crypto.getRandomValues(bytes);
+    token = Array.from(bytes, b => b.toString(16).padStart(2, "0")).join("");
+    sessionStorage.setItem("quiz-voter-token", token);
+  }
+  return token;
+}
+
+/* ================= backend client ================= */
+const backend = {
+  available: false,
+  checked: false,
+  token: sessionStorage.getItem("quiz-teacher-token") || null,
+
+  async request(path, { method = "GET", body = null, timeout = HEALTH_TIMEOUT_MS } = {}) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeout);
+    try {
+      const headers = { "Content-Type": "application/json" };
+      if (this.token) headers["Authorization"] = `Bearer ${this.token}`;
+      const response = await fetch(`${BACKEND_URL}${path}`, {
+        method,
+        headers,
+        body: body ? JSON.stringify(body) : null,
+        signal: controller.signal
+      });
+      const data = await response.json().catch(() => ({}));
+      return { status: response.status, data };
+    } catch (error) {
+      return { status: 0, data: { error: String(error) } };
+    } finally {
+      clearTimeout(timer);
+    }
+  },
+
+  async checkHealth() {
+    const { status, data } = await this.request("/api/health", { timeout: HEALTH_TIMEOUT_MS });
+    this.available = status === 200 && data.ok === true;
+    this.checked = true;
+    return this.available;
+  },
+
+  async login(password) {
+    const result = await this.request("/api/login", { method: "POST", body: { password }, timeout: 6000 });
+    if (result.status === 200 && result.data.token) {
+      this.token = result.data.token;
+      sessionStorage.setItem("quiz-teacher-token", this.token);
+      return { ok: true };
+    }
+    return { ok: false, error: result.data.error || "login failed" };
+  },
+
+  async logout() {
+    await this.request("/api/logout", { method: "POST" });
+    this.token = null;
+    sessionStorage.removeItem("quiz-teacher-token");
+  },
+
+  async teacher(path, body = {}) {
+    const result = await this.request(path, { method: "POST", body });
+    if (result.status === 401) {
+      this.token = null;
+      sessionStorage.removeItem("quiz-teacher-token");
+      setTeacher(false);
+    }
+    return result;
+  }
+};
+
+/* ================= mode & state ================= */
+const app = {
+  mode: "practice",            // "practice" | "live"
+  isTeacher: false,
+  // practice:
+  practiceDeck: [],
+  practiceIndex: 0,
+  practiceAnswers: {},         // questionId -> {choice, correct}
+  practiceChecked: false,
+  // live:
+  live: null,                  // last /api/state payload
+  myVote: null,                // option voted this round (local mirror)
+  lastVersion: -1,
+  clockOffset: 0,              // server_time - client_time
+  pollTimer: null,
+  timerTicker: null
+};
+
+function questionById(id) {
+  return QUESTIONS.find(q => q.id === id) || null;
+}
+
+function topicLabel(topic) {
+  return TOPICS[topic] || topic;
+}
+
+/* ================= rendering ================= */
+function renderQuestion(question, { live = false } = {}) {
+  questionTag.textContent = `${topicLabel(question.topic).toUpperCase()} · LEVEL ${question.difficulty}${live ? " · LIVE" : ""}`;
+  if (question.code) {
+    codePre.classList.remove("hidden");
+    javaCode.innerHTML = highlightJava(question.code);
+  } else {
+    codePre.classList.add("hidden");
+  }
+  askEl.textContent = question.ask;
+}
+
+function renderChoices({ locked = false, reveal = null, selected = null } = {}) {
+  const question = currentQuestion();
+  if (!question) return;
+  const items = question.options.map((text, index) => ({ letter: LETTERS[index], text }));
+  items.push({ letter: UNKNOWN, text: UNKNOWN_LABEL });
+  choicesEl.replaceChildren(...items.map(({ letter, text }) => {
+    const item = document.createElement("div");
+    item.className = "choice";
+    if (locked) item.classList.add("locked");
+    const input = document.createElement("input");
+    input.type = "radio";
+    input.name = "answer";
+    input.value = letter;
+    input.id = `choice-${letter === UNKNOWN ? "unknown" : letter}`;
+    input.disabled = locked;
+    if (selected === letter) input.checked = true;
+    const label = document.createElement("label");
+    label.htmlFor = input.id;
+    const badge = document.createElement("span");
+    badge.className = "letter";
+    badge.textContent = letter === UNKNOWN ? "?" : letter;
+    const span = document.createElement("span");
+    span.textContent = text;
+    label.append(badge, span);
+    if (reveal) {
+      if (letter === reveal.correct) item.classList.add("reveal-correct");
+      else if (letter === reveal.selected && letter !== UNKNOWN) item.classList.add("reveal-wrong");
+      else if (letter !== reveal.selected) item.classList.add("dim");
+      input.disabled = true;
+      item.classList.add("locked");
+    }
+    item.append(input, label);
+    return item;
+  }));
+}
+
+function setFeedback(kind, title, detailHtml) {
+  if (!title) {
+    feedback.className = "feedback";
+    feedback.textContent = "";
+    return;
+  }
+  feedback.className = `feedback ${kind || ""}`.trim();
+  const titleEl = document.createElement("span");
+  titleEl.className = "feedback-title";
+  titleEl.textContent = title;
+  feedback.replaceChildren(titleEl);
+  if (detailHtml) {
+    const detail = document.createElement("span");
+    detail.className = "feedback-detail";
+    detail.innerHTML = detailHtml;
+    feedback.append(detail);
+  }
+}
+
+function histogramRows(counts, { correct = null } = {}) {
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  const rows = [...LETTERS, UNKNOWN].map(letter => {
+    const count = counts[letter] || 0;
+    const row = document.createElement("div");
+    row.className = "hist-row" + (correct === letter ? " correct" : "");
+    const badge = document.createElement("span");
+    badge.className = "h-letter";
+    badge.textContent = letter === UNKNOWN ? "?" : letter;
+    const track = document.createElement("div");
+    track.className = "hist-track";
+    const fill = document.createElement("div");
+    fill.className = "hist-fill";
+    fill.style.width = total ? `${(count / total) * 100}%` : "0%";
+    track.append(fill);
+    const num = document.createElement("span");
+    num.className = "h-count";
+    num.textContent = count;
+    row.append(badge, track, num);
+    return row;
+  });
+  return { rows, total };
+}
+
+function renderResults(live) {
+  if (!live || !live.results_visible || !live.results) {
+    resultsPanel.classList.add("hidden");
+    return;
+  }
+  resultsPanel.classList.remove("hidden");
+  const correct = live.answer_visible ? currentQuestion()?.correct : null;
+  histogram.replaceChildren();
+  const { rows, total } = histogramRows(live.results, { correct });
+  rows.forEach(row => histogram.append(row));
+  const history = (live.history || []).filter(item => item.round !== live.round);
+  const pastForQuestion = history.filter(item => item.question_id === live.question_id);
+  for (const item of pastForQuestion) {
+    const heading = document.createElement("p");
+    heading.className = "hist-round";
+    heading.textContent = `ROUND ${item.round} (earlier)`;
+    histogram.append(heading);
+    const { rows: pastRows } = histogramRows(item.counts, { correct });
+    pastRows.forEach(row => histogram.append(row));
+  }
+  resultsHeading.textContent = `Responses · round ${live.round} · ${total} vote${total === 1 ? "" : "s"}`;
+  const unknowns = live.results[UNKNOWN] || 0;
+  resultsNote.textContent = live.answer_visible
+    ? `${unknowns} “I don't know” response${unknowns === 1 ? "" : "s"} (counted separately).`
+    : "The correct answer is not marked yet.";
+}
+
+function updateStrip() {
+  sessionStrip.classList.toggle("live", app.mode === "live" && app.live?.voting === "open");
+  sessionStrip.classList.toggle("closed", app.mode === "live" && app.live && app.live.voting !== "open");
+  if (app.mode === "live" && app.live) {
+    const status = { idle: "get ready", open: "voting open", closed: "voting closed" }[app.live.voting] || "";
+    sessionLabel.textContent = `Live session · ${status}`;
+    liveMeta.textContent = `round ${app.live.round} · ${app.live.responses} response${app.live.responses === 1 ? "" : "s"}`;
+  } else if (app.mode === "practice") {
+    sessionLabel.textContent = "Practice mode";
+    liveMeta.textContent = backend.checked && !backend.available ? "(live backend unreachable — practice only)" : "";
+  } else {
+    sessionLabel.textContent = "Practice mode";
+    liveMeta.textContent = "";
+  }
+  updateScoreLine();
+}
+
+function updateScoreLine() {
+  if (app.mode !== "practice") {
+    scoreLine.textContent = "";
+    return;
+  }
+  const total = app.practiceDeck.length;
+  const answered = Object.keys(app.practiceAnswers).length;
+  const correct = Object.values(app.practiceAnswers).filter(a => a.correct).length;
+  scoreLine.textContent = total ? `Score: ${correct} / ${answered} answered · question ${app.practiceIndex + 1} of ${total}` : "";
+  progressEl.textContent = total ? `${answered}/${total} answered` : "No questions in this selection";
+}
+
+/* ================= practice mode ================= */
+function buildDeck() {
+  const topic = topicSelect.value;
+  const difficulty = difficultySelect.value;
+  const filtered = QUESTIONS.filter(q =>
+    (topic === "all" || q.topic === topic) &&
+    (difficulty === "all" || q.difficulty === Number(difficulty))
+  );
+  app.practiceDeck = filtered.sort((a, b) => a.difficulty - b.difficulty || QUESTIONS.indexOf(a) - QUESTIONS.indexOf(b));
+  app.practiceIndex = 0;
+  app.practiceAnswers = {};
+}
+
+function currentQuestion() {
+  if (app.mode === "live" && app.live) return questionById(app.live.question_id);
+  return app.practiceDeck[app.practiceIndex] || null;
+}
+
+function renderPractice() {
+  const question = currentQuestion();
+  if (!question) {
+    renderChoicesEmpty("No questions match this selection.");
+    submitBtn.disabled = true;
+    prevBtn.disabled = nextBtn.disabled = true;
+    updateScoreLine();
+    return;
+  }
+  renderQuestion(question);
+  const record = app.practiceAnswers[question.id];
+  if (record) {
+    renderChoices({ locked: true, reveal: { correct: question.correct, selected: record.choice }, selected: record.choice });
+    const title = record.choice === UNKNOWN
+      ? `You didn't know — the answer is ${question.correct}.`
+      : record.correct ? "✓ Correct!" : `✗ Not quite — the answer is ${question.correct}.`;
+    setFeedback(record.correct ? "correct" : "incorrect", title, question.explanation);
+  } else {
+    renderChoices({ selected: null });
+    setFeedback(null, null);
+  }
+  submitBtn.textContent = "CHECK";
+  submitBtn.disabled = Boolean(record);
+  prevBtn.disabled = app.practiceIndex <= 0;
+  nextBtn.disabled = app.practiceIndex >= app.practiceDeck.length - 1;
+  resultsPanel.classList.add("hidden");
+  updateStrip();
+}
+
+function renderChoicesEmpty(message) {
+  const p = document.createElement("p");
+  p.style.color = "var(--muted)";
+  p.textContent = message;
+  choicesEl.replaceChildren(p);
+}
+
+function submitPractice() {
+  const question = currentQuestion();
+  if (!question) return;
+  const selected = document.querySelector('input[name="answer"]:checked');
+  if (!selected) {
+    setFeedback("incorrect", "Choose an answer first.", "Pick A, B, C, D — or “I don't know”.");
+    return;
+  }
+  const choice = selected.value;
+  const correct = choice === question.correct;
+  app.practiceAnswers[question.id] = { choice, correct };
+  renderPractice();
+}
+
+/* ================= live mode ================= */
+function renderLive() {
+  const live = app.live;
+  const question = currentQuestion();
+  if (!live || !question) {
+    renderChoicesEmpty("Waiting for the teacher to start the session…");
+    submitBtn.disabled = true;
+    prevBtn.disabled = nextBtn.disabled = restartBtn.disabled = true;
+    updateStrip();
+    return;
+  }
+  renderQuestion(question, { live: true });
+  const votingOpen = live.voting === "open";
+  const alreadyVoted = app.myVote !== null && app.myVoteRound === live.round;
+  if (votingOpen) {
+    renderChoices({ locked: alreadyVoted, selected: alreadyVoted ? app.myVote : null });
+    submitBtn.disabled = alreadyVoted;
+    submitBtn.textContent = alreadyVoted ? "VOTED ✓" : "VOTE";
+    if (alreadyVoted) {
+      setFeedback(null, "Vote recorded.", "You can see the results once the teacher reveals them.");
+    } else {
+      setFeedback(null, null);
+    }
+  } else {
+    renderChoices({
+      locked: true,
+      selected: alreadyVoted ? app.myVote : null,
+      reveal: live.answer_visible ? { correct: question.correct, selected: app.myVote } : null
+    });
+    submitBtn.disabled = true;
+    submitBtn.textContent = live.voting === "closed" ? "CLOSED" : "VOTE";
+    if (live.answer_visible) {
+      const title = !alreadyVoted
+        ? `The correct answer is ${question.correct}.`
+        : app.myVote === question.correct ? "✓ Correct!" : `✗ The correct answer is ${question.correct}.`;
+      setFeedback(app.myVote === question.correct ? "correct" : "incorrect", title, question.explanation);
+    } else if (live.voting === "closed") {
+      setFeedback(null, "Voting is closed.", alreadyVoted ? "Waiting for the teacher to reveal the results…" : "You didn't vote this round.");
+    } else {
+      setFeedback(null, null);
+    }
+  }
+  renderResults(live);
+  updateStrip();
+}
+
+async function poll() {
+  if (app.mode !== "live") return;
+  const { status, data } = await backend.request("/api/state");
+  if (status === 200 && data.active) {
+    const changedQuestion = app.live && data.question_id !== app.live.question_id;
+    const changedRound = app.live && data.round !== app.live.round;
+    app.live = data;
+    app.clockOffset = data.server_time - Date.now() / 1000;
+    if (changedQuestion || changedRound) {
+      app.myVote = null;
+      app.myVoteRound = null;
+    }
+    renderLive();
+  } else if (status === 200 && !data.active) {
+    leaveLiveMode("The live session has ended.");
+  }
+}
+
+function startPolling() {
+  stopPolling();
+  app.pollTimer = setInterval(poll, POLL_MS);
+  app.timerTicker = setInterval(tickTimer, 250);
+}
+
+function stopPolling() {
+  if (app.pollTimer) clearInterval(app.pollTimer);
+  if (app.timerTicker) clearInterval(app.timerTicker);
+  app.pollTimer = app.timerTicker = null;
+  timerEl.classList.add("hidden");
+}
+
+function tickTimer() {
+  const live = app.live;
+  if (!live || live.voting !== "open" || !live.deadline) {
+    timerEl.classList.add("hidden");
+    return;
+  }
+  const remaining = Math.max(0, live.deadline - (Date.now() / 1000 + app.clockOffset));
+  const minutes = Math.floor(remaining / 60);
+  timerEl.textContent = `${minutes}:${String(Math.floor(remaining % 60)).padStart(2, "0")}`;
+  timerEl.classList.toggle("urgent", remaining <= 10);
+  timerEl.classList.remove("hidden");
+}
+
+function enterLiveMode() {
+  app.mode = "live";
+  app.live = null;
+  app.myVote = null;
+  practicePanel.classList.add("hidden");
+  prevBtn.classList.add("hidden");
+  nextBtn.classList.add("hidden");
+  restartBtn.classList.add("hidden");
+  startPolling();
+  poll();
+  renderLive();
+}
+
+function leaveLiveMode(message) {
+  app.mode = "practice";
+  app.live = null;
+  stopPolling();
+  practicePanel.classList.remove("hidden");
+  prevBtn.classList.remove("hidden");
+  nextBtn.classList.remove("hidden");
+  restartBtn.classList.remove("hidden");
+  if (message) setFeedback(null, message, null);
+  renderPractice();
+}
+
+async function submitVote() {
+  const selected = document.querySelector('input[name="answer"]:checked');
+  if (!selected || !app.live) return;
+  submitBtn.disabled = true;
+  const { status, data } = await backend.request("/api/vote", {
+    method: "POST",
+    body: { option: selected.value, voter: voterToken(), round: app.live.round, question_id: app.live.question_id }
+  });
+  if (status === 200 && data.ok) {
+    app.myVote = selected.value;
+    app.myVoteRound = app.live.round;
+  } else {
+    submitBtn.disabled = false;
+    setFeedback("incorrect", "Vote not recorded.", data.error === "voting is closed" ? "Voting has just been closed." : "Please try again.");
+  }
+  await poll();
+}
+
+/* ================= teacher ================= */
+function setTeacher(on) {
+  app.isTeacher = on;
+  teacherBar.classList.toggle("on", on);
+  teacherToggle.textContent = on ? "⚙✓" : "⚙";
+  teacherToggle.setAttribute("aria-label", on ? "Teacher logged in" : "Teacher login");
+}
+
+async function teacherAction(action) {
+  const duration = Number(timerSelect.value) || null;
+  const routes = {
+    "open-voting": ["/api/voting/open", { duration }],
+    "close-voting": ["/api/voting/close", {}],
+    "restart-round": ["/api/voting/open", { duration }],
+    "reveal-results": ["/api/reveal", { kind: "results", visible: true }],
+    "reveal-answer": ["/api/reveal", { kind: "answer", visible: true }],
+    "extend-timer": ["/api/timer", { action: "extend", seconds: 30 }],
+    "end-session": ["/api/session/end", {}]
+  };
+  if (action === "hide-panels") {
+    await backend.teacher("/api/reveal", { kind: "answer", visible: false });
+    const { status } = await backend.teacher("/api/reveal", { kind: "results", visible: false });
+    if (status === 200) await poll();
+    return;
+  }
+  if (action === "prev-q" || action === "next-q") {
+    const current = app.live ? questionById(app.live.question_id) : null;
+    const index = current ? QUESTIONS.indexOf(current) : -1;
+    const nextQuestion = QUESTIONS[index + (action === "next-q" ? 1 : -1)] || QUESTIONS[0];
+    routes[action] = ["/api/question", { question_id: nextQuestion.id }];
+  }
+  const [path, body] = routes[action] || [];
+  if (!path) return;
+  const { status } = await backend.teacher(path, body);
+  if (status === 200) await poll();
+}
+
+async function beginTeacherSession() {
+  await backend.teacher("/api/session/start");
+  const current = app.live ? questionById(app.live.question_id) : null;
+  if (!current) {
+    await backend.teacher("/api/question", { question_id: QUESTIONS[0].id });
+  }
+  await poll();
+  setTeacher(true);
+}
+
+/* ================= wiring ================= */
+function fillTopicSelect() {
+  const all = document.createElement("option");
+  all.value = "all";
+  all.textContent = "All topics";
+  topicSelect.append(all);
+  for (const [value, label] of Object.entries(TOPICS)) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = label;
+    topicSelect.append(option);
+  }
+}
+
+submitBtn.addEventListener("click", () => {
+  if (app.mode === "live") submitVote();
+  else submitPractice();
+});
+
+prevBtn.addEventListener("click", () => {
+  if (app.practiceIndex > 0) {
+    app.practiceIndex -= 1;
+    renderPractice();
+  }
+});
+
+nextBtn.addEventListener("click", () => {
+  if (app.practiceIndex < app.practiceDeck.length - 1) {
+    app.practiceIndex += 1;
+    renderPractice();
+  }
+});
+
+restartBtn.addEventListener("click", () => {
+  buildDeck();
+  renderPractice();
+});
+
+topicSelect.addEventListener("change", () => { buildDeck(); renderPractice(); });
+difficultySelect.addEventListener("change", () => { buildDeck(); renderPractice(); });
+
+choicesEl.addEventListener("keydown", event => {
+  if (app.mode === "live" && submitBtn.disabled) return;
+  const letter = event.key.toUpperCase();
+  const target = LETTERS.includes(letter) ? letter : (letter === "?" || event.key === "0" ? UNKNOWN : null);
+  if (target) {
+    const input = document.querySelector(`input[name="answer"][value="${target}"]:not(:disabled)`);
+    if (input) { input.checked = true; event.preventDefault(); }
+  }
+});
+
+teacherToggle.addEventListener("click", async () => {
+  if (app.isTeacher) return;
+  if (!backend.checked) await backend.checkHealth();
+  if (!backend.available) {
+    setFeedback("incorrect", "Live backend is unreachable.", "The quiz works in practice mode; live voting needs the backend server.");
+    return;
+  }
+  loginError.textContent = "";
+  teacherPassword.value = "";
+  loginDialog.showModal();
+  teacherPassword.focus();
+});
+
+el("login-cancel").addEventListener("click", () => loginDialog.close());
+
+el("login-form").addEventListener("submit", async event => {
+  event.preventDefault();
+  const password = teacherPassword.value;
+  if (!password) return;
+  el("login-submit").disabled = true;
+  const result = await backend.login(password);
+  el("login-submit").disabled = false;
+  if (!result.ok) {
+    loginError.textContent = result.error === "wrong password" ? "Wrong password." : `Login failed: ${result.error}`;
+    return;
+  }
+  loginDialog.close();
+  teacherPassword.value = "";
+  enterLiveMode();
+  await beginTeacherSession();
+});
+
+teacherBar.addEventListener("click", event => {
+  const button = event.target.closest("button[data-taction]");
+  if (button) teacherAction(button.dataset.taction);
+});
+
+document.addEventListener("keydown", event => {
+  if (!app.isTeacher || app.mode !== "live") return;
+  if (event.target.matches("input, select, textarea") || event.ctrlKey || event.metaKey || event.altKey) return;
+  const map = {
+    ArrowLeft: "prev-q",
+    ArrowRight: "next-q",
+    s: "open-voting",
+    c: "close-voting",
+    r: "reveal-results",
+    a: "reveal-answer",
+    v: "restart-round"
+  };
+  const action = map[event.key] || map[event.key.toLowerCase?.() || ""];
+  if (action) {
+    event.preventDefault();
+    teacherAction(action);
+  }
+});
+
+/* ================= boot ================= */
+async function boot() {
+  fillTopicSelect();
+  buildDeck();
+  renderPractice();
+  updateStrip();
+
+  const healthy = await backend.checkHealth();
+  if (healthy) {
+    const { status, data } = await backend.request("/api/state");
+    if (status === 200 && data.active) {
+      enterLiveMode();
+      if (backend.token) {
+        const check = await backend.teacher("/api/timer", { action: "extend", seconds: 0 });
+        if (check.status === 200) setTeacher(true);
+      }
+      return;
+    }
+  }
+  updateStrip();
+}
+
+boot();
+</script>
+</body>
+</html>
