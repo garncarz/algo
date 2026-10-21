@@ -15,7 +15,7 @@ python3 app.py              # serves http://127.0.0.1:8000
 Then open `http://localhost:8012/quiz.html?backend=http://127.0.0.1:8000`
 (the `?backend=` override is remembered in `sessionStorage` for the tab).
 
-## Production (algo.geo.garncarz.cz)
+## Production (algo.garncarz.cz)
 
 Run a single worker so the in-memory session stays coherent:
 
@@ -27,7 +27,7 @@ Put it behind an HTTPS reverse proxy (nginx example):
 
 ```nginx
 server {
-    server_name algo.geo.garncarz.cz;
+    server_name algo.garncarz.cz;
     location / {
         proxy_pass http://127.0.0.1:8000;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;

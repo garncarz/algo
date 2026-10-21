@@ -134,6 +134,7 @@
   .hist-round { margin: 10px 0 4px; color: var(--muted); font-size: 13px; font-weight: 900; letter-spacing: .06em; }
 
   .panel { border: 1px solid var(--line); border-radius: 5px; background: #fff; padding: 14px 16px; }
+  #practice-panel { margin-top: 10px; }
   .panel h2 { margin: 0 0 10px; font: 700 20px Georgia, serif; }
   .panel .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
   .panel label { font-size: 13px; font-weight: 800; color: var(--muted); }
@@ -286,7 +287,6 @@
 
   <footer>
     <span id="score-line"></span>
-    <a href="https://github.com/garncarz/algo" target="_blank" rel="noopener noreferrer">Source</a>
     <button id="teacher-toggle" class="teacher-toggle" type="button" aria-label="Teacher login" title="">⚙</button>
   </footer>
 </main>
@@ -314,7 +314,7 @@
 const BACKEND_URL = (() => {
   const param = new URLSearchParams(location.search).get("backend");
   if (param) sessionStorage.setItem("quiz-backend-url", param);
-  return sessionStorage.getItem("quiz-backend-url") || "https://algo.geo.garncarz.cz";
+  return sessionStorage.getItem("quiz-backend-url") || "https://algo.garncarz.cz";
 })();
 const HEALTH_TIMEOUT_MS = 2500;
 const POLL_MS = 1500;
