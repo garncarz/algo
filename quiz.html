@@ -244,6 +244,7 @@
           </select>
           <span id="progress" class="meta" style="font-weight:800"></span>
         </div>
+        <p class="note">In live mode these filters also scope which questions the teacher's ◀/▶ navigation steps through.</p>
       </section>
 
       <section id="teacher-bar" class="panel teacher-bar" aria-label="Teacher controls">
@@ -635,6 +636,19 @@ function currentQuestion() {
   return app.practiceDeck[app.practiceIndex] || null;
 }
 
+// Question pool the teacher steps through in live mode: honours the
+// topic/difficulty filter so selecting a topic scopes the live session.
+// Falls back to the full bank when the filter matches nothing.
+function teacherDeck() {
+  const topic = topicSelect.value;
+  const difficulty = difficultySelect.value;
+  const filtered = QUESTIONS.filter(q =>
+    (topic === "all" || q.topic === topic) &&
+    (difficulty === "all" || q.difficulty === Number(difficulty))
+  );
+  return filtered.length ? filtered : QUESTIONS;
+}
+
 function renderPractice() {
   const question = currentQuestion();
   if (!question) {
@@ -852,9 +866,13 @@ async function teacherAction(action) {
     return;
   }
   if (action === "prev-q" || action === "next-q") {
+    const deck = teacherDeck();
     const current = app.live ? questionById(app.live.question_id) : null;
-    const index = current ? QUESTIONS.indexOf(current) : -1;
-    const nextQuestion = QUESTIONS[index + (action === "next-q" ? 1 : -1)] || QUESTIONS[0];
+    const index = current ? deck.indexOf(current) : -1;
+    // Wrap around inside the filtered deck; -1 (current question not in the
+    // filter) starts from the deck's first question.
+    const step = action === "next-q" ? 1 : -1;
+    const nextQuestion = deck[(index + step + deck.length) % deck.length] || deck[0];
     routes[action] = ["/api/question", { question_id: nextQuestion.id }];
   }
   const [path, body] = routes[action] || [];
@@ -865,9 +883,11 @@ async function teacherAction(action) {
 
 async function beginTeacherSession() {
   await backend.teacher("/api/session/start");
+  const deck = teacherDeck();
   const current = app.live ? questionById(app.live.question_id) : null;
-  if (!current) {
-    await backend.teacher("/api/question", { question_id: QUESTIONS[0].id });
+  if (!current || !deck.includes(current)) {
+    // Start on the first question of the selected topic/difficulty.
+    await backend.teacher("/api/question", { question_id: deck[0].id });
   }
   await poll();
   setTeacher(true);
@@ -911,8 +931,24 @@ restartBtn.addEventListener("click", () => {
   renderPractice();
 });
 
-topicSelect.addEventListener("change", () => { buildDeck(); renderPractice(); });
-difficultySelect.addEventListener("change", () => { buildDeck(); renderPractice(); });
+// In live mode the teacher can retarget the session by changing the filter:
+// jump straight to the first question of the newly selected topic/difficulty.
+async function onFilterChange() {
+  buildDeck();
+  if (app.mode === "live" && app.isTeacher) {
+    const deck = teacherDeck();
+    const current = app.live ? questionById(app.live.question_id) : null;
+    if (!current || !deck.includes(current)) {
+      await backend.teacher("/api/question", { question_id: deck[0].id });
+      await poll();
+    }
+    return;
+  }
+  renderPractice();
+}
+
+topicSelect.addEventListener("change", onFilterChange);
+difficultySelect.addEventListener("change", onFilterChange);
 
 choicesEl.addEventListener("keydown", event => {
   if (app.mode === "live" && submitBtn.disabled) return;
