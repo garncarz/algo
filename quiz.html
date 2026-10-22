@@ -699,8 +699,12 @@ function renderLive() {
   renderQuestion(question, { live: true });
   const votingOpen = live.voting === "open";
   const alreadyVoted = app.myVote !== null && app.myVoteRound === live.round;
+  // Preserve a selection the user made since the last render (polling
+  // re-renders would otherwise wipe the checked radio before VOTE is hit).
+  const pending = document.querySelector('input[name="answer"]:checked');
+  const pendingChoice = votingOpen && !alreadyVoted && pending ? pending.value : null;
   if (votingOpen) {
-    renderChoices({ locked: alreadyVoted, selected: alreadyVoted ? app.myVote : null });
+    renderChoices({ locked: alreadyVoted, selected: alreadyVoted ? app.myVote : pendingChoice });
     submitBtn.disabled = alreadyVoted;
     submitBtn.textContent = alreadyVoted ? "VOTED ✓" : "VOTE";
     if (alreadyVoted) {
@@ -737,13 +741,17 @@ async function poll() {
   if (status === 200 && data.active) {
     const changedQuestion = app.live && data.question_id !== app.live.question_id;
     const changedRound = app.live && data.round !== app.live.round;
+    const changedVersion = !app.live || data.version !== app.live.version;
     app.live = data;
     app.clockOffset = data.server_time - Date.now() / 1000;
     if (changedQuestion || changedRound) {
       app.myVote = null;
       app.myVoteRound = null;
     }
-    renderLive();
+    // Only rebuild the choices when the server state actually changed —
+    // otherwise every poll would wipe the user's in-progress selection.
+    if (changedVersion) renderLive();
+    else updateStrip();
   } else if (status === 200 && !data.active) {
     leaveLiveMode("The live session has ended.");
   }
