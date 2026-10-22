@@ -244,7 +244,7 @@
           </select>
           <span id="progress" class="meta" style="font-weight:800"></span>
         </div>
-        <p class="note">In live mode these filters also scope which questions the teacher's ◀/▶ navigation steps through.</p>
+        <p class="note">Questions are sequential, not random. Practice goes from easy to harder; live ◀/▶ follows question-bank order within these filters and wraps around.</p>
       </section>
 
       <section id="teacher-bar" class="panel teacher-bar" aria-label="Teacher controls">
@@ -801,7 +801,8 @@ function enterLiveMode() {
   app.mode = "live";
   app.live = null;
   app.myVote = null;
-  practicePanel.classList.add("hidden");
+  // Teachers keep the filter panel (it scopes live navigation); students don't.
+  practicePanel.classList.toggle("hidden", !app.isTeacher);
   prevBtn.classList.add("hidden");
   nextBtn.classList.add("hidden");
   restartBtn.classList.add("hidden");
@@ -844,6 +845,7 @@ async function submitVote() {
 function setTeacher(on) {
   app.isTeacher = on;
   teacherBar.classList.toggle("on", on);
+  practicePanel.classList.toggle("hidden", app.mode === "live" && !on);
   teacherToggle.textContent = on ? "⚙✓" : "⚙";
   teacherToggle.setAttribute("aria-label", on ? "Teacher logged in" : "Teacher login");
 }
@@ -879,18 +881,28 @@ async function teacherAction(action) {
   if (!path) return;
   const { status } = await backend.teacher(path, body);
   if (status === 200) await poll();
+  else setFeedback("incorrect", "Teacher action failed.", status === 401 ? "Please log in again." : "Please retry. The server could not complete the action.");
 }
 
 async function beginTeacherSession() {
-  await backend.teacher("/api/session/start");
+  const started = await backend.teacher("/api/session/start");
+  if (started.status !== 200) {
+    setFeedback("incorrect", "Could not start the session.", "Please log in and try again.");
+    return;
+  }
   const deck = teacherDeck();
   const current = app.live ? questionById(app.live.question_id) : null;
   if (!current || !deck.includes(current)) {
     // Start on the first question of the selected topic/difficulty.
-    await backend.teacher("/api/question", { question_id: deck[0].id });
+    const selected = await backend.teacher("/api/question", { question_id: deck[0].id });
+    if (selected.status !== 200) {
+      setFeedback("incorrect", "Could not select the question.", "Please log in and try again.");
+      return;
+    }
   }
-  await poll();
   setTeacher(true);
+  enterLiveMode();
+  await poll();
 }
 
 /* ================= wiring ================= */
@@ -988,7 +1000,6 @@ el("login-form").addEventListener("submit", async event => {
   }
   loginDialog.close();
   teacherPassword.value = "";
-  enterLiveMode();
   await beginTeacherSession();
 });
 
