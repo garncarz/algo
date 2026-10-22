@@ -1,0 +1,26 @@
+# Build context hygiene for the backend image.
+
+# Secrets — never bake local env files into the image.
+.env
+.env.*
+*.un~
+*~
+
+# Persistent state lives in a Docker volume, not in the image.
+*.sqlite3
+
+# Python artifacts.
+__pycache__/
+*.py[cod]
+
+# Tests and docs are not needed at runtime.
+test_app.py
+README.md
+
+# VCS / editor noise.
+.git
+.gitignore
+
+# Docker's own files.
+Dockerfile
+.dockerignore

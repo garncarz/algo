@@ -17,25 +17,11 @@ Then open `http://localhost:8012/quiz.html?backend=http://127.0.0.1:8000`
 
 ## Production (algo.garncarz.cz)
 
-Run a single worker so the in-memory session stays coherent:
-
-```bash
-gunicorn -w 1 -b 127.0.0.1:8000 backend.app:app
-```
-
-Put it behind an HTTPS reverse proxy (nginx example):
-
-```nginx
-server {
-    server_name algo.garncarz.cz;
-    location / {
-        proxy_pass http://127.0.0.1:8000;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host $host;
-    }
-    # TLS via certbot / Let's Encrypt
-}
-```
+Runs in Docker on the VPS, orchestrated by the Compose file in the
+repository root. Single Gunicorn worker keeps the in-memory session
+coherent; SQLite round history lives on the `algo-backend-data` volume.
+See the "Backend deployment" section of the [root README](../README.md)
+for the full deploy/update/migration runbook.
 
 ## Configuration (environment or `.env`)
 

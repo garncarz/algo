@@ -1,0 +1,68 @@
+# Algorithms quiz live-voting backend.
+#
+# Deploys the Flask/Gunicorn app from backend/ onto the VPS.
+#
+#   docker compose up -d --build
+#
+# Reverse-proxy wiring (once per host, after the first `up`): attach the
+# running container to the network of the global Nginx project so the proxy
+# can reach http://algo-backend:8000 — the container name itself acts as the
+# DNS alias there:
+#
+#   docker network connect --alias algo-backend <nginx-network> algo-backend
+#
+# (`docker network ls` on the VPS shows the network name. `docker compose`
+# re-creates the container only on rebuild/config change, so re-run the
+# connect command after those — or keep it in a tiny deploy script, see
+# README.md.)
+
+name: algo
+
+services:
+  algo-backend:
+    build: ./backend
+    image: algo-backend:latest
+    container_name: algo-backend
+    restart: unless-stopped
+
+    # Secrets/config come from backend/.env (git-ignored; see
+    # backend/.env.example). Nothing sensitive is baked into the image.
+    env_file:
+      - ./backend/.env
+    environment:
+      # Inside the container the SQLite file must live on the volume below,
+      # regardless of any host path QUIZ_DB may have in backend/.env.
+      QUIZ_DB: /data/quiz_state.sqlite3
+
+    # Persistent quiz-round history survives container recreation/rebuilds.
+    volumes:
+      - algo-backend-data:/data
+
+    # Documentation only — 8000 is reachable on the internal Docker network
+    # but deliberately NOT published to the host (no `ports:` entry).
+    expose:
+      - "8000"
+
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=5)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+    # Keep container logs bounded on the VPS.
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  algo-backend-data:
+    # Fixed name so migration/backup commands are stable regardless of the
+    # Compose project name.
+    name: algo-backend-data

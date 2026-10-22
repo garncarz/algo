@@ -1,0 +1,2 @@
+# Local Compose configuration (contains the proxy network name, machine-specific).
+.env
